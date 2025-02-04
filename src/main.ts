@@ -1,4 +1,17 @@
+import { spawnLoop } from "manager/spawn";
+import { muleLoop, muleSpawnLoop } from "role/mule";
 import { ErrorMapper } from "utils/ErrorMapper";
+import { constructLoop as energyManagerConstructLoop } from "manager/energy";
+import { energyStorageLoop } from "site/energy-storage-site/loop";
+import { harvesterLoop } from "role/harvester";
+import { upgraderLoop } from "role/upgrader";
+import { builderLoop } from "role/builder";
+import { attackerLoop } from "role/attacker";
+import { claimerLoop } from "role/claimer";
+import { janitorLoop } from "role/janitor";
+import { harvesterNoMoveLoop, harvesterNoMoveSpawnLoop } from "role/harvester-nomove";
+import { repairerLoop } from "role/repairer";
+import { towerLoop } from "role/tower";
 
 declare global {
   /*
@@ -13,31 +26,105 @@ declare global {
   interface Memory {
     uuid: number;
     log: any;
+    harvesterManager: {
+      sources: {
+        [sourceId: string]: string[];
+      };
+    };
+    builderManager: {
+      sources: {
+        [sourceId: string]: string[];
+      };
+    };
   }
 
+  // TODO can i make these types instead of interfaces?
   interface CreepMemory {
     role: string;
-    room: string;
+    roomName: string;
     working: boolean;
-  }
+    status: string;
 
-  // Syntax for adding proprties to `global` (ex "global.log")
-  namespace NodeJS {
-    interface Global {
-      log: any;
-    }
+    // For harvesters
+    harvesterManager?: {
+      lastSource?: string | null;
+    };
+    sourceId?: string;
+
+    // for no-move harvesters
+    harvesterNoMoveSourcePos?: RoomPosition;
+
+    // builders
+    builderManager?: {
+      lastSource?: string | null;
+    };
+
+    // ess-distributor
+    essSiteName?: string;
+
+    // mule
+    path?: string;
+
+    // repairer
+    targetId?: string | null;
   }
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
+  if (!harvesterNoMoveSpawnLoop()) {
+    spawnLoop();
+    muleSpawnLoop();
+  }
 
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
+  // energy manager
+  energyManagerConstructLoop();
+
+  // sites
+  energyStorageLoop();
+
+  // Iterate over all creeps in the game
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    switch (creep.memory.role) {
+      case "harvester":
+        harvesterLoop(creep);
+        break;
+      case "upgrader":
+        upgraderLoop(creep);
+        break;
+      case "builder":
+        builderLoop(creep);
+        break;
+      case "attacker":
+        attackerLoop(creep);
+        break;
+      case "claimer":
+        claimerLoop(creep);
+        break;
+      case "janitor":
+        janitorLoop(creep);
+        break;
+      case "harvester-nomove":
+        harvesterNoMoveLoop(creep);
+        break;
+      case "repairer":
+        repairerLoop(creep);
+        break;
+      case "mule":
+        muleLoop(creep);
+        break;
+    }
+  }
+
+  for (const roomName in Game.rooms) {
+    const room = Game.rooms[roomName];
+    const towers = room.find(FIND_MY_STRUCTURES, {
+      filter: { structureType: STRUCTURE_TOWER }
+    });
+    for (const tower of towers) {
+      towerLoop(tower as StructureTower);
     }
   }
 });
