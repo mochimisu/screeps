@@ -5,7 +5,7 @@ export interface EssSiteDefinition {
   roomName: string;
   bounds: number[][];
   storage: number[][];
-  energySources: number[][];
+  sources: number[][];
   distributors: number;
 }
 
@@ -15,10 +15,10 @@ const siteDefs: EssSiteDefinition[] = [
     roomName: "W22S58",
     bounds: [
       [2, 2],
-      [39, 15]
+      [39, 17]
     ],
     storage: [[31, 14]],
-    energySources: [[29, 12]],
+    sources: [[29, 12]],
     distributors: 1
   },
   {
@@ -29,7 +29,7 @@ const siteDefs: EssSiteDefinition[] = [
       [20, 48]
     ],
     storage: [[12, 19]],
-    energySources: [[6, 27]],
+    sources: [[6, 27]],
     distributors: 1
   }
 ];
@@ -50,6 +50,23 @@ export function getAllSiteDefs(): EssSiteDefinition[] {
 
 export function getUsedRooms(): string[] {
   return Object.keys(sitesByRoom);
+}
+
+export function getSiteResource(roomName: string, resourceName?: ResourceConstant): number {
+  resourceName = resourceName || RESOURCE_ENERGY;
+  const roomSites = sitesByRoom[roomName];
+  if (!roomSites) {
+    return 0;
+  }
+  let count = 0;
+  const storageStructures = getStorageStructures(roomName);
+  for (const storage of storageStructures) {
+    if (storage.structureType === STRUCTURE_STORAGE || storage.structureType === STRUCTURE_CONTAINER) {
+      const typedStorage = storage as StructureStorage | StructureContainer;
+      count += typedStorage.store[resourceName];
+    }
+  }
+  return count;
 }
 
 // Places to get or dump energy from the outside

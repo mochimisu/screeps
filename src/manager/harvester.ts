@@ -1,6 +1,7 @@
 import { HarvesterNoMoveCreep } from "role/harvester-nomove.type";
 import { HarvesterCreep, isHarvester } from "role/harvester.type";
 import { goToRoom } from "./room";
+import { isNoMoveNode } from "role/harvester-nomove";
 
 const maxHarvesting = 5;
 
@@ -12,19 +13,9 @@ if (!Memory.harvesterManager) {
 
 const maxOverrides: { [sourceId: string]: number } = {};
 
-const noMoveHarvestNodes: {
-  [sourceId: string]: number;
-} = {
-  // main
-  "5bbcabba9099fc012e6342c6": 1,
-  "5bbcabba9099fc012e6342c5": 1,
-  // 2nd
-  "5bbcabba9099fc012e6342c8": 1
-};
-
 export function getMaxCapacity(source: Source): number {
   const id = source.id;
-  if (id in noMoveHarvestNodes) {
+  if (isNoMoveNode(id)) {
     return 0;
   }
   if (id in maxOverrides) {
@@ -35,6 +26,7 @@ export function getMaxCapacity(source: Source): number {
 
 export function findHarvestNode(creep: Creep): Source | null {
   let sources = creep.room.find(FIND_SOURCES);
+  const extractors = creep.room.find(FIND_STRUCTURES).filter(s => s.structureType === STRUCTURE_EXTRACTOR);
 
   sources = sources.filter(source => source.energy > 0);
 
@@ -51,30 +43,6 @@ export function findHarvestNode(creep: Creep): Source | null {
     }
     return source;
   }
-  return null;
-}
-
-export function findHarvestNodeNoMove(creep: Creep): Source | null {
-  // Find if we're already in one
-  for (const sourceId in noMoveHarvestNodes) {
-    const existingCreeps = Memory.harvesterManager.sources[sourceId];
-    if (existingCreeps == null) {
-      continue;
-    }
-    if (existingCreeps.includes(creep.name)) {
-      return Game.getObjectById(sourceId);
-    }
-  }
-
-  // Find one with a spot
-  for (const sourceId in noMoveHarvestNodes) {
-    if (isHarvestNodeNoMoveFull(sourceId)) {
-      continue;
-    }
-    return Game.getObjectById(sourceId);
-  }
-
-  // None
   return null;
 }
 
@@ -98,13 +66,6 @@ export function isHarvestNodeFull(source: Source): boolean {
   return false;
 }
 
-export function isHarvestNodeNoMoveFull(sourceId: string): boolean {
-  if (sourceId in Memory.harvesterManager.sources) {
-    return Memory.harvesterManager.sources[sourceId].length >= noMoveHarvestNodes[sourceId];
-  }
-  return false;
-}
-
 export function onCreepDeath(creepName: string): void {
   for (const sourceId in Memory.harvesterManager.sources) {
     Memory.harvesterManager.sources[sourceId] = Memory.harvesterManager.sources[sourceId].filter(e => e !== creepName);
@@ -122,32 +83,6 @@ export function clearCreep(creep: Creep): void {
 
 export function reset(): void {
   Memory.harvesterManager.sources = {};
-}
-
-export function harvestNoMove(creep: HarvesterNoMoveCreep): boolean {
-  if (creep.store.getFreeCapacity() < 10) {
-    return false;
-  }
-  const source = findHarvestNodeNoMove(creep);
-  if (source == null) {
-    return false;
-  }
-  creep.memory.sourceId = source.id;
-  creep.memory.roomName = source.room.name;
-  if (source) {
-    updateStatus(creep, source.id, true);
-    if (source.room.name !== creep.room.name) {
-      goToRoom(creep, source.room.name);
-      return true;
-    }
-
-    creep.memory.harvesterNoMoveSourcePos = source.pos;
-    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(source, { visualizePathStyle: { stroke: "#ffaa00" } });
-    }
-    return true;
-  }
-  return false;
 }
 
 export function harvestClosestNode(creep: HarvesterCreep): boolean {
@@ -174,12 +109,4 @@ export function harvestClosestNode(creep: HarvesterCreep): boolean {
     }
   }
   return false;
-}
-
-export function numNoMoveHarvestNodes(): number {
-  let sum = 0;
-  for (const source in noMoveHarvestNodes) {
-    sum += noMoveHarvestNodes[source];
-  }
-  return sum;
 }

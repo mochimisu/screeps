@@ -16,5 +16,6 @@ export interface MulePath {
   numMules: number;
   source: string;
   sink: string;
-  sourceCondition?: (storage: StructureStorage) => boolean;
+  condition?: (storage: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) => boolean;
+  idlePosition?: RoomPosition;
 }

@@ -1,6 +1,7 @@
 import { moveToIdleSpot } from "manager/idle";
 import { spawnInRoom } from "manager/spawn";
 import { MuleCreep, MulePath, isMule } from "./mule.type";
+import { getSiteResource } from "site/energy-storage-site/site";
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {
@@ -9,7 +10,21 @@ const mulePaths: Record<string, MulePath> = {
     source: "67a143d162f5371cbb7bb49b",
     // main south link
     sink: "6799f5bad11320315980dc99",
-    sourceCondition: (storage: StructureStorage) => storage.store.getUsedCapacity(RESOURCE_ENERGY) > 20000
+    condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
+      source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000,
+    idlePosition: new RoomPosition(17, 16, "W22S59")
+  },
+  "main-mineral-ess": {
+    numMules: 1,
+    // main mineral buffer
+    source: "67a32bbb4096703d1badac79",
+    // main storage
+    sink: "679a16c3135bf04cc4b9f12e",
+    condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
+      source.store.getUsedCapacity() > 100 &&
+      sink.store.getFreeCapacity() > 10000 &&
+      getSiteResource("W22S58", RESOURCE_OXYGEN) < 10000,
+    idlePosition: new RoomPosition(9, 15, "W22S58")
   }
 };
 
@@ -61,10 +76,10 @@ export function muleSpawnLoop(): boolean {
 }
 
 export function muleLoop(creep: MuleCreep): void {
-  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+  if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "withdraw";
   }
-  if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+  if (creep.store.getFreeCapacity() === 0) {
     creep.memory.status = "deposit";
   }
   if (creep.memory.status == null) {
@@ -83,37 +98,49 @@ export function muleLoop(creep: MuleCreep): void {
   }
 
   // Withdraw from source
+  const sink = Game.getObjectById<StructureStorage>(pathDef.sink);
+  if (sink == null) {
+    console.log(`Unknown sink ${pathDef.sink}`);
+    return;
+  }
   if (creep.memory.status === "withdraw") {
     const source = Game.getObjectById<StructureStorage>(pathDef.source);
     if (source == null) {
       console.log(`Unknown source ${pathDef.source}`);
       return;
     }
-    if (pathDef.sourceCondition != null && !pathDef.sourceCondition(source)) {
-      if (!moveToIdleSpot(creep)) {
+    if (!pathDef.condition?.(source, sink)) {
+      if (pathDef.idlePosition) {
+        creep.moveTo(pathDef.idlePosition, {
+          visualizePathStyle: { stroke: "#ffaa00" }
+        });
+      } else if (!moveToIdleSpot(creep)) {
         creep.moveTo(source, {
           visualizePathStyle: { stroke: "#ffaa00" }
         });
       }
       return;
     }
-    if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(source, {
-        visualizePathStyle: { stroke: "#ffaa00" }
-      });
+    for (const resourceType in source.store) {
+      if (creep.withdraw(source, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(source, {
+          visualizePathStyle: { stroke: "#ffaa00" }
+        });
+        return;
+      }
     }
     return;
   }
 
   // Deposit to sink
-  const sink = Game.getObjectById<StructureStorage>(pathDef.sink);
-  if (sink == null) {
-    console.log(`Unknown sink ${pathDef.sink}`);
-    return;
-  }
-  if (creep.transfer(sink, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-    creep.moveTo(sink, {
-      visualizePathStyle: { stroke: "#ffffff" }
-    });
+  if (creep.memory.status === "deposit") {
+    for (const resourceType in creep.store) {
+      if (creep.transfer(sink, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(sink, {
+          visualizePathStyle: { stroke: "#ffffff" }
+        });
+        return;
+      }
+    }
   }
 }

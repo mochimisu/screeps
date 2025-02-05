@@ -17,6 +17,7 @@ const energyBuffers: { [roomName: string]: number[][] } = {
     // [33, 44],
     // [33, 45],
     // [41, 26],
+    [9, 16]
   ],
   W22S59: [[6, 27]]
 };

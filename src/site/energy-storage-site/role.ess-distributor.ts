@@ -1,10 +1,9 @@
 import { EssDistributorCreep } from "./role.ess-distributor.type";
 import { EssSiteDefinition, getSiteByName } from "./site";
 
-function essGetEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
-  // Get storage from energySources
-  let energySources: (StructureContainer | StructureStorage | StructureLink)[] = [];
-  for (const posXY of siteDef.energySources) {
+function essGetSources(siteDef: EssSiteDefinition): (StructureContainer | StructureStorage | StructureLink)[] {
+  const energySources: (StructureContainer | StructureStorage | StructureLink)[] = [];
+  for (const posXY of siteDef.sources) {
     const pos = new RoomPosition(posXY[0], posXY[1], siteDef.roomName);
     const sources = pos
       .lookFor(LOOK_STRUCTURES)
@@ -16,8 +15,12 @@ function essGetEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
       ) as (StructureContainer | StructureStorage | StructureLink)[];
     energySources.push(...sources);
   }
-  // Find any with energy
-  energySources = energySources.filter(s => s.store.getUsedCapacity(RESOURCE_ENERGY) > 0);
+  return energySources;
+}
+
+function essGetEnergy(siteDef: EssSiteDefinition, creep: EssDistributorCreep): boolean {
+  // Get storage from energySources
+  const energySources = essGetSources(siteDef).filter(s => s.store.getUsedCapacity(RESOURCE_ENERGY) > 0);
   // Sort sources by distance from the creep
   const sortedSources = _.sortBy(energySources, source => creep.pos.getRangeTo(source));
   if (sortedSources.length === 0) {
@@ -32,6 +35,33 @@ function essGetEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
     });
   }
   return true;
+}
+
+function essGetMinerals(siteDef: EssSiteDefinition, creep: EssDistributorCreep): boolean {
+  // look for minerals in source
+  const mineralSources = essGetSources(siteDef).filter(s => {
+    for (const resourceType in s.store) {
+      if ((s.store.getUsedCapacity(resourceType as ResourceConstant) ?? 0) > 0) {
+        return true;
+      }
+    }
+    return false;
+  });
+  // Sort sources by distance from the creep
+  const sortedSources = _.sortBy(mineralSources, source => creep.pos.getRangeTo(source));
+  if (sortedSources.length === 0) {
+    return false;
+  }
+  const target = sortedSources[0];
+  for (const resourceType in target.store) {
+    if (creep.withdraw(target, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(target, {
+        visualizePathStyle: { stroke: "#ffaa00" }
+      });
+    }
+    return true;
+  }
+  return false;
 }
 
 function essGetStoredEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
@@ -133,7 +163,7 @@ function essIdle(siteDef: EssSiteDefinition, creep: Creep): void {
     return;
   }
 
-  target = siteDef.energySources[0];
+  target = siteDef.sources[0];
   if (target) {
     creep.moveTo(target[0], target[1], {
       visualizePathStyle: { stroke: "#ffaa00" }
@@ -159,6 +189,8 @@ export function distributorLoop(creep: EssDistributorCreep): void {
 
   if (creep.memory.status === "get-energy") {
     if (essGetEnergy(essSiteDef, creep)) {
+      return;
+    } else if (essGetMinerals(essSiteDef, creep)) {
       return;
     }
   }
