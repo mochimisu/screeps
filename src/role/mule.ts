@@ -23,7 +23,7 @@ const mulePaths: Record<string, MulePath> = {
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
       source.store.getUsedCapacity() > 100 &&
       sink.store.getFreeCapacity() > 10000 &&
-      getSiteResource("W22S58", RESOURCE_OXYGEN) < 10000,
+      getSiteResource("W22S58", RESOURCE_OXYGEN) < 100000,
     idlePosition: new RoomPosition(9, 15, "W22S58")
   }
 };
