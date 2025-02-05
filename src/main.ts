@@ -12,6 +12,16 @@ import { janitorLoop } from "role/janitor";
 import { harvesterNoMoveLoop, harvesterNoMoveSpawnLoop } from "role/harvester-nomove";
 import { repairerLoop } from "role/repairer";
 import { towerLoop } from "role/tower";
+import { isHarvester } from "role/harvester.type";
+import { isUpgrader } from "role/upgrader.type";
+import { isBoolean } from "lodash";
+import { isBuilder } from "role/builder.type";
+import { isAttacker } from "role/attacker.type";
+import { isClaimer } from "role/claimer.type";
+import { isJanitor } from "role/janitor.type";
+import { isHarvesterNoMove } from "role/harvester-nomove.type";
+import { isRepairer } from "role/repairer.type";
+import { isMule } from "role/mule.type";
 
 declare global {
   /*
@@ -61,34 +71,24 @@ const loop = () => {
   // Iterate over all creeps in the game
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
-    switch (creep.memory.role) {
-      case "harvester":
-        harvesterLoop(creep);
-        break;
-      case "upgrader":
-        upgraderLoop(creep);
-        break;
-      case "builder":
-        builderLoop(creep);
-        break;
-      case "attacker":
-        attackerLoop(creep);
-        break;
-      case "claimer":
-        claimerLoop(creep);
-        break;
-      case "janitor":
-        janitorLoop(creep);
-        break;
-      case "harvester-nomove":
-        harvesterNoMoveLoop(creep);
-        break;
-      case "repairer":
-        repairerLoop(creep);
-        break;
-      case "mule":
-        muleLoop(creep);
-        break;
+    if (isHarvester(creep)) {
+      harvesterLoop(creep);
+    } else if (isUpgrader(creep)) {
+      upgraderLoop(creep);
+    } else if (isBuilder(creep)) {
+      builderLoop(creep);
+    } else if (isAttacker(creep)) {
+      attackerLoop(creep);
+    } else if (isClaimer(creep)) {
+      claimerLoop(creep);
+    } else if (isJanitor(creep)) {
+      janitorLoop(creep);
+    } else if (isHarvesterNoMove(creep)) {
+      harvesterNoMoveLoop(creep);
+    } else if (isRepairer(creep)) {
+      repairerLoop(creep);
+    } else if (isMule(creep)) {
+      muleLoop(creep);
     }
   }
 

@@ -51,7 +51,7 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   W22S59: {
     attacker: 0,
     janitor: 1,
-    repairer: 2,
+    repairer: 1,
     upgrader: 3
   }
 };

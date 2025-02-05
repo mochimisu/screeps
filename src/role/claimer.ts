@@ -1,6 +1,7 @@
 import { goToMainRoom } from "manager/room";
+import { ClaimerCreep } from "./claimer.type";
 
-export function claimerLoop(creep: Creep): void {
+export function claimerLoop(creep: ClaimerCreep): void {
   if (goToMainRoom(creep)) {
     return;
   }

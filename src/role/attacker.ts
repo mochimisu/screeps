@@ -1,6 +1,7 @@
 import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { goToMainRoom } from "manager/room";
 import { moveToIdleSpot } from "manager/idle";
+import { AttackerCreep } from "./attacker.type";
 
 const targetStructures: Set<[number, number]> = new Set([
   // [13, 45],
@@ -9,7 +10,7 @@ const targetStructures: Set<[number, number]> = new Set([
   // [16, 45],
 ]);
 
-export function attackerLoop(creep: Creep): void {
+export function attackerLoop(creep: AttackerCreep): void {
   let active = false;
   const creepTarget = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
   if (creepTarget) {

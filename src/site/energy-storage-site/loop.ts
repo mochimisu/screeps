@@ -1,3 +1,5 @@
+import { distributorLoop } from "./role.ess-distributor";
+import { isEssDistributor } from "./role.ess-distributor.type";
 import {
   getAllSiteDefs,
   getNonStorageLinks,
@@ -6,7 +8,6 @@ import {
   getStorageLinks,
   getUsedRooms
 } from "./site";
-import { distributorLoop, isEssDistributor } from "./role.ess-distributor";
 import { spawnInRoom } from "manager/spawn";
 
 export function energyStorageSpawnLoop(): void {
@@ -62,7 +63,7 @@ export function energyStorageLoop(): void {
   energyStorageSpawnLoop();
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
-    if (creep.memory.role === "ess-distributor") {
+    if (isEssDistributor(creep)) {
       distributorLoop(creep);
     }
   }

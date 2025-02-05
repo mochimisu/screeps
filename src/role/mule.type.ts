@@ -11,3 +11,10 @@ export type MuleCreep = Creep & {
 export function isMule(creep: Creep): creep is MuleCreep {
   return creep.memory.role === "mule";
 }
+
+export interface MulePath {
+  numMules: number;
+  source: string;
+  sink: string;
+  sourceCondition?: (storage: StructureStorage) => boolean;
+}

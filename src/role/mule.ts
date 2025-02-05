@@ -1,13 +1,6 @@
 import { moveToIdleSpot } from "manager/idle";
 import { spawnInRoom } from "manager/spawn";
-import { isMule } from "./mule.type";
-
-interface MulePath {
-  numMules: number;
-  source: string;
-  sink: string;
-  sourceCondition?: (storage: StructureStorage) => boolean;
-}
+import { MuleCreep, MulePath, isMule } from "./mule.type";
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {
@@ -67,10 +60,7 @@ export function muleSpawnLoop(): boolean {
   return false;
 }
 
-export function muleLoop(creep: Creep): void {
-  if (!isMule(creep)) {
-    return;
-  }
+export function muleLoop(creep: MuleCreep): void {
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
     creep.memory.status = "withdraw";
   }

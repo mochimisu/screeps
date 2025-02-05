@@ -2,12 +2,9 @@ import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
 import { goToMainRoom, goToRoomAssignment } from "manager/room";
 import { getEnergyContainersOutsideAreas, getStorageStructures } from "site/energy-storage-site/site";
-import { isJanitor } from "./janitor.type";
+import { JanitorCreep, isJanitor } from "./janitor.type";
 
-export function janitorLoop(creep: Creep): void {
-  if (!isJanitor(creep)) {
-    return;
-  }
+export function janitorLoop(creep: JanitorCreep): void {
   if (creep.store.getFreeCapacity() === 0) {
     creep.memory.status = "dumping";
   } else if (creep.store.getUsedCapacity() === 0) {

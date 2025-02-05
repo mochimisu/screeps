@@ -3,12 +3,9 @@ import { getEnergy } from "manager/energy";
 import { clearCreep } from "manager/harvester";
 import { moveToIdleSpot } from "manager/idle";
 import { goToMainRoom } from "manager/room";
-import { isBuilder } from "./builder.type";
+import { BuilderCreep, isBuilder } from "./builder.type";
 
-export function builderLoop(creep: Creep): void {
-  if (!isBuilder(creep)) {
-    return;
-  }
+export function builderLoop(creep: BuilderCreep): void {
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "harvesting";
   }

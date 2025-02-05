@@ -1,7 +1,7 @@
 import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
 import { goToRoomAssignment } from "manager/room";
-import { isRepairer } from "./repairer.type";
+import { RepairerCreep, isRepairer } from "./repairer.type";
 
 const repairThresholds: { [structureType: string]: [number, number] } = {
   [STRUCTURE_WALL]: [4000, 6000],
@@ -9,10 +9,7 @@ const repairThresholds: { [structureType: string]: [number, number] } = {
 };
 const defaultRepairPercents: [number, number] = [0.8, 0.9];
 
-export function repairerLoop(creep: Creep): void {
-  if (!isRepairer(creep)) {
-    return;
-  }
+export function repairerLoop(creep: RepairerCreep): void {
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "get-energy";
   } else {

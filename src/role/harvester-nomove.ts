@@ -1,6 +1,6 @@
 import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { spawnInRoom } from "manager/spawn";
-import { isHarvesterNoMove } from "./harvester-nomove.type";
+import { HarvesterNoMoveCreep, isHarvesterNoMove } from "./harvester-nomove.type";
 
 const noMoveNodes: string[] = [
   // main
@@ -9,6 +9,10 @@ const noMoveNodes: string[] = [
   // 2nd
   "5bbcabba9099fc012e6342c8"
 ];
+
+export function isNoMoveNode(sourceId: string): boolean {
+  return noMoveNodes.includes(sourceId);
+}
 
 const noMoveNodesByRoom: { [roomName: string]: Source[] } = {};
 for (const nodeId of noMoveNodes) {
@@ -62,7 +66,7 @@ export function harvesterNoMoveSpawnLoop(): boolean {
   return false;
 }
 
-export function harvesterNoMoveLoop(creep: Creep): void {
+export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
   if (!isHarvesterNoMove(creep)) {
     return;
   }

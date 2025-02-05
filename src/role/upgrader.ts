@@ -1,12 +1,9 @@
 import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
 import { goToRoomAssignment } from "manager/room";
-import { isUpgrader } from "./upgrader.type";
+import { UpgraderCreep, isUpgrader } from "./upgrader.type";
 
-export function upgraderLoop(creep: Creep): void {
-  if (!isUpgrader(creep)) {
-    return;
-  }
+export function upgraderLoop(creep: UpgraderCreep): void {
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "harvesting";
   }
