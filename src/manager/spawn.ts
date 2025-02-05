@@ -108,7 +108,7 @@ export function spawnInRoom(
     }
   }
   if (options?.spawnElsewhereIfNeeded) {
-    const additionalMemory = options?.additionalMemory ? { ...options.additionalMemory, roomName } : { roomName };
+    const additionalMemory = options?.assignToRoom ? { ...options.additionalMemory, roomName } : { roomName };
     // Try main room
     if (
       spawnInRoom(role, {
@@ -208,7 +208,7 @@ export function spawnNeeded(): void {
             extraCreep.memory.roomName = roomName;
             console.log("Reassigned " + extraCreep.name + " to " + roomName);
           }
-        } else if (spawnInRoom(role, { roomName })) {
+        } else if (spawnInRoom(role, { roomName, assignToRoom: true })) {
           return;
         }
       }
