@@ -30,7 +30,6 @@ export function harvesterNoMoveSpawnLoop(): boolean {
   for (const harvester of nomoveHarvesters) {
     const sourceId = harvester.memory.sourceId;
     if (!sourceId) {
-      console.log("No sourceId found for harvester-nomove: " + harvester.name);
       continue;
     }
     nodesNeedingHarvesters.delete(sourceId);
@@ -46,6 +45,7 @@ export function harvesterNoMoveSpawnLoop(): boolean {
       spawnInRoom("harvester-nomove", {
         roomName,
         assignToRoom: true,
+        spawnElsewhereIfNeeded: true,
         additionalMemory: {
           sourceId: nodeId
         }

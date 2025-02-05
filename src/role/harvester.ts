@@ -2,17 +2,26 @@ import { buildClosestNode } from "manager/builder";
 import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { harvestClosestNode } from "manager/harvester";
 
+function isHarvesterMemory(memory: CreepMemory): memory is HarvesterMemory {
+  return memory.role === "harvester";
+}
+
 export function harvesterLoop(creep: Creep): void {
+  if (!isHarvesterMemory(creep.memory)) {
+    return;
+  }
+  const memory = creep.memory;
+
   if (creep.store.getUsedCapacity() === 0) {
-    creep.memory.status = "harvesting";
+    memory.status = "harvesting";
   }
 
   if (creep.store.getFreeCapacity() < creep.getActiveBodyparts(WORK) * 2) {
-    creep.memory.status = "dumping";
+    memory.status = "dumping";
   }
 
-  if (creep.memory.status == null) {
-    creep.memory.status = "harvesting";
+  if (memory.status == null) {
+    memory.status = "harvesting";
   }
 
   if (creep.memory.status === "harvesting") {

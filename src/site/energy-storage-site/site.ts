@@ -28,7 +28,7 @@ const siteDefs: EssSiteDefinition[] = [
       [1, 7],
       [20, 48]
     ],
-    storage: [],
+    storage: [[12, 19]],
     energySources: [[6, 27]],
     distributors: 1
   }

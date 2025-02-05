@@ -41,31 +41,59 @@ declare global {
   // TODO can i make these types instead of interfaces?
   interface CreepMemory {
     role: string;
-    roomName: string;
-    working: boolean;
-    status: string;
+    roomName?: string;
 
+    path?: string;
+    status?: string;
+    essSiteName?: string;
+    sourceId?: string;
+    harvesterNoMoveSourcePos?: RoomPosition;
+    targetId?: string | null;
+    builderManager?: {
+      lastSource?: string | null;
+    };
+    harvesterManager?: {
+      lastSource?: string | null;
+    };
+  }
+
+  interface HarvesterMemory extends CreepMemory {
+    role: "harvester";
+    status: "harvesting" | "dumping" | "idle-build" | "idle-upgrade";
     // For harvesters
     harvesterManager?: {
       lastSource?: string | null;
     };
     sourceId?: string;
+  }
 
+  interface HarvesterNoMoveMemory extends CreepMemory {
+    role: "harvester-nomove";
     // for no-move harvesters
     harvesterNoMoveSourcePos?: RoomPosition;
+  }
+
+  interface BuilderMemory extends CreepMemory {
+    role: "builder";
 
     // builders
     builderManager?: {
       lastSource?: string | null;
     };
+  }
 
-    // ess-distributor
+  interface EssDistributorMemory extends CreepMemory {
+    role: "ess-distributor";
     essSiteName?: string;
+  }
 
-    // mule
+  interface MuleMemory extends CreepMemory {
+    role: "mule";
     path?: string;
+  }
 
-    // repairer
+  interface RepairerMemory extends CreepMemory {
+    role: "repairer";
     targetId?: string | null;
   }
 }
@@ -130,5 +158,6 @@ const loop = () => {
 };
 
 module.exports = {
-  loop: ErrorMapper.wrapLoop(loop)
+  // loop: ErrorMapper.wrapLoop(loop)
+  loop
 };

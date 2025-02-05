@@ -10,12 +10,12 @@ interface MulePath {
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {
-    numMules: 3,
+    numMules: 1,
     // second storage
-    source: "679d827c36e81af5a7f21e17",
+    source: "67a143d162f5371cbb7bb49b",
     // main south link
     sink: "6799f5bad11320315980dc99",
-    sourceCondition: (storage: StructureStorage) => storage.store.getFreeCapacity(RESOURCE_ENERGY) < 500
+    sourceCondition: (storage: StructureStorage) => storage.store.getUsedCapacity(RESOURCE_ENERGY) > 20000
   }
 };
 
