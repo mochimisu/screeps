@@ -8,6 +8,7 @@ const noMoveNodes: string[] = [
   // 2nd
   "5bbcabba9099fc012e6342c8"
 ];
+
 const noMoveNodesByRoom: { [roomName: string]: Source[] } = {};
 for (const nodeId of noMoveNodes) {
   const node = Game.getObjectById<Source>(nodeId);
@@ -57,7 +58,26 @@ export function harvesterNoMoveSpawnLoop(): boolean {
   return false;
 }
 
+interface HarvesterNoMoveMemory extends CreepMemory {
+  role: "harvester-nomove";
+  status: "harvesting" | "dumping";
+  sourceId: string;
+  harvesterNoMoveSourcePos?: RoomPosition;
+}
+
+export type HarvesterNoMoveCreep = Creep & {
+  memory: HarvesterNoMoveMemory;
+};
+
+function creepIsHarvesterNoMove(creep: Creep): creep is HarvesterNoMoveCreep {
+  return creep.memory.role === "harvester-nomove";
+}
+
 export function harvesterNoMoveLoop(creep: Creep): void {
+  if (!creepIsHarvesterNoMove(creep)) {
+    return;
+  }
+
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "harvesting";
   }

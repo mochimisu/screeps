@@ -4,7 +4,26 @@ import { clearCreep } from "manager/harvester";
 import { moveToIdleSpot } from "manager/idle";
 import { goToMainRoom } from "manager/room";
 
+interface BuilderMemory extends CreepMemory {
+  role: "builder";
+  status: "harvesting" | "building";
+  builderManager?: {
+    lastSource?: string | null;
+  };
+}
+
+export type BuilderCreep = Creep & {
+  memory: BuilderMemory;
+};
+
+function isBuilder(creep: Creep): creep is BuilderCreep {
+  return creep.memory.role === "builder";
+}
+
 export function builderLoop(creep: Creep): void {
+  if (!isBuilder(creep)) {
+    return;
+  }
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "harvesting";
   }

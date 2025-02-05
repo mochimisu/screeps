@@ -8,7 +8,24 @@ const repairThresholds: { [structureType: string]: [number, number] } = {
 };
 const defaultRepairPercents: [number, number] = [0.8, 0.9];
 
+interface RepairerMemory extends CreepMemory {
+  role: "repairer";
+  status: "get-energy" | "repair";
+  targetId?: string | null;
+}
+
+export type RepairerCreep = Creep & {
+  memory: RepairerMemory;
+};
+
+function isRepairer(creep: Creep): creep is RepairerCreep {
+  return creep.memory.role === "repairer";
+}
+
 export function repairerLoop(creep: Creep): void {
+  if (!isRepairer(creep)) {
+    return;
+  }
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "get-energy";
   } else {

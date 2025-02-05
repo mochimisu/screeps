@@ -1,5 +1,19 @@
 import { EssSiteDefinition, getSiteByName } from "./site";
 
+interface EssDistributorMemory extends CreepMemory {
+  role: "ess-distributor";
+  status: "get-energy" | "deposit-energy";
+  essSiteName?: string;
+}
+
+export type EssDistributorCreep = Creep & {
+  memory: EssDistributorMemory;
+};
+
+function isEssDistributor(creep: Creep): creep is EssDistributorCreep {
+  return creep.memory.role === "ess-distributor";
+}
+
 function essGetEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
   // Get storage from energySources
   let energySources: (StructureContainer | StructureStorage | StructureLink)[] = [];
@@ -142,6 +156,9 @@ function essIdle(siteDef: EssSiteDefinition, creep: Creep): void {
 }
 
 export function distributorLoop(creep: Creep): void {
+  if (!isEssDistributor(creep)) {
+    return;
+  }
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "get-energy";
   }

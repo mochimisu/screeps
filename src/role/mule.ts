@@ -19,6 +19,20 @@ const mulePaths: Record<string, MulePath> = {
   }
 };
 
+interface MuleMemory extends CreepMemory {
+  role: "mule";
+  status: "withdraw" | "deposit";
+  path: string;
+}
+
+export type MuleCreep = Creep & {
+  memory: MuleMemory;
+};
+
+function isMule(creep: Creep): creep is MuleCreep {
+  return creep.memory.role === "mule";
+}
+
 export function muleSpawnLoop(): boolean {
   const mules = _.filter(Game.creeps, creep => creep.memory.role === "mule");
   const muleCounts: Record<string, number> = {};
@@ -64,6 +78,9 @@ export function muleSpawnLoop(): boolean {
 }
 
 export function muleLoop(creep: Creep): void {
+  if (!isMule(creep)) {
+    return;
+  }
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
     creep.memory.status = "withdraw";
   }

@@ -1,4 +1,6 @@
+import { HarvesterCreep } from "role/harvester";
 import { goToRoom } from "./room";
+import { HarvesterNoMoveCreep } from "role/harvester-nomove";
 
 const maxHarvesting = 5;
 
@@ -119,7 +121,7 @@ export function reset(): void {
   Memory.harvesterManager.sources = {};
 }
 
-export function harvestNoMove(creep: Creep): boolean {
+export function harvestNoMove(creep: HarvesterNoMoveCreep): boolean {
   if (creep.store.getFreeCapacity() < 10) {
     return false;
   }
