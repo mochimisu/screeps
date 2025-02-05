@@ -34,7 +34,7 @@ export type Role =
   | "mule";
 
 const roamingSpawns: Partial<Record<Role, number>> = {
-  builder: 3,
+  builder: 4,
   claimer: 0
 };
 
