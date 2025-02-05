@@ -1,5 +1,6 @@
 import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { spawnInRoom } from "manager/spawn";
+import { isHarvesterNoMove } from "./harvester-nomove.type";
 
 const noMoveNodes: string[] = [
   // main
@@ -29,6 +30,9 @@ export function harvesterNoMoveSpawnLoop(): boolean {
 
   const nodesNeedingHarvesters = new Set(noMoveNodes);
   for (const harvester of nomoveHarvesters) {
+    if (!isHarvesterNoMove(harvester)) {
+      continue;
+    }
     const sourceId = harvester.memory.sourceId;
     if (!sourceId) {
       continue;
@@ -58,23 +62,8 @@ export function harvesterNoMoveSpawnLoop(): boolean {
   return false;
 }
 
-interface HarvesterNoMoveMemory extends CreepMemory {
-  role: "harvester-nomove";
-  status: "harvesting" | "dumping";
-  sourceId: string;
-  harvesterNoMoveSourcePos?: RoomPosition;
-}
-
-export type HarvesterNoMoveCreep = Creep & {
-  memory: HarvesterNoMoveMemory;
-};
-
-function creepIsHarvesterNoMove(creep: Creep): creep is HarvesterNoMoveCreep {
-  return creep.memory.role === "harvester-nomove";
-}
-
 export function harvesterNoMoveLoop(creep: Creep): void {
-  if (!creepIsHarvesterNoMove(creep)) {
+  if (!isHarvesterNoMove(creep)) {
     return;
   }
 

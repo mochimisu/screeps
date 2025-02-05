@@ -32,6 +32,7 @@ export type Role =
   | "harvester-nomove"
   | "ess-distributor"
   | "mule";
+
 const roamingSpawns: Partial<Record<Role, number>> = {
   builder: 3,
   claimer: 0
@@ -51,7 +52,7 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
     attacker: 0,
     janitor: 1,
     repairer: 2,
-    upgrader: 2
+    upgrader: 3
   }
 };
 

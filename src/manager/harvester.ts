@@ -1,6 +1,6 @@
-import { HarvesterCreep } from "role/harvester";
+import { HarvesterNoMoveCreep } from "role/harvester-nomove.type";
+import { HarvesterCreep, isHarvester } from "role/harvester.type";
 import { goToRoom } from "./room";
-import { HarvesterNoMoveCreep } from "role/harvester-nomove";
 
 const maxHarvesting = 5;
 
@@ -112,6 +112,9 @@ export function onCreepDeath(creepName: string): void {
 }
 
 export function clearCreep(creep: Creep): void {
+  if (!isHarvester(creep)) {
+    return;
+  }
   if (creep.memory.harvesterManager && creep.memory.harvesterManager?.lastSource) {
     updateStatus(creep, creep.memory.harvesterManager.lastSource, false);
   }
@@ -147,7 +150,7 @@ export function harvestNoMove(creep: HarvesterNoMoveCreep): boolean {
   return false;
 }
 
-export function harvestClosestNode(creep: Creep): boolean {
+export function harvestClosestNode(creep: HarvesterCreep): boolean {
   if (creep.memory.harvesterManager == null) {
     creep.memory.harvesterManager = {};
   }

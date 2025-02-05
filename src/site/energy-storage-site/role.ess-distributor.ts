@@ -10,7 +10,7 @@ export type EssDistributorCreep = Creep & {
   memory: EssDistributorMemory;
 };
 
-function isEssDistributor(creep: Creep): creep is EssDistributorCreep {
+export function isEssDistributor(creep: Creep): creep is EssDistributorCreep {
   return creep.memory.role === "ess-distributor";
 }
 

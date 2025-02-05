@@ -51,15 +51,13 @@ export function getClosestBufferWithEnergy(creep: Creep, minEnergy = 150): Struc
   return null;
 }
 
-export function getEnergy(creep: Creep, minEnergy = 150, allowHarvesting = false): boolean {
+export function getEnergy(creep: Creep, minEnergy = 150): boolean {
   const buffer = getClosestBufferWithEnergy(creep, minEnergy);
   if (buffer) {
     if (creep.withdraw(buffer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
       creep.moveTo(buffer, { visualizePathStyle: { stroke: "#ffaa00" } });
     }
     return true;
-  } else if (allowHarvesting) {
-    return harvestClosestNode(creep);
   }
   if (creep.room.name !== mainRoom) {
     goToMainRoom(creep);

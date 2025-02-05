@@ -1,5 +1,6 @@
 import { moveToIdleSpot } from "manager/idle";
 import { spawnInRoom } from "manager/spawn";
+import { isMule } from "./mule.type";
 
 interface MulePath {
   numMules: number;
@@ -19,24 +20,13 @@ const mulePaths: Record<string, MulePath> = {
   }
 };
 
-interface MuleMemory extends CreepMemory {
-  role: "mule";
-  status: "withdraw" | "deposit";
-  path: string;
-}
-
-export type MuleCreep = Creep & {
-  memory: MuleMemory;
-};
-
-function isMule(creep: Creep): creep is MuleCreep {
-  return creep.memory.role === "mule";
-}
-
 export function muleSpawnLoop(): boolean {
   const mules = _.filter(Game.creeps, creep => creep.memory.role === "mule");
   const muleCounts: Record<string, number> = {};
   for (const mule of mules) {
+    if (!isMule(mule)) {
+      continue;
+    }
     const path = mule.memory.path;
     if (path == null) {
       console.log(`Mule ${mule.name} has no path`);

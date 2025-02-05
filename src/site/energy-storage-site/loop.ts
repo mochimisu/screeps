@@ -6,7 +6,7 @@ import {
   getStorageLinks,
   getUsedRooms
 } from "./site";
-import { distributorLoop } from "./role.ess-distributor";
+import { distributorLoop, isEssDistributor } from "./role.ess-distributor";
 import { spawnInRoom } from "manager/spawn";
 
 export function energyStorageSpawnLoop(): void {
@@ -21,8 +21,8 @@ export function energyStorageSpawnLoop(): void {
   const existingDistributors: { [siteName: string]: number } = {};
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
-    if (creep.memory.role === "ess-distributor") {
-      const distributorSiteName = creep.memory.essSiteName as string | null;
+    if (isEssDistributor(creep)) {
+      const distributorSiteName = creep.memory.essSiteName;
       if (!distributorSiteName) {
         console.log(`Distributor ${name} has no site name`);
         continue;

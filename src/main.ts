@@ -38,21 +38,9 @@ declare global {
     };
   }
 
-  // TODO can i make these types instead of interfaces?
   interface CreepMemory {
     role: string;
     roomName?: string;
-
-    path?: string;
-    status?: string;
-    essSiteName?: string;
-    sourceId?: string;
-    builderManager?: {
-      lastSource?: string | null;
-    };
-    harvesterManager?: {
-      lastSource?: string | null;
-    };
   }
 }
 

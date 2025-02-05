@@ -1,26 +1,13 @@
 import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
 import { goToRoomAssignment } from "manager/room";
+import { isRepairer } from "./repairer.type";
 
 const repairThresholds: { [structureType: string]: [number, number] } = {
   [STRUCTURE_WALL]: [4000, 6000],
   [STRUCTURE_RAMPART]: [6000, 10000]
 };
 const defaultRepairPercents: [number, number] = [0.8, 0.9];
-
-interface RepairerMemory extends CreepMemory {
-  role: "repairer";
-  status: "get-energy" | "repair";
-  targetId?: string | null;
-}
-
-export type RepairerCreep = Creep & {
-  memory: RepairerMemory;
-};
-
-function isRepairer(creep: Creep): creep is RepairerCreep {
-  return creep.memory.role === "repairer";
-}
 
 export function repairerLoop(creep: Creep): void {
   if (!isRepairer(creep)) {

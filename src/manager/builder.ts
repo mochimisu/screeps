@@ -1,5 +1,6 @@
 import { getAllRooms, goToRoom } from "./room";
 import { getBufferConstructionSites } from "./energy";
+import { BuilderCreep, isBuilder } from "role/builder.type";
 
 const maxBuilding = 16;
 
@@ -84,6 +85,9 @@ export function onCreepDeath(creepName: string): void {
 }
 
 export function clearCreep(creep: Creep): void {
+  if (!isBuilder(creep)) {
+    return;
+  }
   if (creep.memory.builderManager && creep.memory.builderManager.lastSource) {
     updateStatus(creep, creep.memory.builderManager.lastSource, false);
   }
@@ -93,7 +97,7 @@ export function reset(): void {
   Memory.builderManager.sources = {};
 }
 
-export function buildClosestNode(creep: Creep): boolean {
+export function buildClosestNode(creep: BuilderCreep): boolean {
   if (creep.memory.builderManager == null) {
     creep.memory.builderManager = {};
   }
