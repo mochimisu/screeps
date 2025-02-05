@@ -1,4 +1,4 @@
-import { SourceMapConsumer } from "source-map-sync";
+import { SourceMapConsumer } from "source-map";
 
 export class ErrorMapper {
   // Cache consumer

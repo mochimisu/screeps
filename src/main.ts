@@ -158,6 +158,6 @@ const loop = () => {
 };
 
 module.exports = {
-  // loop: ErrorMapper.wrapLoop(loop)
-  loop
+  loop: ErrorMapper.wrapLoop(loop)
+  // loop
 };
