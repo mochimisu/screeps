@@ -31,14 +31,16 @@ export type Role =
   | "repairer"
   | "harvester-nomove"
   | "ess-distributor"
-  | "mule";
+  | "mule"
+  | "rh-mule"
+  | "rh-harvester";
 
 const roamingSpawns: Partial<Record<Role, number>> = {
-  builder: 4,
+  builder: 2,
   claimer: 0
 };
 
-function bodyPart(part: BodyPartConstant, count: number): BodyPartConstant[] {
+export function bodyPart(part: BodyPartConstant, count: number): BodyPartConstant[] {
   return Array(count).fill(part) as BodyPartConstant[];
 }
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
@@ -46,13 +48,16 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
     upgrader: 2,
     attacker: 0,
     janitor: 1,
-    repairer: 1
+    repairer: 2
   },
   W22S59: {
     attacker: 0,
     janitor: 1,
     repairer: 1,
     upgrader: 3
+  },
+  W21S58: {
+    builder: 1
   }
 };
 
@@ -65,7 +70,9 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   attackerRanged: [...bodyPart(RANGED_ATTACK, 4), ...bodyPart(MOVE, 4), ...bodyPart(TOUGH, 5)],
   claimer: [...bodyPart(CLAIM, 1), ...bodyPart(MOVE, 4)],
   janitor: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 5)],
-  repairer: [...bodyPart(WORK, 3), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)]
+  repairer: [...bodyPart(WORK, 3), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)],
+  "rh-harvester": [...bodyPart(WORK, 5), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 5)],
+  "rh-mule": [...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)]
 };
 
 function getPartsForRole(role: Role): BodyPartConstant[] {
@@ -185,10 +192,6 @@ export function spawnNeeded(): void {
 
   // Room spawns
   for (const roomName in roomSpawns) {
-    const room = Game.rooms[roomName];
-    if (!room) {
-      continue;
-    }
     const creeps = _.filter(Game.creeps, creep => creep.memory.roomName === roomName);
     const creepCounts: Partial<Record<Role, number>> = {};
     for (const creep of creeps) {

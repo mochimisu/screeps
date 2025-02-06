@@ -47,10 +47,21 @@ export function muleSpawnLoop(): boolean {
   }
 
   const mulesNeeded: Record<string, number> = {};
-  for (const path in mulePaths) {
-    const needed = mulePaths[path].numMules - (muleCounts[path] || 0);
+  for (const pathName in mulePaths) {
+    // Check if predicate passes
+    const mulePath = mulePaths[pathName];
+    const source = Game.getObjectById<StructureStorage>(mulePath.source);
+    const sink = Game.getObjectById<StructureStorage>(mulePath.sink);
+    if (source == null || sink == null) {
+      console.log(`Unknown source or sink for path ${pathName}`);
+      continue;
+    }
+    if (!mulePath.condition?.(source, sink)) {
+      continue;
+    }
+    const needed = mulePath.numMules - (muleCounts[pathName] || 0);
     if (needed > 0) {
-      mulesNeeded[path] = needed;
+      mulesNeeded[pathName] = needed;
     }
   }
 

@@ -22,6 +22,8 @@ import { isJanitor } from "role/janitor.type";
 import { isHarvesterNoMove } from "role/harvester-nomove.type";
 import { isRepairer } from "role/repairer.type";
 import { isMule } from "role/mule.type";
+import * as scriptsImpl from "utils/scripts";
+import { rhLoop } from "site/remote-harvest/loop";
 
 declare global {
   /*
@@ -52,6 +54,13 @@ declare global {
     role: string;
     roomName?: string;
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  export namespace NodeJS {
+    export interface Global {
+      scripts: typeof scriptsImpl;
+    }
+  }
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -67,6 +76,7 @@ const loop = () => {
 
   // sites
   energyStorageLoop();
+  rhLoop();
 
   // Iterate over all creeps in the game
   for (const name in Game.creeps) {
@@ -102,6 +112,8 @@ const loop = () => {
     }
   }
 };
+
+global.scripts = scriptsImpl;
 
 module.exports = {
   loop: ErrorMapper.wrapLoop(loop)

@@ -67,9 +67,20 @@ export function repairerLoop(creep: RepairerCreep): void {
       return;
     } else {
       const targets = repairTargets.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hitsMax);
-      const target = targets[0];
-      if (target) {
-        creep.memory.targetId = target.id;
+      // Find targets already assigned to other repairers
+      const repairers = _.filter(Game.creeps, c => isRepairer(c)) as RepairerCreep[];
+      const repairerTargets = new Set(repairers.map(r => r.memory.targetId));
+      while (targets.length > 0) {
+        const target = targets.shift();
+        if (target && !repairerTargets.has(target.id)) {
+          creep.memory.targetId = target.id;
+          return;
+        }
+      }
+      // if all claimed, just go to nearest
+      const nearestTarget = targets[0];
+      if (nearestTarget) {
+        creep.memory.targetId = nearestTarget.id;
         return;
       }
     }

@@ -2,7 +2,7 @@ import { buildClosestNode } from "manager/builder";
 import { getEnergy } from "manager/energy";
 import { clearCreep } from "manager/harvester";
 import { moveToIdleSpot } from "manager/idle";
-import { goToMainRoom } from "manager/room";
+import { goToMainRoom, goToRoomAssignment } from "manager/room";
 import { BuilderCreep, isBuilder } from "./builder.type";
 
 export function builderLoop(creep: BuilderCreep): void {
@@ -24,6 +24,9 @@ export function builderLoop(creep: BuilderCreep): void {
     }
     clearCreep(creep);
   } else if (creep.memory.status === "building") {
+    if (goToRoomAssignment(creep)) {
+      return;
+    }
     clearCreep(creep);
     // Find construction sites
     const isBuilding = buildClosestNode(creep);
@@ -42,8 +45,10 @@ export function builderLoop(creep: BuilderCreep): void {
       }
       // If no construction sites, upgrade the controller
       // (in main room)
-      if (goToMainRoom(creep)) {
-        return;
+      if (!goToRoomAssignment(creep)) {
+        if (goToMainRoom(creep)) {
+          return;
+        }
       }
       if (creep.room.controller == null) {
         return;

@@ -1,7 +1,7 @@
 import { HarvesterNoMoveCreep } from "role/harvester-nomove.type";
 import { HarvesterCreep, isHarvester } from "role/harvester.type";
 import { goToRoom } from "./room";
-import { isNoMoveNode } from "role/harvester-nomove";
+import { isNoMoveNode } from "role/harvester-nomove.config";
 
 const maxHarvesting = 5;
 
