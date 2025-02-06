@@ -123,3 +123,10 @@ export function findHighestBuyOrder(
   console.log(`Best order: ${JSON.stringify(bestOrder, null, 2)}`);
   return bestOrder;
 }
+
+export function cancelAllOrders(): void {
+  for (const orderId in Game.market.orders) {
+    const res = Game.market.cancelOrder(orderId);
+    console.log(`Cancel order ${orderId}: ${res}`);
+  }
+}

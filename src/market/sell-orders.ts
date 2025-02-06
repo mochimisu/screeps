@@ -17,11 +17,11 @@ interface SellOrder {
 
 const sellOrders: SellOrder[] = [
   {
-    id: "test6",
+    id: "test9",
     resourceType: RESOURCE_OXYGEN,
-    price: 37,
-    amount: 2000,
-    energyAllowance: 1000,
+    price: 40,
+    amount: 1000,
+    energyAllowance: 200,
     createDeal: true
   }
 ];
@@ -137,6 +137,7 @@ export function sellLoop(): void {
           console.log("Failed to create order", createResponse);
           sellMemory[order.id].status = "failed";
         }
+        sellMemory[order.id].status = "active";
       } else {
         sellMemory[order.id].status = "active";
       }
