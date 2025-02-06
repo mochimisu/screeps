@@ -26,7 +26,7 @@ const siteDefs: EssSiteDefinition[] = [
     roomName: "W22S59",
     bounds: [
       [1, 7],
-      [20, 48]
+      [15, 29]
     ],
     storage: [[12, 19]],
     sources: [[6, 27]],
@@ -62,7 +62,7 @@ export function getSiteResource(roomName: string, resourceName?: ResourceConstan
   const storageStructures = getStorageStructures(roomName);
   for (const storage of storageStructures) {
     if (storage.structureType === STRUCTURE_STORAGE || storage.structureType === STRUCTURE_CONTAINER) {
-      const typedStorage = storage as StructureStorage | StructureContainer;
+      const typedStorage = storage;
       count += typedStorage.store[resourceName];
     }
   }
@@ -70,8 +70,8 @@ export function getSiteResource(roomName: string, resourceName?: ResourceConstan
 }
 
 // Places to get or dump energy from the outside
-export function getStorageStructures(roomName: string): Structure[] {
-  const structures: Structure[] = [];
+export function getStorageStructures(roomName: string): (StructureContainer | StructureStorage)[] {
+  const structures: (StructureContainer | StructureStorage)[] = [];
   const roomSites = sitesByRoom[roomName];
   if (!roomSites) {
     return structures;
@@ -81,7 +81,10 @@ export function getStorageStructures(roomName: string): Structure[] {
       const pos = new RoomPosition(posXY[0], posXY[1], roomName);
       const storageStructures = pos
         .lookFor(LOOK_STRUCTURES)
-        .filter(s => s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_CONTAINER);
+        .filter(s => s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_CONTAINER) as (
+        | StructureContainer
+        | StructureStorage
+      )[];
       structures.push(...storageStructures);
     }
   }

@@ -19,9 +19,7 @@ export function janitorLoop(creep: JanitorCreep): void {
     if (goToRoomAssignment(creep)) {
       return;
     }
-    const droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-      filter: resource => resource.resourceType === RESOURCE_ENERGY
-    });
+    const droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
     if (droppedEnergy && droppedEnergy.amount > 10) {
       if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
         creep.moveTo(droppedEnergy, {
@@ -32,7 +30,7 @@ export function janitorLoop(creep: JanitorCreep): void {
     }
 
     const tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
-      filter: ts => ts.store[RESOURCE_ENERGY] > 0
+      filter: ts => ts.store.getUsedCapacity() > 0
     });
     if (tombstone) {
       // get all non energy resources first

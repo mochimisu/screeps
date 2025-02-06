@@ -4,6 +4,7 @@ import {
   getAllSiteDefs,
   getNonStorageLinks,
   getSiteByName,
+  getSiteResource,
   getSitesByRoom,
   getStorageLinks,
   getUsedRooms
@@ -71,6 +72,7 @@ export function energyStorageLoop(): void {
   for (const roomName of getUsedRooms()) {
     if (show) {
       const visual = new RoomVisual(roomName);
+      const energy = getSiteResource(roomName, RESOURCE_ENERGY);
       for (const roomDef of getSitesByRoom(roomName)) {
         visual.rect(
           roomDef.bounds[0][0],
@@ -83,7 +85,11 @@ export function energyStorageLoop(): void {
             lineStyle: "dashed"
           }
         );
-        visual.text(`${roomDef.name} (ess)`, roomDef.bounds[0][0], roomDef.bounds[0][1]);
+        visual.text(
+          `${energy}`,
+          (roomDef.bounds[0][0] + roomDef.bounds[1][0]) / 2,
+          (roomDef.bounds[0][1] + roomDef.bounds[1][1]) / 2
+        );
       }
     }
 

@@ -24,6 +24,9 @@ import { isRepairer } from "role/repairer.type";
 import { isMule } from "role/mule.type";
 import * as scriptsImpl from "utils/scripts";
 import { rhLoop } from "site/remote-harvest/loop";
+import { sellLoop } from "market/sell-orders";
+import { isReserver } from "role/reserver.type";
+import { reserverLoop } from "role/reserver";
 
 declare global {
   /*
@@ -99,6 +102,8 @@ const loop = () => {
       repairerLoop(creep);
     } else if (isMule(creep)) {
       muleLoop(creep);
+    } else if (isReserver(creep)) {
+      reserverLoop(creep);
     }
   }
 
@@ -111,6 +116,9 @@ const loop = () => {
       towerLoop(tower as StructureTower);
     }
   }
+
+  // market
+  sellLoop();
 };
 
 global.scripts = scriptsImpl;

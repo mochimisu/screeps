@@ -12,6 +12,7 @@ export interface RhSiteDef {
   numMules: number;
   sink: string;
   active: boolean;
+  fullRoad: boolean;
 }
 
 const siteDefs: RhSiteDef[] = [
@@ -23,6 +24,7 @@ const siteDefs: RhSiteDef[] = [
     muleIdlePos: () => new RoomPosition(23, 36, "W21S58"),
     roomName: "W21S58",
     numMules: 4,
+    fullRoad: false,
     // main room right side link
     sink: "679f323406a28817ac47c452",
     active: true

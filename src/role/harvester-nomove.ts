@@ -87,10 +87,10 @@ export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
     }
     return;
   } else if (creep.memory.status === "dumping") {
-    const target = getClosestEnergyStorageInNeed(creep, 2);
+    const target = getClosestEnergyStorageInNeed(creep, 3);
     if (target) {
       const harvesterNoMoveSourcePos = creep.memory.harvesterNoMoveSourcePos;
-      if (harvesterNoMoveSourcePos && target.pos.getRangeTo(harvesterNoMoveSourcePos) > 2) {
+      if (harvesterNoMoveSourcePos && target.pos.getRangeTo(harvesterNoMoveSourcePos) > 3) {
         // Don't go so far
         return;
       }

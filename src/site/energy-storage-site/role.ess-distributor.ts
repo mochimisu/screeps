@@ -1,5 +1,7 @@
+import { mainRoom } from "manager/room";
 import { EssDistributorCreep } from "./role.ess-distributor.type";
-import { EssSiteDefinition, getSiteByName } from "./site";
+import { EssSiteDefinition, getSiteByName, getStorageStructures } from "./site";
+import { getActiveResources, getNeededResources } from "market/sell-orders";
 
 function essGetSources(siteDef: EssSiteDefinition): (StructureContainer | StructureStorage | StructureLink)[] {
   const energySources: (StructureContainer | StructureStorage | StructureLink)[] = [];
@@ -144,13 +146,15 @@ function essDepositEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
     return false;
   }
   const target = sortedTargets[0];
-  const transferStatus = creep.transfer(target, RESOURCE_ENERGY);
-  if (transferStatus === ERR_NOT_IN_RANGE) {
-    creep.moveTo(target, {
-      visualizePathStyle: { stroke: "#ffaa00" }
-    });
+  for (const resourceType in creep.store) {
+    if (creep.transfer(target, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(target, {
+        visualizePathStyle: { stroke: "#ffaa00" }
+      });
+    }
+    return true;
   }
-  return true;
+  return false;
 }
 
 function essIdle(siteDef: EssSiteDefinition, creep: Creep): void {
@@ -172,11 +176,85 @@ function essIdle(siteDef: EssSiteDefinition, creep: Creep): void {
   }
 }
 
+function essTerminalDeposit(siteDef: EssSiteDefinition, creep: Creep): boolean {
+  const terminal = Game.rooms[siteDef.roomName].terminal;
+  if (!terminal) {
+    return essDepositEnergy(siteDef, creep);
+  }
+  const resourcesNeeded = getNeededResources();
+  // deposit needed resources into terminal, anything else into storage
+  for (const resourceTypeStr of resourcesNeeded.keys()) {
+    const resourceType = resourceTypeStr;
+    if (creep.store.getUsedCapacity(resourceType) > 0 && (resourcesNeeded.get(resourceType) ?? 0) > 0) {
+      console.log("depositing needed", resourceType, "into terminal");
+      const amount = Math.min(creep.store.getUsedCapacity(resourceType), resourcesNeeded.get(resourceType) || 0);
+      if (creep.transfer(terminal, resourceType, amount) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(terminal, {
+          visualizePathStyle: { stroke: "#ffaa00" }
+        });
+      }
+      return true;
+    }
+  }
+
+  // console.log("no resources needed");
+  return essDepositEnergy(siteDef, creep);
+}
+
+function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean {
+  const terminal = Game.rooms[siteDef.roomName].terminal;
+  if (!terminal) {
+    return false;
+  }
+
+  const resourcesNeeded = getNeededResources();
+  // console.log("resourcesNeeded", resourcesNeeded.size);
+
+  // Grab anything we need from storage
+  const storage = getStorageStructures(siteDef.roomName);
+  for (const storageStructure of storage) {
+    for (const resourceTypeStr of resourcesNeeded.keys()) {
+      // console.log("looking for", resourceTypeStr);
+      const resourceType = resourceTypeStr;
+      const amount = Math.min(creep.store.getFreeCapacity(), resourcesNeeded.get(resourceType) || 0);
+      if (storageStructure.store.getUsedCapacity(resourceType) > 0 && amount > 0) {
+        console.log("grabbing", resourceType, "from storage", amount);
+        if (creep.withdraw(storageStructure, resourceType, amount) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(storageStructure, {
+            visualizePathStyle: { stroke: "#ffaa00" }
+          });
+        }
+        return true;
+      }
+    }
+  }
+
+  // Get any overflow items from terminal
+  const terminalResources = terminal.store;
+  const activeResources = getActiveResources();
+  for (const resourceTypeStr in terminalResources) {
+    const resourceType = resourceTypeStr as ResourceConstant;
+    const amountNeeded = activeResources.get(resourceType) || 0;
+    const amountInTerminal = terminalResources[resourceType];
+    if (amountInTerminal > amountNeeded) {
+      const amount = Math.min(creep.store.getFreeCapacity(), amountInTerminal - amountNeeded);
+      console.log("grabbing overflow", resourceType, "from terminal", amount);
+      if (creep.withdraw(terminal, resourceType, amount) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(terminal, {
+          visualizePathStyle: { stroke: "#ffaa00" }
+        });
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 export function distributorLoop(creep: EssDistributorCreep): void {
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "get-energy";
   }
-  if (creep.store.getFreeCapacity() === 0) {
+  if (creep.store.getUsedCapacity() > 0) {
     creep.memory.status = "deposit-energy";
   }
 
@@ -193,8 +271,17 @@ export function distributorLoop(creep: EssDistributorCreep): void {
     } else if (essGetMinerals(essSiteDef, creep)) {
       return;
     }
+    // run terminal loop if in main room
+    if (creep.room.name === mainRoom) {
+      essTerminalTransfer(essSiteDef, creep);
+      return;
+    }
   }
-  if (creep.memory.status === "deposit-energy") {
+  if (creep.room.name === mainRoom && creep.memory.status === "deposit-energy") {
+    if (essTerminalDeposit(essSiteDef, creep)) {
+      return;
+    }
+  } else if (creep.memory.status === "deposit-energy") {
     if (essDepositEnergy(essSiteDef, creep)) {
       return;
     }

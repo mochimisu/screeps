@@ -13,6 +13,9 @@ export function rhSpawnLoop(): void {
         c => isRhHarvester(c) && c.memory.rhSite === siteDef.name
       ).length;
       if (existingHarvesters === 0) {
+        const harvesterParts = siteDef.fullRoad
+          ? [...bodyPart(WORK, 4), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+          : [...bodyPart(WORK, 3), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)];
         if (
           spawnInRoom("rh-harvester", {
             roomName: siteDef.roomName,
@@ -21,8 +24,7 @@ export function rhSpawnLoop(): void {
             additionalMemory: {
               rhSite: siteDef.name
             },
-            // parts: [...bodyPart(WORK, 5), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 5)]
-            parts: [...bodyPart(WORK, 3), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)]
+            parts: harvesterParts
           })
         ) {
           return;
@@ -33,6 +35,9 @@ export function rhSpawnLoop(): void {
       if (existingMules >= siteDef.numMules) {
         continue;
       }
+      const muleParts = siteDef.fullRoad
+        ? [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+        : [...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)];
       if (
         spawnInRoom("rh-mule", {
           roomName: siteDef.roomName,
@@ -41,7 +46,7 @@ export function rhSpawnLoop(): void {
           additionalMemory: {
             rhSite: siteDef.name
           },
-          parts: [...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)]
+          parts: muleParts
         })
       ) {
         return;
