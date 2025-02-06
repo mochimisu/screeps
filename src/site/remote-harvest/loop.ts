@@ -21,7 +21,8 @@ export function rhSpawnLoop(): void {
             additionalMemory: {
               rhSite: siteDef.name
             },
-            parts: [...bodyPart(WORK, 5), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 5)]
+            // parts: [...bodyPart(WORK, 5), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 5)]
+            parts: [...bodyPart(WORK, 3), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)]
           })
         ) {
           return;
