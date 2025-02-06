@@ -186,7 +186,7 @@ function essTerminalDeposit(siteDef: EssSiteDefinition, creep: Creep): boolean {
   for (const resourceTypeStr of resourcesNeeded.keys()) {
     const resourceType = resourceTypeStr;
     if (creep.store.getUsedCapacity(resourceType) > 0 && (resourcesNeeded.get(resourceType) ?? 0) > 0) {
-      console.log("depositing needed", resourceType, "into terminal");
+      // console.log("depositing needed", resourceType, "into terminal");
       const amount = Math.min(creep.store.getUsedCapacity(resourceType), resourcesNeeded.get(resourceType) || 0);
       if (creep.transfer(terminal, resourceType, amount) === ERR_NOT_IN_RANGE) {
         creep.moveTo(terminal, {
@@ -218,7 +218,7 @@ function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean 
       const resourceType = resourceTypeStr;
       const amount = Math.min(creep.store.getFreeCapacity(), resourcesNeeded.get(resourceType) || 0);
       if (storageStructure.store.getUsedCapacity(resourceType) > 0 && amount > 0) {
-        console.log("grabbing", resourceType, "from storage", amount);
+        // console.log("grabbing", resourceType, "from storage", amount);
         if (creep.withdraw(storageStructure, resourceType, amount) === ERR_NOT_IN_RANGE) {
           creep.moveTo(storageStructure, {
             visualizePathStyle: { stroke: "#ffaa00" }
@@ -238,7 +238,7 @@ function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean 
     const amountInTerminal = terminalResources[resourceType];
     if (amountInTerminal > amountNeeded) {
       const amount = Math.min(creep.store.getFreeCapacity(), amountInTerminal - amountNeeded);
-      console.log("grabbing overflow", resourceType, "from terminal", amount);
+      // console.log("grabbing overflow", resourceType, "from terminal", amount);
       if (creep.withdraw(terminal, resourceType, amount) === ERR_NOT_IN_RANGE) {
         creep.moveTo(terminal, {
           visualizePathStyle: { stroke: "#ffaa00" }
