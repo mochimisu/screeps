@@ -22,7 +22,7 @@ const siteDefs: RhSiteDef[] = [
     muleTransferPos: () => new RoomPosition(22, 42, "W21S58"),
     muleIdlePos: () => new RoomPosition(23, 36, "W21S58"),
     roomName: "W21S58",
-    numMules: 3,
+    numMules: 4,
     // main room right side link
     sink: "679f323406a28817ac47c452",
     active: true
