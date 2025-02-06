@@ -17,11 +17,11 @@ interface SellOrder {
 
 const sellOrders: SellOrder[] = [
   {
-    id: "test9",
+    id: "test10",
     resourceType: RESOURCE_OXYGEN,
     price: 40,
-    amount: 1000,
-    energyAllowance: 200,
+    amount: 500,
+    energyAllowance: 100,
     createDeal: true
   }
 ];
@@ -39,6 +39,7 @@ declare global {
       [id: string]: {
         resourceType: ResourceConstant;
         status: "waiting" | "active" | "complete" | "failed";
+        marketOrderId?: string;
       };
     };
   }
@@ -138,6 +139,19 @@ export function sellLoop(): void {
           sellMemory[order.id].status = "failed";
         }
         sellMemory[order.id].status = "active";
+        // Find the order in the market
+        for (const marketOrderId in Game.market.orders) {
+          const marketOrder = Game.market.orders[marketOrderId];
+          if (
+            marketOrder.type === ORDER_SELL &&
+            marketOrder.resourceType === order.resourceType &&
+            marketOrder.roomName === mainRoom &&
+            marketOrder.remainingAmount === order.amount &&
+            marketOrder.price === order.price
+          ) {
+            sellMemory[order.id].marketOrderId = marketOrderId;
+          }
+        }
       } else {
         sellMemory[order.id].status = "active";
       }
@@ -145,14 +159,37 @@ export function sellLoop(): void {
   }
 
   // For any active orders, check if they are complete
-  // for (const order of sellOrders) {
-  //   const orderState = sellMemory[order.id];
-  //   if (orderState.status === "active") {
-  //     const marketOrder = Game.market.getOrderById(order.id);
-  //     if (marketOrder == null) {
-  //       sellMemory[order.id].status = "complete";
-  //       console.log(`Sell order ${order.id} is complete`);
-  //     }
-  //   }
-  // }
+  for (const order of sellOrders) {
+    const orderState = sellMemory[order.id];
+    if (orderState.status === "active") {
+      let marketOrderId = orderState.marketOrderId;
+      if (marketOrderId == null) {
+        // Find the market order
+        for (const potentialMarketOrderId in Game.market.orders) {
+          const potentialMarketOrder = Game.market.orders[potentialMarketOrderId];
+          if (
+            potentialMarketOrder.type === ORDER_SELL &&
+            potentialMarketOrder.resourceType === order.resourceType &&
+            potentialMarketOrder.roomName === mainRoom &&
+            potentialMarketOrder.amount === order.amount &&
+            potentialMarketOrder.price === order.price
+          ) {
+            sellMemory[order.id].marketOrderId = potentialMarketOrderId;
+            console.log(`Found market order ${potentialMarketOrderId} for sell order ${order.id}`);
+            marketOrderId = potentialMarketOrderId;
+            break;
+          }
+        }
+      }
+      if (marketOrderId == null) {
+        console.log(`No market order found for sell order ${order.id}`);
+        continue;
+      }
+      const marketOrder = Game.market.getOrderById(marketOrderId);
+      if (marketOrder == null) {
+        sellMemory[order.id].status = "complete";
+        console.log(`Sell order ${order.id} is complete`);
+      }
+    }
+  }
 }
