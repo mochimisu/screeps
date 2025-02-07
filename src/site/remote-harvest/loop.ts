@@ -14,7 +14,7 @@ export function rhSpawnLoop(): void {
       ).length;
       if (existingHarvesters === 0) {
         const harvesterParts = siteDef.fullRoad
-          ? [...bodyPart(WORK, 4), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+          ? [...bodyPart(WORK, 5), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 3)]
           : [...bodyPart(WORK, 3), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)];
         if (
           spawnInRoom("rh-harvester", {

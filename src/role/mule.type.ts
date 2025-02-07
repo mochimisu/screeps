@@ -18,4 +18,5 @@ export interface MulePath {
   sink: string;
   condition?: (storage: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) => boolean;
   idlePosition?: RoomPosition;
+  resourceType?: ResourceConstant;
 }

@@ -5,11 +5,11 @@ export const wipRooms = [
 ];
 
 export function getWipRooms(): Room[] {
-  return wipRooms.map(roomName => Game.rooms[roomName]);
+  return wipRooms.map(roomName => Game.rooms[roomName]).filter(room => room != null);
 }
 
 export function getAllRooms(): Room[] {
-  return [Game.rooms[mainRoom], ...getWipRooms()];
+  return [Game.rooms[mainRoom], ...getWipRooms()].filter(room => room != null);
 }
 
 export function goToRoom(creep: Creep, roomName: string): boolean {

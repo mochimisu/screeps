@@ -14,6 +14,17 @@ const mulePaths: Record<string, MulePath> = {
       source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000,
     idlePosition: new RoomPosition(17, 16, "W22S59")
   },
+  "main-to-second": {
+    numMules: 3,
+    // main storage
+    source: "679a16c3135bf04cc4b9f12e",
+    // second storage
+    sink: "67a143d162f5371cbb7bb49b",
+    condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
+      source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000 && sink.store.getUsedCapacity(RESOURCE_ENERGY) < 8000,
+    idlePosition: new RoomPosition(27, 27, "W22S58"),
+    resourceType: RESOURCE_ENERGY
+  },
   "main-mineral-ess": {
     numMules: 1,
     // main mineral buffer
@@ -132,12 +143,21 @@ export function muleLoop(creep: MuleCreep): void {
       }
       return;
     }
-    for (const resourceType in source.store) {
-      if (creep.withdraw(source, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+    if (pathDef.resourceType) {
+      if (creep.withdraw(source, pathDef.resourceType) === ERR_NOT_IN_RANGE) {
         creep.moveTo(source, {
           visualizePathStyle: { stroke: "#ffaa00" }
         });
         return;
+      }
+    } else {
+      for (const resourceType in source.store) {
+        if (creep.withdraw(source, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, {
+            visualizePathStyle: { stroke: "#ffaa00" }
+          });
+          return;
+        }
       }
     }
     return;

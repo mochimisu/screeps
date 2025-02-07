@@ -17,10 +17,10 @@ interface SellOrder {
 
 const sellOrders: SellOrder[] = [
   {
-    id: "test10",
+    id: "oxygen-0",
     resourceType: RESOURCE_OXYGEN,
-    price: 40,
-    amount: 500,
+    price: 57,
+    amount: 1000,
     energyAllowance: 100,
     createDeal: true
   }
@@ -186,9 +186,12 @@ export function sellLoop(): void {
         continue;
       }
       const marketOrder = Game.market.getOrderById(marketOrderId);
-      if (marketOrder == null) {
+      if (marketOrder == null || marketOrder.remainingAmount === 0) {
         sellMemory[order.id].status = "complete";
         console.log(`Sell order ${order.id} is complete`);
+        if (marketOrder) {
+          Game.market.cancelOrder(marketOrder.id);
+        }
       }
     }
   }
