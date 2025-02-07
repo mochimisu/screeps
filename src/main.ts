@@ -27,6 +27,8 @@ import { rhLoop } from "site/remote-harvest/loop";
 import { sellLoop } from "market/sell-orders";
 import { isReserver } from "role/reserver.type";
 import { reserverLoop } from "role/reserver";
+import { isUpgraderNoMove } from "role/upgrader-nomove.type";
+import { upgraderNoMoveLoop, upgraderNoMoveSpawnLoop } from "role/upgrader-nomove";
 
 declare global {
   /*
@@ -72,6 +74,7 @@ const loop = () => {
   if (!harvesterNoMoveSpawnLoop()) {
     spawnLoop();
     muleSpawnLoop();
+    upgraderNoMoveSpawnLoop();
   }
 
   // energy manager
@@ -104,6 +107,8 @@ const loop = () => {
       muleLoop(creep);
     } else if (isReserver(creep)) {
       reserverLoop(creep);
+    } else if (isUpgraderNoMove(creep)) {
+      upgraderNoMoveLoop(creep);
     }
   }
 

@@ -50,10 +50,6 @@ export function harvesterNoMoveSpawnLoop(): boolean {
 }
 
 export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
-  if (!isHarvesterNoMove(creep)) {
-    return;
-  }
-
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "harvesting";
   }

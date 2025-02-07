@@ -98,9 +98,11 @@ export function getClosestEnergyStorageInNeed(creep: Creep, preferDist = 10): St
         if (s.structureType !== STRUCTURE_LINK) {
           return false;
         }
-        for (const deny of denyArea[creep.room.name]) {
-          if (s.pos.x >= deny[0][0] && s.pos.x <= deny[1][0] && s.pos.y >= deny[0][1] && s.pos.y <= deny[1][1]) {
-            return false;
+        if (denyArea[creep.room.name] != null) {
+          for (const deny of denyArea[creep.room.name]) {
+            if (s.pos.x >= deny[0][0] && s.pos.x <= deny[1][0] && s.pos.y >= deny[0][1] && s.pos.y <= deny[1][1]) {
+              return false;
+            }
           }
         }
         return s.store.getFreeCapacity(RESOURCE_ENERGY) > 0;

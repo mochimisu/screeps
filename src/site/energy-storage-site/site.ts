@@ -6,6 +6,7 @@ export interface EssSiteDefinition {
   bounds: number[][];
   storage: number[][];
   sources: number[][];
+  linkSinks?: number[][];
   distributors: number;
 }
 
@@ -30,6 +31,7 @@ const siteDefs: EssSiteDefinition[] = [
     ],
     storage: [[12, 19]],
     sources: [[6, 27]],
+    linkSinks: [[26, 44]],
     distributors: 1
   }
 ];
@@ -109,6 +111,13 @@ export function getNonStorageLinks(roomName: string): StructureLink[] {
       for (const area of getSitesByRoom(roomName)) {
         if (isXyInAreaDef([s.pos.x, s.pos.y], area)) {
           inAnyArea = true;
+        }
+        for (const sinkXY of area.linkSinks || []) {
+          if (s.pos.x === sinkXY[0] && s.pos.y === sinkXY[1]) {
+            inAnyArea = true;
+          }
+        }
+        if (inAnyArea) {
           break;
         }
       }
@@ -133,7 +142,27 @@ export function getStorageLinks(roomName: string): StructureLink[] {
       return false;
     }
   });
-  return links as [];
+  return links as StructureLink[];
+}
+
+export function getLinkSinks(roomName: string): StructureLink[] {
+  const room = Game.rooms[roomName];
+  const links = room.find(FIND_MY_STRUCTURES, {
+    filter: s => {
+      if (s.structureType !== STRUCTURE_LINK) {
+        return false;
+      }
+      for (const area of getSitesByRoom(roomName)) {
+        for (const sinkXY of area.linkSinks || []) {
+          if (s.pos.x === sinkXY[0] && s.pos.y === sinkXY[1]) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+  });
+  return links as StructureLink[];
 }
 
 export function getEnergyContainersOutsideAreas(roomName: string): StructureContainer[] {

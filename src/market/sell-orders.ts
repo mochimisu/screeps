@@ -17,11 +17,11 @@ interface SellOrder {
 
 const sellOrders: SellOrder[] = [
   {
-    id: "oxygen-0",
+    id: "oxygen-1",
     resourceType: RESOURCE_OXYGEN,
-    price: 57,
-    amount: 1000,
-    energyAllowance: 100,
+    price: 55,
+    amount: 2000,
+    energyAllowance: 200,
     createDeal: true
   }
 ];
@@ -54,9 +54,22 @@ export function getActiveResources(): Map<ResourceConstant, number> {
     if (memory != null && memory.status === "complete") {
       continue;
     }
-    resourcesNeeded.set(order.resourceType, (resourcesNeeded.get(order.resourceType) || 0) + order.amount);
-    // energy
-    resourcesNeeded.set(RESOURCE_ENERGY, (resourcesNeeded.get(RESOURCE_ENERGY) || 0) + order.energyAllowance);
+    if (memory.marketOrderId != null) {
+      // use amount from market order remainingAmount
+      const marketOrder = Game.market.getOrderById(memory.marketOrderId);
+      if (marketOrder == null) {
+        console.log(`Market order ${memory.marketOrderId} not found`);
+        continue;
+      }
+      resourcesNeeded.set(
+        order.resourceType,
+        (resourcesNeeded.get(order.resourceType) || 0) + marketOrder.remainingAmount
+      );
+    } else {
+      resourcesNeeded.set(order.resourceType, (resourcesNeeded.get(order.resourceType) || 0) + order.amount);
+      // energy
+      resourcesNeeded.set(RESOURCE_ENERGY, (resourcesNeeded.get(RESOURCE_ENERGY) || 0) + order.energyAllowance);
+    }
   }
   return resourcesNeeded;
 }
@@ -103,6 +116,11 @@ export function sellLoop(): void {
   // If we have things in memory that we don't have orders for, remove them
   for (const id in sellMemory) {
     if (!currentSellOrderIds.has(id)) {
+      // If this has a market order, cancel it
+      const marketOrderId = sellMemory[id].marketOrderId;
+      if (marketOrderId != null) {
+        Game.market.cancelOrder(marketOrderId);
+      }
       delete sellMemory[id];
     }
   }

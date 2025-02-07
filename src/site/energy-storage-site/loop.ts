@@ -2,6 +2,7 @@ import { distributorLoop } from "./role.ess-distributor";
 import { isEssDistributor } from "./role.ess-distributor.type";
 import {
   getAllSiteDefs,
+  getLinkSinks,
   getNonStorageLinks,
   getSiteByName,
   getSiteResource,
@@ -97,20 +98,35 @@ export function energyStorageLoop(): void {
     const nonStorageLinks = getNonStorageLinks(roomName).filter(
       link => link.store.getUsedCapacity(RESOURCE_ENERGY) > 0
     );
-    const storageLinks = getStorageLinks(roomName).filter(link => link.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
-    const target = storageLinks[0];
-    if (!target) {
-      continue;
+    const storageLinks = getStorageLinks(roomName);
+    const target = storageLinks.filter(link => link.store.getFreeCapacity(RESOURCE_ENERGY) > 0)[0];
+    if (target) {
+      for (const nonStorageLink of nonStorageLinks) {
+        const transferAmount = Math.min(
+          nonStorageLink.store.getUsedCapacity(RESOURCE_ENERGY),
+          target.store.getFreeCapacity(RESOURCE_ENERGY)
+        );
+        nonStorageLink.transferEnergy(target, transferAmount);
+        if (target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+          // TODO can do all of this in 1 tick
+          break;
+        }
+      }
     }
-    for (const nonStorageLink of nonStorageLinks) {
-      const transferAmount = Math.min(
-        nonStorageLink.store.getUsedCapacity(RESOURCE_ENERGY),
-        target.store.getFreeCapacity(RESOURCE_ENERGY)
-      );
-      nonStorageLink.transferEnergy(target, transferAmount);
-      if (target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-        // TODO can do all of this in 1 tick
-        break;
+
+    // Transfer energy from storage links to sink links
+    const linkSinks = getLinkSinks(roomName).filter(link => link.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+    for (const linkSink of linkSinks) {
+      for (const storageLink of storageLinks) {
+        const transferAmount = Math.min(
+          storageLink.store.getUsedCapacity(RESOURCE_ENERGY),
+          linkSink.store.getFreeCapacity(RESOURCE_ENERGY)
+        );
+        storageLink.transferEnergy(linkSink, transferAmount);
+        if (linkSink.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+          // TODO can do all of this in 1 tick
+          break;
+        }
       }
     }
   }
