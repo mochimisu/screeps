@@ -5,7 +5,7 @@
 import { mainRoom } from "manager/room";
 import { findHighestBuyOrder } from "utils/scripts";
 
-interface SellOrder {
+export interface SellOrder {
   id: string;
   resourceType: ResourceConstant;
   price: number;
@@ -22,6 +22,14 @@ const sellOrders: SellOrder[] = [
     price: 55,
     amount: 2000,
     energyAllowance: 200,
+    createDeal: true
+  },
+  {
+    id: "oxygen-mid-0",
+    resourceType: RESOURCE_OXYGEN,
+    price: 45,
+    amount: 2000,
+    energyAllowance: 400,
     createDeal: true
   }
 ];
@@ -54,7 +62,7 @@ export function getActiveResources(): Map<ResourceConstant, number> {
     if (memory != null && memory.status === "complete") {
       continue;
     }
-    if (memory.marketOrderId != null) {
+    if (memory && memory.marketOrderId != null) {
       // use amount from market order remainingAmount
       const marketOrder = Game.market.getOrderById(memory.marketOrderId);
       if (marketOrder == null) {

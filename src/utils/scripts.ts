@@ -124,9 +124,62 @@ export function findHighestBuyOrder(
   return bestOrder;
 }
 
+export type FoundSellOrder = Order & {
+  txFee: number;
+  totalPrice: number;
+  pricePerUnit: number;
+};
+
+export function findLowestSellOrder(resourceType: ResourceConstant, amount: number): FoundSellOrder | null {
+  const allOrders = Game.market.getAllOrders();
+  const sellOrders = allOrders.filter(
+    order => order.resourceType === resourceType && order.type === ORDER_SELL && order.amount >= amount
+  );
+  // Add transaction cost
+  const sellOrdersWithCost = sellOrders.map(order => {
+    const amountCost = amount * order.price;
+    if (order.roomName == null) {
+      console.log("No room name for order", order);
+      return {
+        ...order,
+        txFee: Infinity,
+        totalPrice: -Infinity,
+        pricePerUnit: -Infinity
+      };
+    }
+    const txFee = Game.market.calcTransactionCost(amount, order.roomName, mainRoom);
+    const totalPrice = amountCost - txFee;
+    return {
+      ...order,
+      txFee,
+      totalPrice,
+      pricePerUnit: totalPrice / amount
+    };
+  });
+
+  // Find the order with the lowest total price
+  const sortedOrders = _.sortBy(sellOrdersWithCost, order => order.totalPrice);
+  const bestOrder = sortedOrders[0];
+  if (bestOrder == null) {
+    console.log("No sell orders found");
+    return null;
+  }
+  console.log(`Best order: ${JSON.stringify(bestOrder, null, 2)}`);
+  return bestOrder;
+}
+
 export function cancelAllOrders(): void {
   for (const orderId in Game.market.orders) {
     const res = Game.market.cancelOrder(orderId);
     console.log(`Cancel order ${orderId}: ${res}`);
+  }
+}
+export function cancelBuyOrders(): void {
+  for (const orderId in Game.market.orders) {
+    const order = Game.market.orders[orderId];
+    if (order.type === ORDER_BUY) {
+      const res = Game.market.cancelOrder(orderId);
+      console.log(`Cancel order ${orderId}: ${res}`);
+    }
   }
 }

@@ -29,6 +29,7 @@ import { isReserver } from "role/reserver.type";
 import { reserverLoop } from "role/reserver";
 import { isUpgraderNoMove } from "role/upgrader-nomove.type";
 import { upgraderNoMoveLoop, upgraderNoMoveSpawnLoop } from "role/upgrader-nomove";
+import { buyLoop } from "market/buy-orders";
 
 declare global {
   /*
@@ -124,6 +125,7 @@ const loop = () => {
 
   // market
   sellLoop();
+  buyLoop();
 };
 
 global.scripts = scriptsImpl;

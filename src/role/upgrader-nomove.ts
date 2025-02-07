@@ -1,4 +1,4 @@
-import { spawnInRoom } from "manager/spawn";
+import { bodyPart, spawnInRoom } from "manager/spawn";
 import { UpgraderNoMoveCreep, isUpgraderNoMove } from "./upgrader-nomove.type";
 
 export interface UpgraderSlotDef {
@@ -8,7 +8,12 @@ export interface UpgraderSlotDef {
 
 export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
   W22S58: [{ xy: [30, 14] }],
-  W22S59: [{ xy: [27, 45] }]
+  W22S59: [
+    {
+      xy: [27, 45],
+      parts: [...bodyPart(WORK, 6), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 2)]
+    }
+  ]
 };
 
 export function upgraderNoMoveSpawnLoop() {
