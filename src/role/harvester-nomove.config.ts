@@ -5,7 +5,12 @@ export const noMoveNodes: Map<string, (() => boolean) | null> = new Map<string, 
   ["5bbcabba9099fc012e6342c6", null],
   ["5bbcabba9099fc012e6342c5", null],
   // main oxygen
-  ["5bbcb21d40062e4259e936b5", () => getSiteResource("W22S58", RESOURCE_OXYGEN) < 100000],
+  [
+    "5bbcb21d40062e4259e936b5",
+    () =>
+      getSiteResource("W22S58", RESOURCE_OXYGEN) < 100000 &&
+      (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b5")?.mineralAmount ?? 0) > 0
+  ],
   // 2nd energy
   ["5bbcabba9099fc012e6342c8", null]
 ]);

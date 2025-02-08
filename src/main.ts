@@ -14,7 +14,6 @@ import { repairerLoop } from "role/repairer";
 import { towerLoop } from "role/tower";
 import { isHarvester } from "role/harvester.type";
 import { isUpgrader } from "role/upgrader.type";
-import { isBoolean } from "lodash";
 import { isBuilder } from "role/builder.type";
 import { isAttacker } from "role/attacker.type";
 import { isClaimer } from "role/claimer.type";
@@ -24,12 +23,11 @@ import { isRepairer } from "role/repairer.type";
 import { isMule } from "role/mule.type";
 import * as scriptsImpl from "utils/scripts";
 import { rhLoop } from "site/remote-harvest/loop";
-import { sellLoop } from "market/sell-orders";
 import { isReserver } from "role/reserver.type";
 import { reserverLoop } from "role/reserver";
 import { isUpgraderNoMove } from "role/upgrader-nomove.type";
 import { upgraderNoMoveLoop, upgraderNoMoveSpawnLoop } from "role/upgrader-nomove";
-import { buyLoop } from "market/buy-orders";
+import { orderLoop } from "market/orders";
 
 declare global {
   /*
@@ -124,8 +122,7 @@ const loop = () => {
   }
 
   // market
-  sellLoop();
-  buyLoop();
+  orderLoop();
 };
 
 global.scripts = scriptsImpl;

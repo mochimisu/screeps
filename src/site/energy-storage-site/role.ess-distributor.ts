@@ -1,7 +1,7 @@
 import { mainRoom } from "manager/room";
 import { EssDistributorCreep } from "./role.ess-distributor.type";
 import { EssSiteDefinition, getSiteByName, getStorageStructures } from "./site";
-import { getActiveResources, getNeededResources } from "market/sell-orders";
+import { getActiveResources, getNeededResources } from "market/orders";
 
 function essGetSources(siteDef: EssSiteDefinition): (StructureContainer | StructureStorage | StructureLink)[] {
   const energySources: (StructureContainer | StructureStorage | StructureLink)[] = [];

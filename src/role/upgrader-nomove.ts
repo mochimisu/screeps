@@ -7,7 +7,12 @@ export interface UpgraderSlotDef {
 }
 
 export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
-  W22S58: [{ xy: [30, 14] }],
+  W22S58: [
+    {
+      xy: [30, 14],
+      parts: [...bodyPart(WORK, 10), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)]
+    }
+  ],
   W22S59: [
     {
       xy: [27, 45],
@@ -42,7 +47,8 @@ export function upgraderNoMoveSpawnLoop() {
           spawnElsewhereIfNeeded: true,
           additionalMemory: {
             upgradePos: new RoomPosition(slot.xy[0], slot.xy[1], roomName)
-          }
+          },
+          parts: slot.parts
         })
       ) {
         return true;

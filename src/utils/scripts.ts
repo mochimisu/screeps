@@ -83,38 +83,31 @@ export function findHighestBuyOrder(
     order => order.resourceType === resourceType && order.type === ORDER_BUY && order.amount >= amount
   );
   // Add transaction cost
-  const buyOrdersWithCost = buyOrders.map(order => {
-    const amountCost = amount * order.price;
-    if (order.roomName == null) {
-      console.log("No room name for order", order);
+  const buyOrdersWithCost = buyOrders
+    .map(order => {
+      const amountCost = amount * order.price;
+      if (order.roomName == null) {
+        console.log("No room name for order", order);
+        return null;
+      }
+      const txFee = Game.market.calcTransactionCost(amount, order.roomName, mainRoom);
+      if (txFee > (maxEnergy || Infinity)) {
+        // Exceeds cost
+        console.log("Transaction fee exceeds max energy", txFee, maxEnergy);
+        return null;
+      }
+      const txCost = txFee * energyCost;
+      const totalPrice = amountCost - txCost;
       return {
         ...order,
-        txFee: Infinity,
-        totalPrice: -Infinity,
-        pricePerUnit: -Infinity
+        txFee,
+        totalPrice,
+        pricePerUnit: totalPrice / amount
       };
-    }
-    const txFee = Game.market.calcTransactionCost(amount, order.roomName, mainRoom);
-    if (txFee > (maxEnergy || Infinity)) {
-      // Exceeds cost
-      return {
-        ...order,
-        txFee: Infinity,
-        totalPrice: -Infinity,
-        pricePerUnit: -Infinity
-      };
-    }
-    const txCost = txFee * energyCost;
-    const totalPrice = amountCost - txCost;
-    return {
-      ...order,
-      txFee,
-      totalPrice,
-      pricePerUnit: totalPrice / amount
-    };
-  });
-  // Find the order with the highest total price
-  const sortedOrders = _.sortBy(buyOrdersWithCost, order => -order.totalPrice);
+    })
+    .filter(order => order != null) as FoundBuyOrder[];
+  // Find the order with the highest price per unit
+  const sortedOrders = _.sortBy(buyOrdersWithCost, order => -order.pricePerUnit);
   const bestOrder = sortedOrders[0];
   if (bestOrder == null) {
     console.log("No buy orders found");
