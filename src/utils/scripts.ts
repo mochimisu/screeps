@@ -1,4 +1,10 @@
 import { mainRoom } from "manager/room";
+import {
+  FoundBuyOrder,
+  FoundSellOrder,
+  findHighestBuyOrder as findHighestBuyOrderImpl,
+  findLowestSellOrder as findLowestSellOrderImpl
+} from "market/orders";
 
 export function numMovePartsNeeded(parts: BodyPartConstant[], terrain: "road" | "plains" | "swamp" = "plains"): number {
   const terrainFactor = terrain === "road" ? 0.5 : terrain === "plains" ? 1 : 1.5;
@@ -66,97 +72,19 @@ export function myOrders(): void {
   console.log(`My orders: ${JSON.stringify(orders, null, 2)}`);
 }
 
-export type FoundBuyOrder = Order & {
-  txFee: number;
-  totalPrice: number;
-  pricePerUnit: number;
-};
-
 export function findHighestBuyOrder(
   resourceType: ResourceConstant,
   amount: number,
   maxEnergy?: number,
   energyCost = 35
 ): FoundBuyOrder | null {
-  const allOrders = Game.market.getAllOrders();
-  const buyOrders = allOrders.filter(
-    order => order.resourceType === resourceType && order.type === ORDER_BUY && order.amount >= amount
-  );
-  // Add transaction cost
-  const buyOrdersWithCost = buyOrders
-    .map(order => {
-      const amountCost = amount * order.price;
-      if (order.roomName == null) {
-        console.log("No room name for order", order);
-        return null;
-      }
-      const txFee = Game.market.calcTransactionCost(amount, order.roomName, mainRoom);
-      if (txFee > (maxEnergy || Infinity)) {
-        // Exceeds cost
-        console.log("Transaction fee exceeds max energy", txFee, maxEnergy);
-        return null;
-      }
-      const txCost = txFee * energyCost;
-      const totalPrice = amountCost - txCost;
-      return {
-        ...order,
-        txFee,
-        totalPrice,
-        pricePerUnit: totalPrice / amount
-      };
-    })
-    .filter(order => order != null) as FoundBuyOrder[];
-  // Find the order with the highest price per unit
-  const sortedOrders = _.sortBy(buyOrdersWithCost, order => -order.pricePerUnit);
-  const bestOrder = sortedOrders[0];
-  if (bestOrder == null) {
-    console.log("No buy orders found");
-    return null;
-  }
+  const bestOrder = findHighestBuyOrderImpl(resourceType, amount, maxEnergy, energyCost);
   console.log(`Best order: ${JSON.stringify(bestOrder, null, 2)}`);
   return bestOrder;
 }
 
-export type FoundSellOrder = Order & {
-  txFee: number;
-  totalPrice: number;
-  pricePerUnit: number;
-};
-
 export function findLowestSellOrder(resourceType: ResourceConstant, amount: number): FoundSellOrder | null {
-  const allOrders = Game.market.getAllOrders();
-  const sellOrders = allOrders.filter(
-    order => order.resourceType === resourceType && order.type === ORDER_SELL && order.amount >= amount
-  );
-  // Add transaction cost
-  const sellOrdersWithCost = sellOrders.map(order => {
-    const amountCost = amount * order.price;
-    if (order.roomName == null) {
-      console.log("No room name for order", order);
-      return {
-        ...order,
-        txFee: Infinity,
-        totalPrice: -Infinity,
-        pricePerUnit: -Infinity
-      };
-    }
-    const txFee = Game.market.calcTransactionCost(amount, order.roomName, mainRoom);
-    const totalPrice = amountCost - txFee;
-    return {
-      ...order,
-      txFee,
-      totalPrice,
-      pricePerUnit: totalPrice / amount
-    };
-  });
-
-  // Find the order with the lowest total price
-  const sortedOrders = _.sortBy(sellOrdersWithCost, order => order.totalPrice);
-  const bestOrder = sortedOrders[0];
-  if (bestOrder == null) {
-    console.log("No sell orders found");
-    return null;
-  }
+  const bestOrder = findLowestSellOrderImpl(resourceType, amount);
   console.log(`Best order: ${JSON.stringify(bestOrder, null, 2)}`);
   return bestOrder;
 }

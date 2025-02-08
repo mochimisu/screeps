@@ -3,7 +3,6 @@
 // Removing the order here will clear the memory
 
 import { mainRoom } from "manager/room";
-import { findHighestBuyOrder, findLowestSellOrder } from "utils/scripts";
 
 export interface ManualOrder {
   id: string;
@@ -104,6 +103,99 @@ export function getNeededResources(): Map<ResourceConstant, number> {
   return activeResources;
 }
 
+export type FoundBuyOrder = Order & {
+  txFee: number;
+  totalPrice: number;
+  pricePerUnit: number;
+};
+
+export function findHighestBuyOrder(
+  resourceType: ResourceConstant,
+  amount: number,
+  maxEnergy?: number,
+  energyCost = 35
+): FoundBuyOrder | null {
+  const allOrders = Game.market.getAllOrders();
+  const buyOrders = allOrders.filter(
+    order => order.resourceType === resourceType && order.type === ORDER_BUY && order.amount >= amount
+  );
+  // Add transaction cost
+  const buyOrdersWithCost = buyOrders
+    .map(order => {
+      const amountCost = amount * order.price;
+      if (order.roomName == null) {
+        console.log("No room name for order", order);
+        return null;
+      }
+      const txFee = Game.market.calcTransactionCost(amount, order.roomName, mainRoom);
+      if (txFee > (maxEnergy || Infinity)) {
+        // Exceeds cost
+        console.log("Transaction fee exceeds max energy", txFee, maxEnergy);
+        return null;
+      }
+      const txCost = txFee * energyCost;
+      const totalPrice = amountCost - txCost;
+      return {
+        ...order,
+        txFee,
+        totalPrice,
+        pricePerUnit: totalPrice / amount
+      };
+    })
+    .filter(order => order != null) as FoundBuyOrder[];
+  // Find the order with the highest price per unit
+  const sortedOrders = _.sortBy(buyOrdersWithCost, order => -order.pricePerUnit);
+  const bestOrder = sortedOrders[0];
+  if (bestOrder == null) {
+    console.log("No buy orders found");
+    return null;
+  }
+  return bestOrder;
+}
+
+export type FoundSellOrder = Order & {
+  txFee: number;
+  totalPrice: number;
+  pricePerUnit: number;
+};
+
+export function findLowestSellOrder(resourceType: ResourceConstant, amount: number): FoundSellOrder | null {
+  const allOrders = Game.market.getAllOrders();
+  const sellOrders = allOrders.filter(
+    order => order.resourceType === resourceType && order.type === ORDER_SELL && order.amount >= amount
+  );
+  // Add transaction cost
+  const sellOrdersWithCost = sellOrders.map(order => {
+    const amountCost = amount * order.price;
+    if (order.roomName == null) {
+      console.log("No room name for order", order);
+      return {
+        ...order,
+        txFee: Infinity,
+        totalPrice: -Infinity,
+        pricePerUnit: -Infinity
+      };
+    }
+    const txFee = Game.market.calcTransactionCost(amount, order.roomName, mainRoom);
+    const totalPrice = amountCost - txFee;
+    return {
+      ...order,
+      txFee,
+      totalPrice,
+      pricePerUnit: totalPrice / amount
+    };
+  });
+
+  // Find the order with the lowest total price
+  const sortedOrders = _.sortBy(sellOrdersWithCost, order => order.totalPrice);
+  const bestOrder = sortedOrders[0];
+  if (bestOrder == null) {
+    console.log("No sell orders found");
+    return null;
+  }
+  return bestOrder;
+}
+
 export function getOrderMemory(): Memory["orderState"] {
   if (Memory.orderState == null) {
     Memory.orderState = {};
@@ -141,7 +233,7 @@ function resolveBuyOrder(order: ManualOrder): void {
   if (!order.createDeal) {
     orderMemory[order.id].status = "failed";
   } else if (order.createDeal) {
-    console.log("Creating buy order for", order.resourceType);
+    console.log("  Creating buy order for", order.resourceType);
     const createResponse = Game.market.createOrder({
       type: ORDER_BUY,
       resourceType: order.resourceType,
@@ -150,7 +242,7 @@ function resolveBuyOrder(order: ManualOrder): void {
       roomName: mainRoom
     });
     if (createResponse !== OK) {
-      console.log("Failed to create order", createResponse);
+      console.log("  Failed to create order", createResponse);
       orderMemory[order.id].status = "failed";
     }
     orderMemory[order.id].status = "active";
@@ -190,7 +282,7 @@ function resolveSellOrder(order: ManualOrder): void {
   if (!order.createDeal) {
     orderMemory[order.id].status = "failed";
   } else if (order.createDeal) {
-    console.log("Creating sell order for", order.resourceType);
+    console.log("  Creating sell order for", order.resourceType);
     const createResponse = Game.market.createOrder({
       type: ORDER_SELL,
       resourceType: order.resourceType,
@@ -199,10 +291,10 @@ function resolveSellOrder(order: ManualOrder): void {
       roomName: mainRoom
     });
     if (createResponse === OK) {
-      console.log("Created sell order for", order.resourceType);
+      console.log("  Created sell order for", order.resourceType);
       orderMemory[order.id].status = "active";
     } else {
-      console.log("Failed to create order", createResponse);
+      console.log("  Failed to create order", createResponse);
       orderMemory[order.id].status = "failed";
     }
   }
