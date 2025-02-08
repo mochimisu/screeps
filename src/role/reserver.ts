@@ -9,7 +9,10 @@ export function reserverLoop(creep: ReserverCreep) {
     console.log("No controller in room: " + creep.room.name);
     return;
   }
-  if (creep.reserveController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+  const reserveStatus = creep.reserveController(creep.room.controller);
+  if (reserveStatus === ERR_NOT_IN_RANGE) {
     creep.moveTo(creep.room.controller);
+  } else if (reserveStatus === ERR_NOT_OWNER) {
+    creep.attackController(creep.room.controller);
   }
 }

@@ -16,6 +16,8 @@ export function claimerLoop(creep: ClaimerCreep): void {
     creep.moveTo(controller, {
       visualizePathStyle: { stroke: "#ffffff" }
     });
+  } else if (claimStatus === ERR_NOT_OWNER) {
+    creep.attackController(controller);
   } else if (claimStatus !== OK) {
     creep.say(claimStatus.toString());
   }

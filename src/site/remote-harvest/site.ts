@@ -29,6 +29,32 @@ const siteDefs: RhSiteDef[] = [
     // main room right side link
     sink: "679f323406a28817ac47c452",
     active: true
+  },
+  {
+    name: "w21s59-0",
+    source: "5bbcabc79099fc012e634452",
+    harvestPos: () => new RoomPosition(38, 3, "W21S59"),
+    muleTransferPos: () => new RoomPosition(37, 2, "W21S59"),
+    muleIdlePos: () => new RoomPosition(25, 47, "W21S58"),
+    roomName: "W21S59",
+    numMules: 7,
+    fullRoad: false,
+    // main room right side link
+    sink: "679f323406a28817ac47c452",
+    active: true
+  },
+  {
+    name: "w21s59-1",
+    source: "5bbcabc79099fc012e634453",
+    harvestPos: () => new RoomPosition(40, 9, "W21S59"),
+    muleTransferPos: () => new RoomPosition(39, 8, "W21S59"),
+    muleIdlePos: () => new RoomPosition(34, 6, "W21S59"),
+    roomName: "W21S59",
+    numMules: 7,
+    fullRoad: false,
+    // main room right side link
+    sink: "679f323406a28817ac47c452",
+    active: true
   }
 ];
 

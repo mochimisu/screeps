@@ -28,6 +28,8 @@ import { reserverLoop } from "role/reserver";
 import { isUpgraderNoMove } from "role/upgrader-nomove.type";
 import { upgraderNoMoveLoop, upgraderNoMoveSpawnLoop } from "role/upgrader-nomove";
 import { orderLoop } from "market/orders";
+import { isDismantler } from "role/dismantler.type";
+import { dismantlerLoop } from "role/dismantler";
 
 declare global {
   /*
@@ -108,6 +110,8 @@ const loop = () => {
       reserverLoop(creep);
     } else if (isUpgraderNoMove(creep)) {
       upgraderNoMoveLoop(creep);
+    } else if (isDismantler(creep)) {
+      dismantlerLoop(creep);
     }
   }
 

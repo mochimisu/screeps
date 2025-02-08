@@ -35,7 +35,8 @@ export type Role =
   | "rh-mule"
   | "rh-harvester"
   | "reserver"
-  | "upgrader-nomove";
+  | "upgrader-nomove"
+  | "dismantler";
 const roamingSpawns: Partial<Record<Role, number>> = {
   builder: 3,
   claimer: 0
@@ -49,17 +50,20 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
     upgrader: 0,
     attacker: 0,
     janitor: 1,
-    repairer: 1
+    repairer: 2
   },
   W22S59: {
     attacker: 0,
     janitor: 1,
-    repairer: 1,
+    repairer: 2,
     upgrader: 0
   },
   W21S58: {
     reserver: 1,
     repairer: 1
+  },
+  W21S59: {
+    reserver: 1
   }
 };
 
@@ -77,7 +81,8 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   "rh-mule": [...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)],
   // reserver: [CLAIM, CLAIM, MOVE, MOVE]
   reserver: [CLAIM, MOVE],
-  "upgrader-nomove": [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 2)]
+  "upgrader-nomove": [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 2)],
+  dismantler: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
 };
 
 function getPartsForRole(role: Role): BodyPartConstant[] {
