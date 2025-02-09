@@ -12,7 +12,7 @@ export function reserverLoop(creep: ReserverCreep) {
   const reserveStatus = creep.reserveController(creep.room.controller);
   if (reserveStatus === ERR_NOT_IN_RANGE) {
     creep.moveTo(creep.room.controller);
-  } else if (reserveStatus === ERR_NOT_OWNER) {
+  } else if (reserveStatus === ERR_NOT_OWNER || reserveStatus === ERR_INVALID_TARGET) {
     creep.attackController(creep.room.controller);
   }
 }

@@ -15,7 +15,7 @@ const mulePaths: Record<string, MulePath> = {
     idlePosition: new RoomPosition(17, 16, "W22S59")
   },
   "main-to-second": {
-    numMules: 3,
+    numMules: 2,
     // main storage
     source: "679a16c3135bf04cc4b9f12e",
     // second storage

@@ -41,7 +41,7 @@ const siteDefs: RhSiteDef[] = [
     fullRoad: false,
     // main room right side link
     sink: "679f323406a28817ac47c452",
-    active: true
+    active: false
   },
   {
     name: "w21s59-1",
@@ -54,7 +54,7 @@ const siteDefs: RhSiteDef[] = [
     fullRoad: false,
     // main room right side link
     sink: "679f323406a28817ac47c452",
-    active: true
+    active: false
   }
 ];
 
