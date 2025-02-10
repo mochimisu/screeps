@@ -21,8 +21,6 @@ export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
         return;
       }
     }
-    // console.log("targetPos: " + targetPos);
-    // console.log("creep.pos: " + creep.pos);
     if (creep.pos.getRangeTo(targetPos) < 1) {
       creep.memory.status = "harvesting";
     } else {
@@ -36,7 +34,22 @@ export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
       return;
     }
     if (creep.store.getFreeCapacity() < creep.getActiveBodyparts(WORK) * 2) {
-      // If there is a creep in the mule transfer pos, give it our stuff
+      // If there is a container or storage at energycachepos, give it our stuff
+      if (siteDef.energyCachePos) {
+        const energyCachePos = siteDef.energyCachePos();
+        const energyCache = energyCachePos
+          .lookFor(LOOK_STRUCTURES)
+          .filter(s => s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE)[0];
+        if (energyCache) {
+          for (const resourceType in creep.store) {
+            if (creep.transfer(energyCache, resourceType as ResourceConstant) === OK) {
+              return;
+            }
+          }
+        }
+      }
+
+      // otherwise, If there is a creep in the mule transfer pos, give it our stuff
       const muleTransferPos = siteDef.muleTransferPos();
       if (muleTransferPos.lookFor(LOOK_CREEPS).length > 0) {
         const muleCreep = muleTransferPos.lookFor(LOOK_CREEPS)[0];

@@ -60,6 +60,23 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
       }
       return;
     }
+    // If we have a structure at energyCachePos, grab from there
+    if (rhSiteDef.energyCachePos) {
+      const energyCachePos = rhSiteDef.energyCachePos();
+      const energyCache = energyCachePos
+        .lookFor(LOOK_STRUCTURES)
+        .filter(
+          s =>
+            (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) &&
+            (s as StructureContainer | StructureStorage).store.getUsedCapacity(RESOURCE_ENERGY) > 0
+        )[0];
+      if (energyCache) {
+        if (creep.withdraw(energyCache, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(energyCache, { visualizePathStyle: { stroke: "#ffaa00" } });
+        }
+        return;
+      }
+    }
 
     try {
       const creepsAtMuleTransferPos = muleTransferPos.lookFor(LOOK_CREEPS);

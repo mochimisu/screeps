@@ -55,8 +55,32 @@ export function rhSpawnLoop(): void {
   }
 }
 
+export function rhBuildLoop(): void {
+  for (const siteDef of getAllSiteDefs()) {
+    if (!siteDef.active) {
+      continue;
+    }
+    // Build a container at energyCachePos if it doesn't exist
+    if (siteDef.energyCachePos) {
+      const pos = siteDef.energyCachePos();
+      const structures = pos
+        .lookFor(LOOK_STRUCTURES)
+        .filter(s => s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE);
+      if (structures.length === 0) {
+        if (pos.lookFor(LOOK_CONSTRUCTION_SITES).length === 0) {
+          const room = Game.rooms[siteDef.roomName];
+          if (room) {
+            room.createConstructionSite(pos, STRUCTURE_CONTAINER);
+          }
+        }
+      }
+    }
+  }
+}
+
 export function rhLoop(): void {
   rhSpawnLoop();
+  rhBuildLoop();
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];

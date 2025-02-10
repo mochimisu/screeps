@@ -10,9 +10,11 @@ const mulePaths: Record<string, MulePath> = {
     source: "67a143d162f5371cbb7bb49b",
     // main south link
     sink: "6799f5bad11320315980dc99",
+    backupSink: "67a143d162f5371cbb7bb49b",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
       source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000,
-    idlePosition: new RoomPosition(17, 16, "W22S59")
+    idlePosition: new RoomPosition(17, 16, "W22S59"),
+    resourceType: RESOURCE_ENERGY
   },
   "main-to-second": {
     numMules: 2,
@@ -166,11 +168,29 @@ export function muleLoop(creep: MuleCreep): void {
   // Deposit to sink
   if (creep.memory.status === "deposit") {
     for (const resourceType in creep.store) {
-      if (creep.transfer(sink, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+      const transferStatus = creep.transfer(sink, resourceType as ResourceConstant);
+      if (transferStatus === ERR_NOT_IN_RANGE) {
         creep.moveTo(sink, {
           visualizePathStyle: { stroke: "#ffffff" }
         });
         return;
+      }
+    }
+    // If sink failed, go to backup sink
+    if (pathDef.backupSink != null) {
+      for (const resourceType in creep.store) {
+        const backupSink = Game.getObjectById<StructureStorage>(pathDef.backupSink);
+        if (backupSink == null) {
+          console.log(`Unknown backup sink ${pathDef.backupSink}`);
+          return;
+        }
+        const transferStatus = creep.transfer(backupSink, resourceType as ResourceConstant);
+        if (transferStatus === ERR_NOT_IN_RANGE) {
+          creep.moveTo(backupSink, {
+            visualizePathStyle: { stroke: "#ffffff" }
+          });
+          return;
+        }
       }
     }
   }

@@ -26,7 +26,11 @@ export function upgraderLoop(creep: UpgraderCreep): void {
     }
 
     const controller = creep.room.controller;
-    if (controller && creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+    if (!controller) {
+      return;
+    }
+    const upgradeStatus = creep.upgradeController(controller);
+    if (upgradeStatus === ERR_NOT_IN_RANGE) {
       creep.moveTo(controller, {
         visualizePathStyle: { stroke: "#ffffff" }
       });

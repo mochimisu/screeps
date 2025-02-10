@@ -9,6 +9,7 @@ export interface RhSiteDef {
   harvestPos: () => RoomPosition;
   muleTransferPos: () => RoomPosition;
   muleIdlePos: () => RoomPosition;
+  energyCachePos?: () => RoomPosition;
   numMules: number;
   sink: string;
   active: boolean;
@@ -21,8 +22,9 @@ const siteDefs: RhSiteDef[] = [
     name: "w21s58",
     source: "5bbcabc79099fc012e634450",
     harvestPos: () => new RoomPosition(23, 43, "W21S58"),
-    muleTransferPos: () => new RoomPosition(22, 42, "W21S58"),
+    muleTransferPos: () => new RoomPosition(22, 43, "W21S58"),
     muleIdlePos: () => new RoomPosition(23, 36, "W21S58"),
+    energyCachePos: () => new RoomPosition(22, 42, "W21S58"),
     roomName: "W21S58",
     numMules: 5,
     fullRoad: true,
