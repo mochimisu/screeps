@@ -1,5 +1,4 @@
 import { bodyPart } from "utils/body-part";
-import { onCreepDeath as builderOnCreepDeath, reset as resetBuilderManager } from "./builder";
 import { onCreepDeath as harvesterOnCreepDeath, reset as resetHarvesterManager } from "./harvester";
 import { mainRoom } from "./room";
 
@@ -8,7 +7,6 @@ export function cleanupDeath(): void {
     if (!Game.creeps[name]) {
       delete Memory.creeps[name];
       harvesterOnCreepDeath(name);
-      builderOnCreepDeath(name);
     }
   }
 }
@@ -17,7 +15,6 @@ export function periodicCleanup(): void {
   if (Game.time % 1000 === 0) {
     console.log(`periodic cleanup at ${Game.time}`);
     resetHarvesterManager();
-    resetBuilderManager();
   }
 }
 
@@ -38,23 +35,16 @@ export type Role =
   | "reserver"
   | "upgrader-nomove"
   | "dismantler";
-const roamingSpawns: Partial<Record<Role, number>> = {
-  builder: 4,
-  claimer: 0
-};
+const roamingSpawns: Partial<Record<Role, number>> = {};
 
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   W22S58: {
-    upgrader: 0,
-    attacker: 0,
     janitor: 1,
     repairer: 1
   },
   W22S59: {
-    attacker: 0,
     janitor: 1,
-    repairer: 2,
-    upgrader: 0
+    repairer: 2
   },
   W21S58: {
     repairer: 1,

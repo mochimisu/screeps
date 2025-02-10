@@ -1,4 +1,3 @@
-import { buildClosestNode } from "manager/builder";
 import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { harvestClosestNode } from "manager/harvester";
 import { HarvesterCreep, isHarvester } from "./harvester.type";

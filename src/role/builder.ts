@@ -1,9 +1,36 @@
-import { buildClosestNode } from "manager/builder";
 import { getEnergy } from "manager/energy";
 import { clearCreep } from "manager/harvester";
 import { moveToIdleSpot } from "manager/idle";
 import { goToMainRoom, goToRoomAssignment } from "manager/room";
 import { BuilderCreep, isBuilder } from "./builder.type";
+import { spawnInRoom } from "manager/spawn";
+
+const numBuilders = 4;
+const minSitePerBuilder = 3;
+
+export function builderSpawnLoop(): void {
+  const builders = _.filter(Game.creeps, isBuilder);
+  const constructionSites = _.filter(Game.constructionSites, cs => cs.my);
+  const desiredBuilders = Math.min(Math.ceil(constructionSites.length / minSitePerBuilder), numBuilders);
+  if (builders.length < desiredBuilders) {
+    spawnInRoom("builder", {
+      assignToRoom: false,
+      spawnElsewhereIfNeeded: true
+    });
+  }
+}
+
+export function buildClosestNode(creep: BuilderCreep): boolean {
+  const constructionSites = _.filter(Game.constructionSites, cs => cs.my);
+  const target = creep.pos.findClosestByPath(constructionSites);
+  if (!target) {
+    return false;
+  }
+  if (creep.build(target) === ERR_NOT_IN_RANGE) {
+    creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+  }
+  return true;
+}
 
 export function builderLoop(creep: BuilderCreep): void {
   if (creep.store.getUsedCapacity() === 0) {

@@ -5,7 +5,7 @@ import { constructLoop as energyManagerConstructLoop } from "manager/energy";
 import { energyStorageLoop } from "site/energy-storage-site/loop";
 import { harvesterLoop } from "role/harvester";
 import { upgraderLoop } from "role/upgrader";
-import { builderLoop } from "role/builder";
+import { builderLoop, builderSpawnLoop } from "role/builder";
 import { attackerLoop } from "role/attacker";
 import { claimerLoop } from "role/claimer";
 import { janitorLoop } from "role/janitor";
@@ -78,6 +78,7 @@ const loop = () => {
     spawnLoop();
     muleSpawnLoop();
     upgraderNoMoveSpawnLoop();
+    builderSpawnLoop();
   }
 
   // energy manager
