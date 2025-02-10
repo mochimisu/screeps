@@ -21,6 +21,15 @@ export function builderSpawnLoop(): void {
 }
 
 export function buildClosestNode(creep: BuilderCreep): boolean {
+  if (creep.memory.builderLastTarget != null) {
+    const lastTarget = Game.getObjectById<ConstructionSite>(creep.memory.builderLastTarget);
+    if (lastTarget != null && lastTarget.progress < lastTarget.progressTotal) {
+      if (creep.build(lastTarget) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(lastTarget, { visualizePathStyle: { stroke: "#ffffff" } });
+      }
+      return true;
+    }
+  }
   const constructionSites = _.filter(Game.constructionSites, cs => cs.my);
   const target = creep.pos.findClosestByPath(constructionSites);
   if (!target) {
@@ -29,6 +38,7 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
   if (creep.build(target) === ERR_NOT_IN_RANGE) {
     creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
   }
+  creep.memory.builderLastTarget = target.id;
   return true;
 }
 
