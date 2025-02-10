@@ -50,7 +50,7 @@ const siteDefs: RhSiteDef[] = [
     muleIdlePos: () => new RoomPosition(25, 47, "W21S58"),
     energyCachePos: () => new RoomPosition(37, 2, "W21S59"),
     roomName: "W21S59",
-    numMules: 3,
+    numMules: 2,
     fullRoad: false,
     sinks: [
       // W21s58 cache

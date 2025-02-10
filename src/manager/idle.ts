@@ -8,7 +8,8 @@ interface IdleZone {
 const zones: { [roomName: string]: IdleZone[] } = {
   W22S58: [{ xStart: 28, yStart: 28, xEnd: 35, yEnd: 32 }],
   W22S59: [{ xStart: 13, yStart: 31, xEnd: 23, yEnd: 38 }],
-  W21S58: [{ xStart: 23, yStart: 28, xEnd: 24, yEnd: 30 }]
+  W21S58: [{ xStart: 23, yStart: 28, xEnd: 24, yEnd: 30 }],
+  W21S59: [{ xStart: 22, yStart: 3, xEnd: 32, yEnd: 4 }]
 };
 
 export function moveToIdleSpot(creep: Creep): boolean {

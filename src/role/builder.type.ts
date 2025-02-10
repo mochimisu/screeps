@@ -2,6 +2,7 @@ interface BuilderMemory extends CreepMemory {
   role: "builder";
   status: "harvesting" | "building";
   builderLastTarget?: string;
+  builderLastRoom?: string;
 }
 
 export type BuilderCreep = Creep & {

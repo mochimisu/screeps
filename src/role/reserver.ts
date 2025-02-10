@@ -20,6 +20,6 @@ export function reserverLoop(creep: ReserverCreep) {
   } else if (reserveStatus === ERR_NOT_OWNER || reserveStatus === ERR_INVALID_TARGET) {
     creep.attackController(controller);
   } else if (reserveStatus === OK && creep.memory.replaceAt == null && creep.memory.born) {
-    setReplaceAtForCurrentTick(creep);
+    setReplaceAtForCurrentTick(creep, 15);
   }
 }

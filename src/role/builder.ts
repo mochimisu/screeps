@@ -58,6 +58,10 @@ export function builderLoop(creep: BuilderCreep): void {
       creep.memory.builderLastTarget = undefined;
     }
   }
+  if (creep.room.name !== creep.memory.builderLastRoom) {
+    creep.memory.builderLastRoom = creep.room.name;
+    creep.memory.builderLastTarget = undefined;
+  }
 
   if (creep.memory.status === "harvesting") {
     if (!getEnergy(creep)) {
