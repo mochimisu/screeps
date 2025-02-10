@@ -34,12 +34,9 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
     }
   }
   // find closest
-  const constructionSites = _.sortBy(
-    _.filter(Game.constructionSites, cs => cs.my),
-    cs => creep.pos.getRangeTo(cs)
-  );
-
-  const target = constructionSites[0];
+  const myConstructionSites = _.filter(Game.constructionSites, cs => cs.my);
+  const targets = _.sortBy(myConstructionSites, cs => creep.pos.getRangeTo(cs));
+  const target = targets[0];
   if (!target) {
     return false;
   }
@@ -53,11 +50,13 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
 export function builderLoop(creep: BuilderCreep): void {
   if (creep.store.getUsedCapacity() === 0 || creep.memory.status == null) {
     creep.memory.status = "harvesting";
-    creep.memory.builderLastTarget = undefined;
   }
 
   if (creep.store.getFreeCapacity() === 0) {
-    creep.memory.status = "building";
+    if (creep.memory.status !== "building") {
+      creep.memory.status = "building";
+      creep.memory.builderLastTarget = undefined;
+    }
   }
 
   if (creep.memory.status === "harvesting") {

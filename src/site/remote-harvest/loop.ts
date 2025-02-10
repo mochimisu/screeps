@@ -11,7 +11,10 @@ export function rhSpawnLoop(): void {
     if (siteDef.active) {
       const existingHarvesters = _.filter(
         Game.creeps,
-        c => isRhHarvester(c) && c.memory.rhSite === siteDef.name
+        c =>
+          isRhHarvester(c) &&
+          c.memory.rhSite === siteDef.name &&
+          (c.memory.replaceAt == null || c.memory.replaceAt > Game.time)
       ).length;
       if (existingHarvesters === 0) {
         const harvesterParts = siteDef.fullRoad

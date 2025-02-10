@@ -3,6 +3,7 @@ import { spawnInRoom } from "manager/spawn";
 import { HarvesterNoMoveCreep, isHarvesterNoMove } from "./harvester-nomove.type";
 import { getSiteResource } from "site/energy-storage-site/site";
 import { noMoveNodes, noMoveNodesById } from "./harvester-nomove.config";
+import { setReplaceAtForCurrentTick } from "utils/replace-at";
 
 export function harvesterNoMoveSpawnLoop(): boolean {
   // Count harvester-nomove by room
@@ -87,14 +88,7 @@ export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
     if (harvestStatus === ERR_NOT_IN_RANGE) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa00" } });
     } else if (harvestStatus === OK && creep.memory.replaceAt == null && creep.memory.born) {
-      const travelTime = Game.time - creep.memory.born;
-      const spawnTime = creep.body.length * CREEP_SPAWN_TIME;
-      const timeToLive = creep.ticksToLive;
-      if (timeToLive == null) {
-        console.log("No timeToLive for harvester-nomove: " + creep.name);
-      } else {
-        creep.memory.replaceAt = timeToLive - (travelTime + spawnTime) + Game.time;
-      }
+      setReplaceAtForCurrentTick(creep);
     }
     return;
   } else if (creep.memory.status === "dumping") {

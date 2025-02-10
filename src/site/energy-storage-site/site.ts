@@ -36,7 +36,8 @@ const siteDefs: EssSiteDefinition[] = [
     storage: [[12, 19]],
     sources: [[6, 27]],
     linkSinks: [[26, 44]],
-    distributors: 1
+    distributors: 1,
+    distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
   }
 ];
 

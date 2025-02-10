@@ -1,6 +1,7 @@
 import { goToRoomAssignment } from "manager/room";
 import { getSiteByName } from "./site";
 import { RhHarvesterCreep } from "./role.rh-harvester.type";
+import { setReplaceAtForCurrentTick } from "utils/replace-at";
 
 export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
   // Go to harvest location for the site
@@ -23,6 +24,7 @@ export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
     }
     if (creep.pos.getRangeTo(targetPos) < 1) {
       creep.memory.status = "harvesting";
+      setReplaceAtForCurrentTick(creep);
     } else {
       creep.moveTo(targetPos);
     }
