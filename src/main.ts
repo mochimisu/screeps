@@ -59,6 +59,8 @@ declare global {
   interface CreepMemory {
     role: string;
     roomName?: string;
+    born?: number;
+    replaceAt?: number;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace

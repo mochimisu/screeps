@@ -17,14 +17,23 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
   }
 
   if (creep.memory.status === "deposit") {
-    // Deposit into the sink
-    const sink = Game.getObjectById<StructureStorage | StructureContainer | StructureLink>(rhSiteDef.sink);
-    if (!sink) {
-      console.log("No sink found for mule: " + creep.name);
+    // Deposit into the closest valid sink with room
+    let sinks = rhSiteDef.sinks
+      .map(sinkId => Game.getObjectById<StructureStorage | StructureContainer | StructureLink>(sinkId))
+      .filter(s => s != null && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as (
+      | StructureStorage
+      | StructureContainer
+      | StructureLink
+    )[];
+    sinks = _.sortBy(sinks, s => creep.pos.getRangeTo(s));
+    if (sinks.length === 0) {
+      console.log("No sinks found for mule: " + creep.name);
       return;
     }
+    const sink = sinks[0];
 
-    if (creep.transfer(sink, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+    const transferStatus = creep.transfer(sink, RESOURCE_ENERGY);
+    if (transferStatus === ERR_NOT_IN_RANGE) {
       creep.moveTo(sink);
     }
   }

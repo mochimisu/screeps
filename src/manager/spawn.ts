@@ -1,3 +1,4 @@
+import { bodyPart } from "utils/body-part";
 import { onCreepDeath as builderOnCreepDeath, reset as resetBuilderManager } from "./builder";
 import { onCreepDeath as harvesterOnCreepDeath, reset as resetHarvesterManager } from "./harvester";
 import { mainRoom } from "./room";
@@ -38,13 +39,10 @@ export type Role =
   | "upgrader-nomove"
   | "dismantler";
 const roamingSpawns: Partial<Record<Role, number>> = {
-  builder: 3,
+  builder: 4,
   claimer: 0
 };
 
-export function bodyPart(part: BodyPartConstant, count: number): BodyPartConstant[] {
-  return Array(count).fill(part) as BodyPartConstant[];
-}
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   W22S58: {
     upgrader: 0,
@@ -72,7 +70,7 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   harvester: defaultParts,
   "harvester-nomove": [...bodyPart(WORK, 6), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 1)],
   upgrader: [...bodyPart(WORK, 4), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 5)],
-  builder: defaultParts,
+  builder: [...bodyPart(WORK, 4), ...bodyPart(CARRY, 8), ...bodyPart(MOVE, 6)],
   attackerRanged: [...bodyPart(RANGED_ATTACK, 4), ...bodyPart(MOVE, 4), ...bodyPart(TOUGH, 5)],
   claimer: [...bodyPart(CLAIM, 1), ...bodyPart(MOVE, 4)],
   janitor: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 5)],
@@ -104,18 +102,18 @@ export function spawnInRoom(
   // Find spawn in room
   const room = Game.rooms[roomName];
   const spawn = room && room.find(FIND_MY_SPAWNS)[0];
-  // todo use real memory
-  const memory: Record<string, any> = {
-    role,
-    ...options?.additionalMemory
-  };
-  if (options?.assignToRoom) {
-    memory.roomName = roomName;
-  }
 
   if (spawn) {
     const spawnParts = options?.parts ?? getPartsForRole(role);
     const newName = `${role}_${Game.time}`;
+    const memory: Record<string, any> = {
+      role,
+      born: Game.time + spawnParts.length * CREEP_SPAWN_TIME,
+      ...options?.additionalMemory
+    };
+    if (options?.assignToRoom) {
+      memory.roomName = roomName;
+    }
     if (
       spawn.spawnCreep(spawnParts, newName, {
         memory: memory as CreepMemory
@@ -168,6 +166,9 @@ export function spawnNeeded(): void {
     if (!roamingCreepCounts[role]) {
       roamingCreepCounts[role] = 0;
     }
+    if (creep.memory.replaceAt != null && creep.memory.replaceAt < Game.time) {
+      continue;
+    }
     roamingCreepCounts[role]++;
   }
   // Spawn any missing roaming creeps
@@ -208,6 +209,9 @@ export function spawnNeeded(): void {
       const role = creep.memory.role as Role;
       if (!creepCounts[role]) {
         creepCounts[role] = 0;
+      }
+      if (creep.memory.replaceAt != null && creep.memory.replaceAt < Game.time) {
+        continue;
       }
       creepCounts[role]++;
     }

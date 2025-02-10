@@ -50,7 +50,7 @@ export function energyStorageSpawnLoop(): void {
           additionalMemory: {
             essSiteName: siteName
           },
-          parts: [CARRY, CARRY, MOVE]
+          parts: siteDef.distributorParts ?? [CARRY, CARRY, MOVE]
         })
       ) {
         return;

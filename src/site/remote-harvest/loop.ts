@@ -1,9 +1,10 @@
-import { bodyPart, spawnInRoom } from "manager/spawn";
+import { spawnInRoom } from "manager/spawn";
 import { rhHarvesterLoop } from "./role.rh-harvester";
 import { rhMuleLoop } from "./role.rh-mule";
 import { getAllSiteDefs } from "./site";
 import { isRhHarvester } from "./role.rh-harvester.type";
 import { isRhMule } from "./role.rh-mule.type";
+import { bodyPart } from "utils/body-part";
 
 export function rhSpawnLoop(): void {
   for (const siteDef of getAllSiteDefs()) {
@@ -35,9 +36,11 @@ export function rhSpawnLoop(): void {
       if (existingMules >= siteDef.numMules) {
         continue;
       }
-      const muleParts = siteDef.fullRoad
-        ? [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
-        : [...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)];
+      const muleParts =
+        siteDef.muleParts ??
+        (siteDef.fullRoad
+          ? [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+          : [...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)]);
       if (
         spawnInRoom("rh-mule", {
           roomName: siteDef.roomName,

@@ -1,5 +1,7 @@
 // take energy from energySources and put it into storage
 
+import { bodyPart } from "utils/body-part";
+
 export interface EssSiteDefinition {
   name: string;
   roomName: string;
@@ -8,6 +10,7 @@ export interface EssSiteDefinition {
   sources: number[][];
   linkSinks?: number[][];
   distributors: number;
+  distributorParts?: BodyPartConstant[];
 }
 
 const siteDefs: EssSiteDefinition[] = [
@@ -20,7 +23,8 @@ const siteDefs: EssSiteDefinition[] = [
     ],
     storage: [[31, 14]],
     sources: [[29, 12]],
-    distributors: 1
+    distributors: 1,
+    distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
   },
   {
     name: "second",

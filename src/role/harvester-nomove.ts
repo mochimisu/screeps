@@ -2,19 +2,19 @@ import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { spawnInRoom } from "manager/spawn";
 import { HarvesterNoMoveCreep, isHarvesterNoMove } from "./harvester-nomove.type";
 import { getSiteResource } from "site/energy-storage-site/site";
-import { noMoveNodes } from "./harvester-nomove.config";
+import { noMoveNodes, noMoveNodesById } from "./harvester-nomove.config";
 
 export function harvesterNoMoveSpawnLoop(): boolean {
   // Count harvester-nomove by room
   const nomoveHarvesters = _.filter(Game.creeps, creep => creep.memory.role === "harvester-nomove");
 
   const nodesNeedingHarvesters = new Set(
-    _.filter(Array.from(noMoveNodes.entries()), ([sourceId, predicate]) => {
+    _.filter(noMoveNodes, ({ predicate }) => {
       if (predicate) {
         return predicate();
       }
       return true;
-    }).map(([sourceId, _]) => sourceId)
+    }).map(({ sourceId }) => sourceId)
   );
   for (const harvester of nomoveHarvesters) {
     if (!isHarvesterNoMove(harvester)) {
@@ -24,6 +24,10 @@ export function harvesterNoMoveSpawnLoop(): boolean {
     if (!sourceId) {
       continue;
     }
+    if (harvester.memory.replaceAt != null && harvester.memory.replaceAt < Game.time) {
+      continue;
+    }
+
     nodesNeedingHarvesters.delete(sourceId);
   }
 
@@ -33,11 +37,12 @@ export function harvesterNoMoveSpawnLoop(): boolean {
       console.log("No room found for node: " + nodeId);
       continue;
     }
+    const def = noMoveNodesById.get(nodeId);
     if (
       spawnInRoom("harvester-nomove", {
         roomName,
         assignToRoom: true,
-        spawnElsewhereIfNeeded: true,
+        spawnElsewhereIfNeeded: def?.allowOtherRoomSpawn ?? false,
         additionalMemory: {
           sourceId: nodeId
         }
@@ -78,8 +83,18 @@ export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa00" } });
       return;
     }
-    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+    const harvestStatus = creep.harvest(target);
+    if (harvestStatus === ERR_NOT_IN_RANGE) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa00" } });
+    } else if (harvestStatus === OK && creep.memory.replaceAt == null && creep.memory.born) {
+      const travelTime = Game.time - creep.memory.born;
+      const spawnTime = creep.body.length * CREEP_SPAWN_TIME;
+      const timeToLive = creep.ticksToLive;
+      if (timeToLive == null) {
+        console.log("No timeToLive for harvester-nomove: " + creep.name);
+      } else {
+        creep.memory.replaceAt = timeToLive - (travelTime + spawnTime) + Game.time;
+      }
     }
     return;
   } else if (creep.memory.status === "dumping") {

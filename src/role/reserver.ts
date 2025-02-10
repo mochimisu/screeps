@@ -18,5 +18,15 @@ export function reserverLoop(creep: ReserverCreep) {
     creep.moveTo(controller);
   } else if (reserveStatus === ERR_NOT_OWNER || reserveStatus === ERR_INVALID_TARGET) {
     creep.attackController(controller);
+  } else if (reserveStatus === OK && creep.memory.replaceAt == null && creep.memory.born) {
+    // store when to spawn a new creep to replace this one
+    const travelTime = Game.time - creep.memory.born;
+    const spawnTime = creep.body.length * CREEP_SPAWN_TIME;
+    const timeToLive = creep.ticksToLive;
+    if (timeToLive == null) {
+      console.log("No timeToLive for reserver: " + creep.name);
+    } else {
+      creep.memory.replaceAt = timeToLive - (travelTime + spawnTime) + Game.time;
+    }
   }
 }
