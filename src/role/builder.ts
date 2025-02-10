@@ -24,14 +24,22 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
   if (creep.memory.builderLastTarget != null) {
     const lastTarget = Game.getObjectById<ConstructionSite>(creep.memory.builderLastTarget);
     if (lastTarget != null && lastTarget.progress < lastTarget.progressTotal) {
-      if (creep.build(lastTarget) === ERR_NOT_IN_RANGE) {
+      const buildStatus = creep.build(lastTarget);
+      if (buildStatus === ERR_NOT_IN_RANGE) {
         creep.moveTo(lastTarget, { visualizePathStyle: { stroke: "#ffffff" } });
+        return true;
+      } else if (buildStatus === OK) {
+        return true;
       }
-      return true;
     }
   }
-  const constructionSites = _.filter(Game.constructionSites, cs => cs.my);
-  const target = creep.pos.findClosestByPath(constructionSites);
+  // find closest
+  const constructionSites = _.sortBy(
+    _.filter(Game.constructionSites, cs => cs.my),
+    cs => creep.pos.getRangeTo(cs)
+  );
+
+  const target = constructionSites[0];
   if (!target) {
     return false;
   }
@@ -43,16 +51,13 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
 }
 
 export function builderLoop(creep: BuilderCreep): void {
-  if (creep.store.getUsedCapacity() === 0) {
+  if (creep.store.getUsedCapacity() === 0 || creep.memory.status == null) {
     creep.memory.status = "harvesting";
+    creep.memory.builderLastTarget = undefined;
   }
 
   if (creep.store.getFreeCapacity() === 0) {
     creep.memory.status = "building";
-  }
-
-  if (creep.memory.status == null) {
-    creep.memory.status = "harvesting";
   }
 
   if (creep.memory.status === "harvesting") {

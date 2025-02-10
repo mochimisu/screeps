@@ -29,7 +29,7 @@ const siteDefs: RhSiteDef[] = [
     energyCachePos: () => new RoomPosition(22, 42, "W21S58"),
     roomName: "W21S58",
     // normally 5 normal, but overloaded to 4 super ones (4x capacity)
-    numMules: 4,
+    numMules: 5,
     muleParts: [...bodyPart(CARRY, 16), ...bodyPart(MOVE, 8)],
     fullRoad: true,
     sinks: [

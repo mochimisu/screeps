@@ -114,7 +114,9 @@ export function spawnInRoom(
     }
   }
   if (options?.spawnElsewhereIfNeeded) {
-    const additionalMemory = options?.assignToRoom ? { ...options.additionalMemory, roomName } : { roomName };
+    const additionalMemory = options?.assignToRoom
+      ? { ...options.additionalMemory, roomName }
+      : { ...options.additionalMemory };
     // Try main room
     if (
       spawnInRoom(role, {
