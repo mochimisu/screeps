@@ -3,6 +3,7 @@ interface BuilderMemory extends CreepMemory {
   status: "harvesting" | "building";
   builderLastTarget?: string;
   builderLastRoom?: string;
+  builderTargetValid?: boolean;
 }
 
 export type BuilderCreep = Creep & {

@@ -29,7 +29,7 @@ const siteDefs: RhSiteDef[] = [
     energyCachePos: () => new RoomPosition(22, 42, "W21S58"),
     roomName: "W21S58",
     // normally 5 normal, but overloaded to 4 super ones (4x capacity)
-    numMules: 4,
+    numMules: 5,
     muleParts: [...bodyPart(CARRY, 16), ...bodyPart(MOVE, 8)],
     fullRoad: true,
     sinks: [
@@ -51,7 +51,7 @@ const siteDefs: RhSiteDef[] = [
     energyCachePos: () => new RoomPosition(37, 2, "W21S59"),
     roomName: "W21S59",
     numMules: 2,
-    fullRoad: false,
+    fullRoad: true,
     sinks: [
       // W21s58 cache
       "67a936f6d2beb34270391d74",
@@ -73,7 +73,7 @@ const siteDefs: RhSiteDef[] = [
     energyCachePos: () => new RoomPosition(39, 8, "W21S59"),
     roomName: "W21S59",
     numMules: 3,
-    fullRoad: false,
+    fullRoad: true,
     sinks: [
       // W21s58 cache
       "67a936f6d2beb34270391d74",

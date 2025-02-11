@@ -5,13 +5,16 @@ import { goToMainRoom, goToRoomAssignment } from "manager/room";
 import { BuilderCreep, isBuilder } from "./builder.type";
 import { spawnInRoom } from "manager/spawn";
 
-const numBuilders = 4;
-const minSitePerBuilder = 3;
+const numBuilders = 6;
+const progressPerBuilder = 1000;
 
 export function builderSpawnLoop(): void {
   const builders = _.filter(Game.creeps, isBuilder);
   const constructionSites = _.filter(Game.constructionSites, cs => cs.my);
-  const desiredBuilders = Math.min(Math.ceil(constructionSites.length / minSitePerBuilder), numBuilders);
+  const totalProgressNeeded = _.sum(constructionSites, cs => cs.progressTotal);
+  const desiredBuilders = Math.min(Math.ceil(totalProgressNeeded / progressPerBuilder), numBuilders);
+  // console.log("totalProgressNeeded", totalProgressNeeded);
+  // console.log("desiredBuilders", desiredBuilders);
   if (builders.length < desiredBuilders) {
     spawnInRoom("builder", {
       assignToRoom: false,
@@ -35,11 +38,14 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
   }
   // find closest
   const myConstructionSites = _.filter(Game.constructionSites, cs => cs.my);
-  const targets = _.sortBy(myConstructionSites, cs => creep.pos.getRangeTo(cs));
+  // do roads first
+  const roads = _.filter(myConstructionSites, cs => cs.structureType === STRUCTURE_ROAD);
+  const targets = _.sortBy(roads.length > 0 ? roads : myConstructionSites, cs => creep.pos.getRangeTo(cs));
   const target = targets[0];
   if (!target) {
     return false;
   }
+  creep.memory.builderTargetValid = creep.pos.getRangeTo(target) < 10000;
   if (creep.build(target) === ERR_NOT_IN_RANGE) {
     creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
   }
@@ -60,7 +66,9 @@ export function builderLoop(creep: BuilderCreep): void {
   }
   if (creep.room.name !== creep.memory.builderLastRoom) {
     creep.memory.builderLastRoom = creep.room.name;
-    creep.memory.builderLastTarget = undefined;
+    if (!creep.memory.builderTargetValid) {
+      creep.memory.builderLastTarget = undefined;
+    }
   }
 
   if (creep.memory.status === "harvesting") {

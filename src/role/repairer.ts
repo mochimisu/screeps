@@ -1,6 +1,6 @@
 import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
-import { goToRoomAssignment } from "manager/room";
+import { goToRoomAssignment, mainRoom } from "manager/room";
 import { RepairerCreep, isRepairer } from "./repairer.type";
 
 const repairThresholds: { [structureType: string]: [number, number] } = {
@@ -24,11 +24,14 @@ export function repairerLoop(creep: RepairerCreep): void {
   }
 
   if (creep.memory.status === "repair") {
-    if (goToRoomAssignment(creep)) {
-      return;
+    const room = Game.rooms[creep.memory.roomName ?? mainRoom];
+    if (!room) {
+      if (goToRoomAssignment(creep)) {
+        return;
+      }
     }
 
-    const repairTargets = creep.room.find(FIND_STRUCTURES, {
+    const repairTargets = room.find(FIND_STRUCTURES, {
       filter: structure => {
         for (const [type, thresholds] of Object.entries(repairThresholds)) {
           if (structure.structureType === type) {
