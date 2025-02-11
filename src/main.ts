@@ -130,6 +130,12 @@ const loop = () => {
 
   // market
   orderLoop();
+
+  // if bucket is maxed out, generate a pixel
+  if (Game.cpu.bucket === 10000) {
+    console.log("Bucket is full, generating pixel");
+    Game.cpu.generatePixel();
+  }
 };
 
 global.scripts = scriptsImpl;
