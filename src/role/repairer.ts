@@ -4,7 +4,7 @@ import { goToRoomAssignment, mainRoom } from "manager/room";
 import { RepairerCreep, isRepairer } from "./repairer.type";
 
 const repairThresholds: { [structureType: string]: [number, number] } = {
-  [STRUCTURE_WALL]: [100000, 200000],
+  [STRUCTURE_WALL]: [300000, 1000000],
   [STRUCTURE_RAMPART]: [50000, 100000]
 };
 const defaultRepairPercents: [number, number] = [0.8, 0.9];

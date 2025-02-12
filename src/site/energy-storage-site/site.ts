@@ -38,6 +38,17 @@ const siteDefs: EssSiteDefinition[] = [
     linkSinks: [[26, 44]],
     distributors: 1,
     distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+  },
+  {
+    name: "third",
+    roomName: "W21S58",
+    bounds: [
+      [20, 10],
+      [39, 24]
+    ],
+    storage: [[29, 19]],
+    sources: [],
+    distributors: 1
   }
 ];
 

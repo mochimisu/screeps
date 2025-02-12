@@ -5,8 +5,20 @@ import { goToMainRoom, goToRoomAssignment } from "manager/room";
 import { BuilderCreep, isBuilder } from "./builder.type";
 import { spawnInRoom } from "manager/spawn";
 
-const numBuilders = 6;
+const numBuilders = 3;
 const progressPerBuilder = 1000;
+
+interface DenyArea {
+  start: { x: number; y: number };
+  end: { x: number; y: number };
+}
+
+const denyAreas: { [roomName: string]: DenyArea } = {
+  W22S58: {
+    start: { x: 30, y: 13 },
+    end: { x: 32, y: 15 }
+  }
+};
 
 export function builderSpawnLoop(): void {
   const builders = _.filter(Game.creeps, isBuilder);
@@ -26,6 +38,28 @@ export function builderSpawnLoop(): void {
 export function buildClosestNode(creep: BuilderCreep): boolean {
   if (creep.memory.builderLastTarget != null) {
     const lastTarget = Game.getObjectById<ConstructionSite>(creep.memory.builderLastTarget);
+    // if we are in a denyarea move out of it
+    // if (denyAreas[creep.room.name] != null) {
+    //   const denyArea = denyAreas[creep.room.name];
+    //   if (
+    //     creep.pos.x >= denyArea.start.x &&
+    //     creep.pos.x <= denyArea.end.x &&
+    //     creep.pos.y >= denyArea.start.y &&
+    //     creep.pos.y <= denyArea.end.y
+    //   ) {
+    //     if (creep.room.controller) {
+    //       // go in a random direction
+    //       const direction = Math.floor(Math.random() * 8);
+    //       const randomDir = new RoomPosition(
+    //         creep.pos.x + (direction % 3) - 1,
+    //         creep.pos.y + Math.floor(direction / 3) - 1,
+    //         creep.room.name
+    //       );
+    //       creep.moveTo(randomDir, { visualizePathStyle: { stroke: "#ffffff" } });
+    //       return true;
+    //     }
+    //   }
+    // }
     if (lastTarget != null && lastTarget.progress < lastTarget.progressTotal) {
       const buildStatus = creep.build(lastTarget);
       if (buildStatus === ERR_NOT_IN_RANGE) {

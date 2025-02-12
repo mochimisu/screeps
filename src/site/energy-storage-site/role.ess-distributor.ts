@@ -95,8 +95,12 @@ function essGetStoredEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
   }
   for (const obj of structures) {
     const structure = obj.structure;
-    if (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) {
-      const structTyped = structure as StructureExtension | StructureSpawn;
+    if (
+      structure.structureType === STRUCTURE_EXTENSION ||
+      structure.structureType === STRUCTURE_SPAWN ||
+      structure.structureType === STRUCTURE_TOWER
+    ) {
+      const structTyped = structure as StructureExtension | StructureSpawn | StructureTower;
       const store = structTyped.store;
       if (store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
         const transferStatus = creep.withdraw(storageStructure, RESOURCE_ENERGY);

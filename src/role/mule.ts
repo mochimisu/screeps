@@ -2,6 +2,7 @@ import { moveToIdleSpot } from "manager/idle";
 import { spawnInRoom } from "manager/spawn";
 import { MuleCreep, MulePath, isMule } from "./mule.type";
 import { getSiteResource } from "site/energy-storage-site/site";
+import { bodyPart } from "utils/body-part";
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {
@@ -34,10 +35,17 @@ const mulePaths: Record<string, MulePath> = {
     // main storage
     sink: "679a16c3135bf04cc4b9f12e",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity() > 100 &&
-      sink.store.getFreeCapacity() > 10000 &&
-      getSiteResource("W22S58", RESOURCE_OXYGEN) < 100000,
+      source.store.getUsedCapacity() > 100 && sink.store.getFreeCapacity() > 10000,
     idlePosition: new RoomPosition(9, 15, "W22S58")
+  },
+  "third-energy-ess": {
+    numMules: 2,
+    source: "67a936f6d2beb34270391d74",
+    sink: "67ab4af7918897273c038658",
+    // fix
+    condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
+    idlePosition: new RoomPosition(20, 40, "W21S58"),
+    parts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)]
   }
 };
 
@@ -69,7 +77,7 @@ export function muleSpawnLoop(): boolean {
       console.log(`Unknown source or sink for path ${pathName}`);
       continue;
     }
-    if (!mulePath.condition?.(source, sink)) {
+    if (mulePath.condition != null && !mulePath.condition?.(source, sink)) {
       continue;
     }
     const needed = mulePath.numMules - (muleCounts[pathName] || 0);
@@ -90,7 +98,7 @@ export function muleSpawnLoop(): boolean {
       spawnInRoom("mule", {
         roomName: room.name,
         additionalMemory: { path },
-        parts: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE]
+        parts: pathDef.parts ?? [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE]
       })
     ) {
       return true;
@@ -133,7 +141,7 @@ export function muleLoop(creep: MuleCreep): void {
       console.log(`Unknown source ${pathDef.source}`);
       return;
     }
-    if (!pathDef.condition?.(source, sink)) {
+    if (pathDef.condition != null && !pathDef.condition?.(source, sink)) {
       if (pathDef.idlePosition) {
         creep.moveTo(pathDef.idlePosition, {
           visualizePathStyle: { stroke: "#ffaa00" }

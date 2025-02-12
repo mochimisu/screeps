@@ -13,9 +13,7 @@ export const noMoveNodes: NoMoveDefinition[] = [
   // main oxygen
   {
     sourceId: "5bbcb21d40062e4259e936b5",
-    predicate: () =>
-      getSiteResource("W22S58", RESOURCE_OXYGEN) < 100000 &&
-      (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b5")?.mineralAmount ?? 0) > 0
+    predicate: () => (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b5")?.mineralAmount ?? 0) > 0
   },
   // 2nd energy
   {

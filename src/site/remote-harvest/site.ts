@@ -29,12 +29,12 @@ const siteDefs: RhSiteDef[] = [
     energyCachePos: () => new RoomPosition(22, 42, "W21S58"),
     roomName: "W21S58",
     // normally 5 normal, but overloaded to 4 super ones (4x capacity)
-    numMules: 5,
-    muleParts: [...bodyPart(CARRY, 16), ...bodyPart(MOVE, 8)],
+    numMules: 2,
+    muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
     fullRoad: true,
     sinks: [
       // main room right side link
-      // "679f323406a28817ac47c452",
+      "67ac472186eef035eca87012",
       // main storage
       "679a16c3135bf04cc4b9f12e",
       // second storage
@@ -50,7 +50,7 @@ const siteDefs: RhSiteDef[] = [
     muleIdlePos: () => new RoomPosition(25, 47, "W21S58"),
     energyCachePos: () => new RoomPosition(37, 2, "W21S59"),
     roomName: "W21S59",
-    numMules: 2,
+    numMules: 3,
     fullRoad: true,
     sinks: [
       // W21s58 cache
