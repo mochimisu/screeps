@@ -59,7 +59,7 @@ export function energyStorageSpawnLoop(): void {
   }
 }
 
-const show = true;
+const show = false;
 
 export function energyStorageLoop(): void {
   energyStorageSpawnLoop();

@@ -40,31 +40,31 @@ const roamingSpawns: Partial<Record<Role, number>> = {};
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   W22S58: {
     janitor: 1,
-    repairer: 2
+    repairer: 1
   },
   W22S59: {
     janitor: 1,
-    repairer: 2
+    repairer: 1
   },
   W21S58: {
-    repairer: 3
+    repairer: 1
   },
   W21S59: {
     reserver: 1,
-    repairer: 2
+    repairer: 1
   }
 };
 
 const defaultParts: BodyPartConstant[] = [...bodyPart(WORK, 3), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 4)];
 const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   harvester: defaultParts,
-  "harvester-nomove": [...bodyPart(WORK, 6), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 1)],
+  "harvester-nomove": [...bodyPart(WORK, 6), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)],
   upgrader: [...bodyPart(WORK, 4), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 5)],
   builder: [...bodyPart(WORK, 4), ...bodyPart(CARRY, 8), ...bodyPart(MOVE, 6)],
   attackerRanged: [...bodyPart(RANGED_ATTACK, 4), ...bodyPart(MOVE, 4), ...bodyPart(TOUGH, 5)],
   claimer: [...bodyPart(CLAIM, 1), ...bodyPart(MOVE, 4)],
   janitor: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 5)],
-  repairer: [...bodyPart(WORK, 3), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)],
+  repairer: [...bodyPart(WORK, 5), ...bodyPart(CARRY, 6), ...bodyPart(MOVE, 6)],
   "rh-harvester": [...bodyPart(WORK, 5), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 5)],
   "rh-mule": [...bodyPart(CARRY, 3), ...bodyPart(MOVE, 3)],
   // reserver: [CLAIM, CLAIM, MOVE, MOVE]

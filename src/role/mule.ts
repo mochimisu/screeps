@@ -45,7 +45,7 @@ const mulePaths: Record<string, MulePath> = {
     // fix
     condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
     idlePosition: new RoomPosition(20, 40, "W21S58"),
-    parts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)]
+    parts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)]
   }
 };
 

@@ -22,9 +22,14 @@ export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
         return;
       }
     }
-    if (creep.pos.getRangeTo(targetPos) < 1) {
+    const range = creep.pos.getRangeTo(targetPos);
+    // Store when next to the spot since a harvester could be blocking
+    if (range < 2) {
+      setReplaceAtForCurrentTick(creep, -2);
+    }
+
+    if (range < 1) {
       creep.memory.status = "harvesting";
-      setReplaceAtForCurrentTick(creep);
     } else {
       creep.moveTo(targetPos);
     }
