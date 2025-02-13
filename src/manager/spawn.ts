@@ -1,6 +1,7 @@
 import { bodyPart } from "utils/body-part";
 import { onCreepDeath as harvesterOnCreepDeath, reset as resetHarvesterManager } from "./harvester";
 import { mainRoom } from "./room";
+import { allCreepsByRoomAssignmentAndRole } from "utils/query";
 
 export function cleanupDeath(): void {
   for (const name in Memory.creeps) {
@@ -149,27 +150,27 @@ export function spawnInRoom(
 
 export function spawnNeeded(): void {
   // Only try to spawn once per tick
+  const creepsByRoomAndRole = allCreepsByRoomAssignmentAndRole();
 
   // Roaming spawns
-  const roamingCreeps = _.filter(Game.creeps, creep => creep.memory.roomName == null);
+  const roamingCreeps = creepsByRoomAndRole[""] ?? {};
   const roamingCreepCounts: Partial<Record<Role, number>> = {};
-  for (const creep of roamingCreeps) {
-    const role = creep.memory.role as Role;
+  const extraRoamingCreeps: Partial<Record<Role, Creep[]>> = {};
+  for (const roleStr in roamingSpawns) {
+    const role = roleStr as Role;
     if (!roamingCreepCounts[role]) {
       roamingCreepCounts[role] = 0;
     }
-    if (creep.memory.replaceAt != null && creep.memory.replaceAt < Game.time) {
-      continue;
-    }
-    roamingCreepCounts[role]++;
+    roamingCreepCounts[role] = roamingCreeps[role]?.length ?? 0;
+    // Keep track of extra roaming creeps
+    extraRoamingCreeps[role] = roamingCreeps[role]?.slice(roamingSpawns[role] ?? 0);
   }
+
   // Spawn any missing roaming creeps
   for (const roleStr in roamingSpawns) {
     const role = roleStr as Role;
     const count = roamingCreepCounts[role] ?? 0;
     if (count < (roamingSpawns[role] ?? 0)) {
-      // console.log("Roaming spawn needed: " + role);
-      // console.log("counts: " + JSON.stringify(roamingCreepCounts));
       if (
         spawnInRoom(role, {
           roomName: mainRoom
@@ -180,34 +181,18 @@ export function spawnNeeded(): void {
     }
   }
 
-  // console.log("Roaming creeps: " + JSON.stringify(roamingCreepCounts));
-
-  // Keep track of extra roaming creeps
-  const extraRoamingCreeps: Partial<Record<Role, Creep[]>> = {};
-  for (const roleStr in roamingSpawns) {
-    const role = roleStr as Role;
-    if ((roamingCreepCounts[role] ?? 0) > (roamingSpawns[role] ?? 0)) {
-      const creeps = _.filter(roamingCreeps, creep => creep.memory.role === role);
-      const extraCreeps = creeps.slice(roamingSpawns[role]);
-      extraRoamingCreeps[role] = extraCreeps;
-    }
-  }
-
   // Room spawns
   for (const roomName in roomSpawns) {
-    const creeps = _.filter(Game.creeps, creep => creep.memory.roomName === roomName);
+    const creeps = creepsByRoomAndRole[roomName] ?? [];
     const creepCounts: Partial<Record<Role, number>> = {};
-    for (const creep of creeps) {
-      const role = creep.memory.role as Role;
+    for (const roleStr in roomSpawns[roomName]) {
+      const role = roleStr as Role;
       if (!creepCounts[role]) {
         creepCounts[role] = 0;
       }
-      if (creep.memory.replaceAt != null && creep.memory.replaceAt < Game.time) {
-        continue;
-      }
-      creepCounts[role]++;
+      creepCounts[role] = creeps[role]?.length ?? 0;
     }
-    // console.log("Room " + roomName + " creeps: " + JSON.stringify(creepCounts));
+
     // Spawn any missing creeps
     for (const roleStr in roomSpawns[roomName]) {
       const role = roleStr as Role;

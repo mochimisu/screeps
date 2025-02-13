@@ -2,15 +2,15 @@ import { spawnInRoom } from "manager/spawn";
 import { rhHarvesterLoop } from "./role.rh-harvester";
 import { rhMuleLoop } from "./role.rh-mule";
 import { getAllSiteDefs } from "./site";
-import { isRhHarvester } from "./role.rh-harvester.type";
-import { isRhMule } from "./role.rh-mule.type";
+import { RhHarvesterCreep, isRhHarvester } from "./role.rh-harvester.type";
+import { RhMuleCreep, isRhMule } from "./role.rh-mule.type";
 import { bodyPart } from "utils/body-part";
+import { creepsByRole } from "utils/query";
 
 export function rhSpawnLoop(): void {
   for (const siteDef of getAllSiteDefs()) {
     if (siteDef.active) {
-      const existingHarvesters = _.filter(
-        Game.creeps,
+      const existingHarvesters = creepsByRole("rh-harvester").filter(
         c =>
           isRhHarvester(c) &&
           c.memory.rhSite === siteDef.name &&
@@ -35,7 +35,7 @@ export function rhSpawnLoop(): void {
         }
       }
 
-      const existingMules = _.filter(Game.creeps, c => isRhMule(c) && c.memory.rhSite === siteDef.name).length;
+      const existingMules = creepsByRole("rh-mule").filter(c => isRhMule(c) && c.memory.rhSite === siteDef.name).length;
       if (existingMules >= siteDef.numMules) {
         continue;
       }
@@ -88,12 +88,10 @@ export function rhLoop(): void {
   rhSpawnLoop();
   rhBuildLoop();
 
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (isRhMule(creep)) {
-      rhMuleLoop(creep);
-    } else if (isRhHarvester(creep)) {
-      rhHarvesterLoop(creep);
-    }
+  for (const rhMule of creepsByRole("rh-mule")) {
+    rhMuleLoop(rhMule as RhMuleCreep);
+  }
+  for (const rhHarvester of creepsByRole("rh-harvester")) {
+    rhHarvesterLoop(rhHarvester as RhHarvesterCreep);
   }
 }

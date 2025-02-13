@@ -1,5 +1,6 @@
+import { creepsByRole } from "utils/query";
 import { distributorLoop } from "./role.ess-distributor";
-import { isEssDistributor } from "./role.ess-distributor.type";
+import { EssDistributorCreep, isEssDistributor } from "./role.ess-distributor.type";
 import {
   getAllSiteDefs,
   getLinkSinks,
@@ -22,12 +23,11 @@ export function energyStorageSpawnLoop(): void {
   }
 
   const existingDistributors: { [siteName: string]: number } = {};
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
+  for (const creep of creepsByRole("ess-distributor")) {
     if (isEssDistributor(creep)) {
       const distributorSiteName = creep.memory.essSiteName;
       if (!distributorSiteName) {
-        console.log(`Distributor ${name} has no site name`);
+        console.log(`Distributor ${creep.name} has no site name`);
         continue;
       }
       if (existingDistributors[distributorSiteName] === undefined) {
@@ -63,11 +63,8 @@ const show = false;
 
 export function energyStorageLoop(): void {
   energyStorageSpawnLoop();
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (isEssDistributor(creep)) {
-      distributorLoop(creep);
-    }
+  for (const distributor of creepsByRole("ess-distributor")) {
+    distributorLoop(distributor as EssDistributorCreep);
   }
 
   for (const roomName of getUsedRooms()) {

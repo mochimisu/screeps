@@ -3,6 +3,7 @@ import { spawnInRoom } from "manager/spawn";
 import { MuleCreep, MulePath, isMule } from "./mule.type";
 import { getSiteResource } from "site/energy-storage-site/site";
 import { bodyPart } from "utils/body-part";
+import { creepsByRole } from "utils/query";
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {
@@ -50,7 +51,7 @@ const mulePaths: Record<string, MulePath> = {
 };
 
 export function muleSpawnLoop(): boolean {
-  const mules = _.filter(Game.creeps, creep => creep.memory.role === "mule");
+  const mules = creepsByRole("mule") as MuleCreep[];
   const muleCounts: Record<string, number> = {};
   for (const mule of mules) {
     if (!isMule(mule)) {

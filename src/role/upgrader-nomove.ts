@@ -1,6 +1,7 @@
 import { spawnInRoom } from "manager/spawn";
 import { UpgraderNoMoveCreep, isUpgraderNoMove } from "./upgrader-nomove.type";
 import { bodyPart } from "utils/body-part";
+import { creepsByRole } from "utils/query";
 
 export interface UpgraderSlotDef {
   xy: [number, number];
@@ -28,8 +29,8 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
   ]
 };
 
-export function upgraderNoMoveSpawnLoop() {
-  const noMoveUpgraders = _.filter(Game.creeps, creep => isUpgraderNoMove(creep)) as UpgraderNoMoveCreep[];
+export function upgraderNoMoveSpawnLoop(): boolean {
+  const noMoveUpgraders = creepsByRole("upgrader-nomove") as UpgraderNoMoveCreep[];
   const availableSlots: { [roomName: string]: UpgraderSlotDef[] } = { ...upgraderSlots };
   for (const upgrader of noMoveUpgraders) {
     const upgraderPos = upgrader.memory.upgradePos;

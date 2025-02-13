@@ -1,6 +1,7 @@
 import { getStorageStructures } from "site/energy-storage-site/site";
 import { harvestClosestNode } from "./harvester";
 import { goToMainRoom, mainRoom } from "./room";
+import { structureAtPos } from "utils/query";
 
 // temp deny area to build an energy base
 const denyArea: { [roomName: string]: number[][][] } = {
@@ -23,23 +24,22 @@ const energyBuffers: { [roomName: string]: number[][] } = {
   W21S58: [[29, 19]]
 };
 
-export function getEnergyBuffers(roomName: string): Structure[] {
-  const buffers: Structure[] = [];
+export function getEnergyBuffers(roomName: string): (StructureContainer | StructureStorage)[] {
+  const buffers: (StructureContainer | StructureStorage)[] = [];
   if (!energyBuffers[roomName]) {
     return buffers;
   }
   for (const posXY of energyBuffers[roomName]) {
     const pos = new RoomPosition(posXY[0], posXY[1], roomName);
-    buffers.push(...pos.lookFor(LOOK_STRUCTURES).filter(s => s.structureType === STRUCTURE_CONTAINER));
+    const containers = structureAtPos(pos, STRUCTURE_CONTAINER) as StructureContainer[];
+    buffers.push(...containers);
   }
   buffers.push(...getStorageStructures(roomName));
   return buffers;
 }
 
 export function getClosestBufferWithEnergy(creep: Creep, minEnergy = 150): Structure | null {
-  const buffers = getEnergyBuffers(creep.room.name).filter(
-    s => s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE
-  ) as (StructureContainer | StructureStorage)[];
+  const buffers = getEnergyBuffers(creep.room.name);
   const buffersWithEnergy = buffers.filter(s => s.store.getUsedCapacity(RESOURCE_ENERGY) > minEnergy);
 
   // Sort sources by distance from the creep
@@ -69,9 +69,7 @@ export function getEnergy(creep: Creep, minEnergy = 150): boolean {
 }
 
 export function getClosestEnergyStorageInNeed(creep: Creep, preferDist = 10): Structure | null {
-  const buffers = getEnergyBuffers(creep.room.name).filter(
-    s => s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE
-  ) as (StructureContainer | StructureStorage)[];
+  const buffers = getEnergyBuffers(creep.room.name);
   const buffersWithoutEnergy = buffers.filter(s => s.store.getFreeCapacity(RESOURCE_ENERGY) > 150);
   const energyStructures = creep.room
     .find(FIND_STRUCTURES)

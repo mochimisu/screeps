@@ -12,24 +12,25 @@ import { janitorLoop } from "role/janitor";
 import { harvesterNoMoveLoop, harvesterNoMoveSpawnLoop } from "role/harvester-nomove";
 import { repairerLoop } from "role/repairer";
 import { towerLoop } from "role/tower";
-import { isHarvester } from "role/harvester.type";
-import { isUpgrader } from "role/upgrader.type";
-import { isBuilder } from "role/builder.type";
-import { isAttacker } from "role/attacker.type";
-import { isClaimer } from "role/claimer.type";
-import { isJanitor } from "role/janitor.type";
-import { isHarvesterNoMove } from "role/harvester-nomove.type";
-import { isRepairer } from "role/repairer.type";
-import { isMule } from "role/mule.type";
+import { HarvesterCreep, isHarvester } from "role/harvester.type";
+import { UpgraderCreep, isUpgrader } from "role/upgrader.type";
+import { BuilderCreep, isBuilder } from "role/builder.type";
+import { AttackerCreep, isAttacker } from "role/attacker.type";
+import { ClaimerCreep, isClaimer } from "role/claimer.type";
+import { JanitorCreep, isJanitor } from "role/janitor.type";
+import { HarvesterNoMoveCreep, isHarvesterNoMove } from "role/harvester-nomove.type";
+import { RepairerCreep, isRepairer } from "role/repairer.type";
+import { MuleCreep, isMule } from "role/mule.type";
 import * as scriptsImpl from "utils/scripts";
 import { rhLoop } from "site/remote-harvest/loop";
-import { isReserver } from "role/reserver.type";
+import { ReserverCreep, isReserver } from "role/reserver.type";
 import { reserverLoop } from "role/reserver";
-import { isUpgraderNoMove } from "role/upgrader-nomove.type";
+import { UpgraderNoMoveCreep, isUpgraderNoMove } from "role/upgrader-nomove.type";
 import { upgraderNoMoveLoop, upgraderNoMoveSpawnLoop } from "role/upgrader-nomove";
 import { orderLoop } from "market/orders";
-import { isDismantler } from "role/dismantler.type";
+import { DismantlerCreep, isDismantler } from "role/dismantler.type";
 import { dismantlerLoop } from "role/dismantler";
+import { creepsByRole, queryLoop } from "utils/query";
 
 declare global {
   /*
@@ -74,6 +75,7 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 const loop = () => {
+  queryLoop();
   if (!harvesterNoMoveSpawnLoop()) {
     spawnLoop();
     muleSpawnLoop();
@@ -89,33 +91,51 @@ const loop = () => {
   rhLoop();
 
   // Iterate over all creeps in the game
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (isHarvester(creep)) {
-      harvesterLoop(creep);
-    } else if (isUpgrader(creep)) {
-      upgraderLoop(creep);
-    } else if (isBuilder(creep)) {
-      builderLoop(creep);
-    } else if (isAttacker(creep)) {
-      attackerLoop(creep);
-    } else if (isClaimer(creep)) {
-      claimerLoop(creep);
-    } else if (isJanitor(creep)) {
-      janitorLoop(creep);
-    } else if (isHarvesterNoMove(creep)) {
-      harvesterNoMoveLoop(creep);
-    } else if (isRepairer(creep)) {
-      repairerLoop(creep);
-    } else if (isMule(creep)) {
-      muleLoop(creep);
-    } else if (isReserver(creep)) {
-      reserverLoop(creep);
-    } else if (isUpgraderNoMove(creep)) {
-      upgraderNoMoveLoop(creep);
-    } else if (isDismantler(creep)) {
-      dismantlerLoop(creep);
-    }
+  for (const harvester of creepsByRole("harvester")) {
+    harvesterLoop(harvester as HarvesterCreep);
+  }
+  for (const upgrader of creepsByRole("upgrader")) {
+    upgraderLoop(upgrader as UpgraderCreep);
+  }
+
+  for (const builder of creepsByRole("builder")) {
+    builderLoop(builder as BuilderCreep);
+  }
+
+  for (const attacker of creepsByRole("attacker")) {
+    attackerLoop(attacker as AttackerCreep);
+  }
+
+  for (const claimer of creepsByRole("claimer")) {
+    claimerLoop(claimer as ClaimerCreep);
+  }
+
+  for (const janitor of creepsByRole("janitor")) {
+    janitorLoop(janitor as JanitorCreep);
+  }
+
+  for (const harvesterNoMove of creepsByRole("harvesterNoMove")) {
+    harvesterNoMoveLoop(harvesterNoMove as HarvesterNoMoveCreep);
+  }
+
+  for (const repairer of creepsByRole("repairer")) {
+    repairerLoop(repairer as RepairerCreep);
+  }
+
+  for (const mule of creepsByRole("mule")) {
+    muleLoop(mule as MuleCreep);
+  }
+
+  for (const reserver of creepsByRole("reserver")) {
+    reserverLoop(reserver as ReserverCreep);
+  }
+
+  for (const upgraderNoMove of creepsByRole("upgraderNoMove")) {
+    upgraderNoMoveLoop(upgraderNoMove as UpgraderNoMoveCreep);
+  }
+
+  for (const dismantler of creepsByRole("dismantler")) {
+    dismantlerLoop(dismantler as DismantlerCreep);
   }
 
   for (const roomName in Game.rooms) {
