@@ -29,6 +29,15 @@ const defaultRepairPercents: { min: number; repairTo: number; towerMin: number }
 export function shouldCreepRepairStructure(structure: Structure): boolean {
   const threshDef = repairThresholds[structure.structureType];
   if (threshDef) {
+    return structure.hits < threshDef.min;
+  } else {
+    return structure.hits / structure.hitsMax < defaultRepairPercents.min;
+  }
+}
+
+export function shouldCreepContinueRepairing(structure: Structure): boolean {
+  const threshDef = repairThresholds[structure.structureType];
+  if (threshDef) {
     return structure.hits < threshDef.repairTo;
   } else {
     return structure.hits / structure.hitsMax < defaultRepairPercents.repairTo;

@@ -3,13 +3,12 @@ import { moveToIdleSpot } from "manager/idle";
 import { goToRoomAssignment, mainRoom } from "manager/room";
 import { RepairerCreep, isRepairer } from "./repairer.type";
 import { creepsByRoomAssignmentAndRole } from "utils/query";
-import { creepRepairPercent, getCreepRepairTargetIds, shouldCreepRepairStructure } from "manager/repair";
-
-const repairThresholds: { [structureType: string]: [number, number] } = {
-  [STRUCTURE_WALL]: [300000, 1000000],
-  [STRUCTURE_RAMPART]: [80000, 100000]
-};
-const defaultRepairPercents: [number, number] = [0.8, 0.9];
+import {
+  creepRepairPercent,
+  getCreepRepairTargetIds,
+  shouldCreepContinueRepairing,
+  shouldCreepRepairStructure
+} from "manager/repair";
 
 function getUnassignedRepair(creep: RepairerCreep): Structure | null {
   const roomName = creep.memory.roomName ?? creep.room.name;
@@ -57,7 +56,7 @@ export function repairerLoop(creep: RepairerCreep): void {
       }
       const pct = Math.round(creepRepairPercent(target) * 100);
       creep.say(`🔧${pct}% ${numRepairTargets}`);
-      if (!shouldCreepRepairStructure(target)) {
+      if (!shouldCreepContinueRepairing(target)) {
         creep.memory.targetId = null;
       }
       if (target) {
