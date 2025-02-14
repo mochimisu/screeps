@@ -1,3 +1,5 @@
+import { getTowerRepairTargetIds } from "manager/repair";
+
 export function towerLoop(tower: StructureTower): void {
   // Find the closest hostile creep
   let closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
@@ -15,17 +17,11 @@ export function towerLoop(tower: StructureTower): void {
     // If no hostile creeps are present, proceed to repair or heal
 
     // Find the closest damaged structure (excluding walls)
-    const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: structure =>
-        (structure.hits / structure.hitsMax < 0.4 &&
-          structure.structureType !== STRUCTURE_WALL &&
-          structure.structureType !== STRUCTURE_RAMPART) ||
-        (structure.structureType === STRUCTURE_RAMPART && structure.hits < 1000)
-    });
+    const towerRepairTarget = Game.getObjectById(getTowerRepairTargetIds(tower.room.name)[0]);
 
-    if (closestDamagedStructure) {
+    if (towerRepairTarget) {
       // If a damaged structure is found, repair it
-      tower.repair(closestDamagedStructure);
+      tower.repair(towerRepairTarget);
     } else {
       // If no structures need repairing, find the closest wounded friendly creep
       const closestWoundedCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {

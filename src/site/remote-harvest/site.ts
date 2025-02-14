@@ -2,6 +2,7 @@
 
 import { bodyPart } from "utils/body-part";
 import { RhHarvesterCreep, isRhHarvester } from "./role.rh-harvester.type";
+import { creepsByRole, query } from "utils/query";
 
 export interface RhSiteDef {
   name: string;
@@ -58,7 +59,7 @@ const siteDefs: RhSiteDef[] = [
       // W21s58 cache
       "67a936f6d2beb34270391d74",
       // main room right side link
-      "679f323406a28817ac47c452",
+      // "679f323406a28817ac47c452",
       // main storage
       // "679a16c3135bf04cc4b9f12e",
       // second storage
@@ -82,7 +83,7 @@ const siteDefs: RhSiteDef[] = [
       // W21s58 cache
       "67a936f6d2beb34270391d74",
       // main room right side link
-      "679f323406a28817ac47c452",
+      // "679f323406a28817ac47c452",
       // main storage
       // "679a16c3135bf04cc4b9f12e",
       // second storage
@@ -115,13 +116,14 @@ export function getUsedRooms(): string[] {
   return Object.keys(sitesByRoom);
 }
 
-// TODO cache
 export function getRhHarvester(siteName: string): RhHarvesterCreep | null {
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (isRhHarvester(creep) && creep.memory.rhSite === siteName) {
-      return creep;
+  return query(`rh-${siteName}-harvester`, () => {
+    const rhHarvesters = creepsByRole("rh-harvester") as RhHarvesterCreep[];
+    for (const rhHarvester of rhHarvesters) {
+      if (isRhHarvester(rhHarvester) && rhHarvester.memory.rhSite === siteName) {
+        return rhHarvester;
+      }
     }
-  }
-  return null;
+    return null;
+  });
 }

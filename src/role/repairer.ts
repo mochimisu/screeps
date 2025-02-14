@@ -2,12 +2,28 @@ import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
 import { goToRoomAssignment, mainRoom } from "manager/room";
 import { RepairerCreep, isRepairer } from "./repairer.type";
+import { creepsByRoomAssignmentAndRole } from "utils/query";
+import { creepRepairPercent, getCreepRepairTargetIds, shouldCreepRepairStructure } from "manager/repair";
 
 const repairThresholds: { [structureType: string]: [number, number] } = {
   [STRUCTURE_WALL]: [300000, 1000000],
   [STRUCTURE_RAMPART]: [80000, 100000]
 };
 const defaultRepairPercents: [number, number] = [0.8, 0.9];
+
+function getUnassignedRepair(creep: RepairerCreep): Structure | null {
+  const roomName = creep.memory.roomName ?? creep.room.name;
+  const takenTargets = new Set(
+    creepsByRoomAssignmentAndRole(roomName, creep.memory.role).map(c => (c as RepairerCreep).memory.targetId)
+  );
+  for (const targetId of getCreepRepairTargetIds(roomName)) {
+    const structure = Game.getObjectById(targetId);
+    if (structure && shouldCreepRepairStructure(structure) && !takenTargets.has(targetId)) {
+      return structure;
+    }
+  }
+  return null;
+}
 
 export function repairerLoop(creep: RepairerCreep): void {
   if (creep.store.getUsedCapacity() === 0) {
@@ -31,30 +47,17 @@ export function repairerLoop(creep: RepairerCreep): void {
       }
     }
 
-    const repairTargets = room.find(FIND_STRUCTURES, {
-      filter: structure => {
-        for (const [type, thresholds] of Object.entries(repairThresholds)) {
-          if (structure.structureType === type) {
-            return structure.hits < thresholds[0];
-          }
-        }
-        return structure.hits / structure.hitsMax < defaultRepairPercents[0];
-      }
-    });
-    creep.say(`🔧${repairTargets.length}`);
+    const numRepairTargets = getCreepRepairTargetIds(room.name).length;
+    creep.say(`🔧${numRepairTargets}`);
     if (creep.memory.targetId) {
       const target = Game.getObjectById<Structure>(creep.memory.targetId);
       if (!target) {
         creep.memory.targetId = null;
         return;
       }
-      const hitsMax = repairThresholds[target.structureType] ? repairThresholds[target.structureType][1] : null;
-      const percent = Math.round((target.hits / target.hitsMax) * 100);
-      creep.say(`🔧${percent}% ${repairTargets.length}`);
-      if (
-        (hitsMax != null && target.hits / hitsMax > defaultRepairPercents[1]) ||
-        target.hits / target.hitsMax > defaultRepairPercents[1]
-      ) {
+      const pct = Math.round(creepRepairPercent(target) * 100);
+      creep.say(`🔧${pct}% ${numRepairTargets}`);
+      if (!shouldCreepRepairStructure(target)) {
         creep.memory.targetId = null;
       }
       if (target) {
@@ -69,21 +72,9 @@ export function repairerLoop(creep: RepairerCreep): void {
       }
       return;
     } else {
-      const targets = repairTargets.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hitsMax);
-      // Find targets already assigned to other repairers
-      const repairers = _.filter(Game.creeps, c => isRepairer(c)) as RepairerCreep[];
-      const repairerTargets = new Set(repairers.map(r => r.memory.targetId));
-      while (targets.length > 0) {
-        const target = targets.shift();
-        if (target && !repairerTargets.has(target.id)) {
-          creep.memory.targetId = target.id;
-          return;
-        }
-      }
-      // if all claimed, just go to nearest
-      const nearestTarget = targets[0];
-      if (nearestTarget) {
-        creep.memory.targetId = nearestTarget.id;
+      const target = getUnassignedRepair(creep);
+      if (target) {
+        creep.memory.targetId = target.id;
         return;
       }
     }

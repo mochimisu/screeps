@@ -31,6 +31,7 @@ import { orderLoop } from "market/orders";
 import { DismantlerCreep, isDismantler } from "role/dismantler.type";
 import { dismantlerLoop } from "role/dismantler";
 import { creepsByRole, queryLoop } from "utils/query";
+import { managerRepairLoop } from "manager/repair";
 
 declare global {
   /*
@@ -83,8 +84,9 @@ const loop = () => {
     builderSpawnLoop();
   }
 
-  // energy manager
+  // managers
   energyManagerConstructLoop();
+  managerRepairLoop();
 
   // sites
   energyStorageLoop();

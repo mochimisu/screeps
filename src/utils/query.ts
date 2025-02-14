@@ -40,6 +40,16 @@ export function query<T>(key: string, getter: () => T, cacheTime = 1): T {
   return queryVal.value as T;
 }
 
+export function queryId<T extends _HasId>(key: string, getter: () => T, cacheTime = 1): T | null {
+  const id: Id<T> = query<string>(key, () => getter().id, cacheTime) as Id<T>;
+  return Game.getObjectById(id);
+}
+
+export function queryIds<T extends _HasId>(key: string, getter: () => T[], cacheTime = 1): T[] {
+  const ids: Id<T>[] = query<string[]>(key, () => getter().map(o => o.id), cacheTime) as Id<T>[];
+  return ids.map(id => Game.getObjectById(id) as T);
+}
+
 export function perTickQuery<T>(key: string, getter: () => T): T {
   if (Game.time !== perTickMemoryUpdated) {
     perTickMemory = {};
@@ -112,20 +122,13 @@ export function structureTypesAtPos(
   structureTypes: Set<StructureConstant>,
   cacheTime = 10
 ): Structure[] | null {
-  const ids = query(
+  return queryIds(
     `structureAtPos-${pos.toString()}-${Array.from(structureTypes).join(",")}`,
     () => {
-      return pos
-        .lookFor(LOOK_STRUCTURES)
-        .filter(s => structureTypes.has(s.structureType))
-        .map(s => s.id);
+      return pos.lookFor(LOOK_STRUCTURES).filter(s => structureTypes.has(s.structureType));
     },
     cacheTime
   );
-  if (ids == null) {
-    return null;
-  }
-  return ids.map(id => Game.getObjectById(id) as Structure);
 }
 
 export function structureAtPos(

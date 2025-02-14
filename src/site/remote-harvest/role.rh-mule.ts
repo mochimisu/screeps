@@ -34,7 +34,7 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
 
     const transferStatus = creep.transfer(sink, RESOURCE_ENERGY);
     if (transferStatus === ERR_NOT_IN_RANGE) {
-      creep.moveTo(sink);
+      creep.moveTo(sink, { reusePath: 10 });
     }
   }
 

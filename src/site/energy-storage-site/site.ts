@@ -1,6 +1,7 @@
 // take energy from energySources and put it into storage
 
 import { bodyPart } from "utils/body-part";
+import { queryIds } from "utils/query";
 
 export interface EssSiteDefinition {
   name: string;
@@ -94,19 +95,25 @@ export function getStorageStructures(roomName: string): (StructureContainer | St
   if (!roomSites) {
     return structures;
   }
-  for (const area of roomSites) {
-    for (const posXY of area.storage) {
-      const pos = new RoomPosition(posXY[0], posXY[1], roomName);
-      const storageStructures = pos
-        .lookFor(LOOK_STRUCTURES)
-        .filter(s => s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_CONTAINER) as (
-        | StructureContainer
-        | StructureStorage
-      )[];
-      structures.push(...storageStructures);
-    }
-  }
-  return structures;
+  return queryIds(
+    `ess-${roomName}-storageStructures`,
+    () => {
+      for (const area of roomSites) {
+        for (const posXY of area.storage) {
+          const pos = new RoomPosition(posXY[0], posXY[1], roomName);
+          const storageStructures = pos
+            .lookFor(LOOK_STRUCTURES)
+            .filter(s => s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_CONTAINER) as (
+            | StructureContainer
+            | StructureStorage
+          )[];
+          structures.push(...storageStructures);
+        }
+      }
+      return structures;
+    },
+    100
+  );
 }
 
 export function isXyInAreaDef(posXY: [number, number], areaDef: EssSiteDefinition): boolean {
@@ -117,86 +124,110 @@ export function isXyInAreaDef(posXY: [number, number], areaDef: EssSiteDefinitio
 }
 
 export function getNonStorageLinks(roomName: string): StructureLink[] {
-  const room = Game.rooms[roomName];
-  const links = room.find(FIND_MY_STRUCTURES, {
-    filter: s => {
-      if (s.structureType !== STRUCTURE_LINK) {
-        return false;
-      }
-      let inAnyArea = false;
-      for (const area of getSitesByRoom(roomName)) {
-        if (isXyInAreaDef([s.pos.x, s.pos.y], area)) {
-          inAnyArea = true;
-        }
-        for (const sinkXY of area.linkSinks || []) {
-          if (s.pos.x === sinkXY[0] && s.pos.y === sinkXY[1]) {
-            inAnyArea = true;
+  return queryIds(
+    `ess-${roomName}-nonStorageLinks`,
+    () => {
+      const room = Game.rooms[roomName];
+      const links = room.find(FIND_MY_STRUCTURES, {
+        filter: s => {
+          if (s.structureType !== STRUCTURE_LINK) {
+            return false;
           }
+          let inAnyArea = false;
+          for (const area of getSitesByRoom(roomName)) {
+            if (isXyInAreaDef([s.pos.x, s.pos.y], area)) {
+              inAnyArea = true;
+            }
+            for (const sinkXY of area.linkSinks || []) {
+              if (s.pos.x === sinkXY[0] && s.pos.y === sinkXY[1]) {
+                inAnyArea = true;
+              }
+            }
+            if (inAnyArea) {
+              break;
+            }
+          }
+          return !inAnyArea;
         }
-        if (inAnyArea) {
-          break;
-        }
-      }
-      return !inAnyArea;
-    }
-  });
-  return links as StructureLink[];
+      });
+      return links as StructureLink[];
+    },
+    100
+  );
 }
 
 export function getStorageLinks(roomName: string): StructureLink[] {
-  const room = Game.rooms[roomName];
-  const links = room.find(FIND_MY_STRUCTURES, {
-    filter: s => {
-      if (s.structureType !== STRUCTURE_LINK) {
-        return false;
-      }
-      for (const area of getSitesByRoom(roomName)) {
-        if (isXyInAreaDef([s.pos.x, s.pos.y], area)) {
-          return true;
+  return queryIds(
+    `ess-${roomName}-storageLinks`,
+    () => {
+      const room = Game.rooms[roomName];
+      const links = room.find(FIND_MY_STRUCTURES, {
+        filter: s => {
+          if (s.structureType !== STRUCTURE_LINK) {
+            return false;
+          }
+          for (const area of getSitesByRoom(roomName)) {
+            if (isXyInAreaDef([s.pos.x, s.pos.y], area)) {
+              return true;
+            }
+          }
+          return false;
         }
-      }
-      return false;
-    }
-  });
-  return links as StructureLink[];
+      });
+      return links as StructureLink[];
+    },
+    100
+  );
 }
 
 export function getLinkSinks(roomName: string): StructureLink[] {
-  const room = Game.rooms[roomName];
-  const links = room.find(FIND_MY_STRUCTURES, {
-    filter: s => {
-      if (s.structureType !== STRUCTURE_LINK) {
-        return false;
-      }
-      for (const area of getSitesByRoom(roomName)) {
-        for (const sinkXY of area.linkSinks || []) {
-          if (s.pos.x === sinkXY[0] && s.pos.y === sinkXY[1]) {
-            return true;
+  return queryIds(
+    `ess-${roomName}-linkSinks`,
+    () => {
+      const room = Game.rooms[roomName];
+      const links = room.find(FIND_MY_STRUCTURES, {
+        filter: s => {
+          if (s.structureType !== STRUCTURE_LINK) {
+            return false;
           }
+          for (const area of getSitesByRoom(roomName)) {
+            for (const sinkXY of area.linkSinks || []) {
+              if (s.pos.x === sinkXY[0] && s.pos.y === sinkXY[1]) {
+                return true;
+              }
+            }
+          }
+          return false;
         }
-      }
-      return false;
-    }
-  });
-  return links as StructureLink[];
+      });
+      return links as StructureLink[];
+    },
+    100
+  );
 }
 
 export function getEnergyContainersOutsideAreas(roomName: string): StructureContainer[] {
-  const room = Game.rooms[roomName];
-  const containers = room.find(FIND_STRUCTURES, {
-    filter: s => {
-      if (s.structureType !== STRUCTURE_CONTAINER) {
-        return false;
-      }
-      for (const area of getSitesByRoom(roomName)) {
-        if (isXyInAreaDef([s.pos.x, s.pos.y], area)) {
-          return false;
+  return queryIds(
+    `ess-${roomName}-energyContainersOutsideAreas`,
+    () => {
+      const room = Game.rooms[roomName];
+      const containers = room.find(FIND_STRUCTURES, {
+        filter: s => {
+          if (s.structureType !== STRUCTURE_CONTAINER) {
+            return false;
+          }
+          for (const area of getSitesByRoom(roomName)) {
+            if (isXyInAreaDef([s.pos.x, s.pos.y], area)) {
+              return false;
+            }
+          }
+          return true;
         }
-      }
-      return true;
-    }
-  });
-  return containers as StructureContainer[];
+      });
+      return containers as StructureContainer[];
+    },
+    100
+  );
 }
 
 export function getSiteByName(name: string): EssSiteDefinition {

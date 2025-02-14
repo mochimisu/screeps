@@ -158,11 +158,13 @@ export function muleLoop(creep: MuleCreep): void {
     if (pathDef.condition != null && !pathDef.condition?.(source, sink)) {
       if (pathDef.idlePosition) {
         creep.moveTo(pathDef.idlePosition, {
-          visualizePathStyle: { stroke: "#ffaa00" }
+          visualizePathStyle: { stroke: "#ffaa00" },
+          reusePath: 10
         });
       } else if (!moveToIdleSpot(creep)) {
         creep.moveTo(source, {
-          visualizePathStyle: { stroke: "#ffaa00" }
+          visualizePathStyle: { stroke: "#ffaa00" },
+          reusePath: 10
         });
       }
       return;
@@ -170,7 +172,8 @@ export function muleLoop(creep: MuleCreep): void {
     if (pathDef.resourceType) {
       if (creep.withdraw(source, pathDef.resourceType) === ERR_NOT_IN_RANGE) {
         creep.moveTo(source, {
-          visualizePathStyle: { stroke: "#ffaa00" }
+          visualizePathStyle: { stroke: "#ffaa00" },
+          reusePath: 10
         });
         return;
       }
@@ -178,7 +181,8 @@ export function muleLoop(creep: MuleCreep): void {
       for (const resourceType in source.store) {
         if (creep.withdraw(source, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source, {
-            visualizePathStyle: { stroke: "#ffaa00" }
+            visualizePathStyle: { stroke: "#ffaa00" },
+            reusePath: 10
           });
           return;
         }
@@ -193,7 +197,8 @@ export function muleLoop(creep: MuleCreep): void {
       const transferStatus = creep.transfer(sink, resourceType as ResourceConstant);
       if (transferStatus === ERR_NOT_IN_RANGE) {
         creep.moveTo(sink, {
-          visualizePathStyle: { stroke: "#ffffff" }
+          visualizePathStyle: { stroke: "#ffffff" },
+          reusePath: 10
         });
         return;
       }
@@ -209,7 +214,8 @@ export function muleLoop(creep: MuleCreep): void {
         const transferStatus = creep.transfer(backupSink, resourceType as ResourceConstant);
         if (transferStatus === ERR_NOT_IN_RANGE) {
           creep.moveTo(backupSink, {
-            visualizePathStyle: { stroke: "#ffffff" }
+            visualizePathStyle: { stroke: "#ffffff" },
+            reusePath: 10
           });
           return;
         }

@@ -2,7 +2,7 @@ interface HarvesterNoMoveMemory extends CreepMemory {
   role: "harvester-nomove";
   status: "harvesting" | "dumping";
   sourceId: string;
-  harvesterNoMoveSourcePos?: RoomPosition;
+  harvesterDumpTargets?: Id<Structure>[];
 }
 
 export type HarvesterNoMoveCreep = Creep & {
