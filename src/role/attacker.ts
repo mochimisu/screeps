@@ -1,5 +1,5 @@
 import { getClosestEnergyStorageInNeed } from "manager/energy";
-import { goToMainRoom } from "manager/room";
+import { goToMainRoom, goToRoomAssignment } from "manager/room";
 import { moveToIdleSpot } from "manager/idle";
 import { AttackerCreep } from "./attacker.type";
 
@@ -12,16 +12,23 @@ const targetStructures: Set<[number, number]> = new Set([
 
 export function attackerLoop(creep: AttackerCreep): void {
   let active = false;
+  if (goToRoomAssignment(creep)) {
+    return;
+  }
   const creepTarget = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
+  // console.log("creepName", creep.name);
+  // console.log("creepTarget", creepTarget);
   if (creepTarget) {
     active = true;
+    const attackStatus = creep.attack(creepTarget);
+    // console.log("attacking", creepTarget, attackStatus);
     if (creep.attack(creepTarget) === ERR_NOT_IN_RANGE) {
       creep.moveTo(creepTarget);
     }
-  } else {
-    if (goToMainRoom(creep)) {
-      return;
+    if (creep.rangedAttack(creepTarget) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(creepTarget);
     }
+  } else {
     const structures = [];
     for (const [x, y] of targetStructures) {
       const targets = creep.room.lookAt(x, y);
@@ -42,34 +49,9 @@ export function attackerLoop(creep: AttackerCreep): void {
         return;
       }
     }
-
-    // cleanup if idle
-    if (creep.store.getFreeCapacity() > 0) {
-      const droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-        filter: resource => resource.resourceType === RESOURCE_ENERGY
-      });
-      if (droppedEnergy && droppedEnergy.amount > 10) {
-        if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(droppedEnergy, {
-            visualizePathStyle: { stroke: "#ffaa00" }
-          });
-        }
-        active = true;
-      }
-    }
-    if (creep.store.getUsedCapacity() > 0) {
-      const target = getClosestEnergyStorageInNeed(creep);
-      if (target) {
-        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target, {
-            visualizePathStyle: { stroke: "#ffaa00" }
-          });
-        }
-        active = true;
-      }
-    }
   }
   if (!active) {
+    creep.say("🛌");
     moveToIdleSpot(creep);
   }
 }

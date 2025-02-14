@@ -19,6 +19,11 @@ export const noMoveNodes: NoMoveDefinition[] = [
   {
     sourceId: "5bbcabba9099fc012e6342c8",
     allowOtherRoomSpawn: true
+  },
+  // 3rd energy
+  {
+    sourceId: "5bbcabc79099fc012e634450",
+    allowOtherRoomSpawn: true
   }
 ];
 

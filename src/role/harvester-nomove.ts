@@ -92,18 +92,26 @@ export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
     }
     return;
   } else if (creep.memory.status === "dumping") {
-    const target = getClosestEnergyStorageInNeed(creep, 3);
-    if (target) {
-      const harvesterNoMoveSourcePos = creep.memory.harvesterNoMoveSourcePos;
-      if (harvesterNoMoveSourcePos && target.pos.getRangeTo(harvesterNoMoveSourcePos) > 3) {
-        // Don't go so far
-        return;
-      }
-      for (const resourceType in creep.store) {
-        if (creep.transfer(target, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
-          return;
+    // Find, in priority order, spawn, link, container, storage, within 2 spaces
+    const priorityOrder: StructureConstant[] = [
+      STRUCTURE_SPAWN,
+      STRUCTURE_LINK,
+      STRUCTURE_CONTAINER,
+      STRUCTURE_STORAGE
+    ];
+    for (const structureType of priorityOrder) {
+      const structure = creep.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: s =>
+          s.structureType === structureType &&
+          ((s as StructureContainer | StructureLink | StructureStorage | StructureSpawn)?.store?.getFreeCapacity(
+            RESOURCE_ENERGY
+          ) ?? 0) > 0
+      })[0];
+      if (structure) {
+        if (creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(structure, { visualizePathStyle: { stroke: "#ffaa00" } });
         }
+        return;
       }
     }
   }

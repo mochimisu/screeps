@@ -1,6 +1,13 @@
 export function towerLoop(tower: StructureTower): void {
   // Find the closest hostile creep
-  const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+  let closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+  // proritize healers first
+  const hostileHealers = tower.room.find(FIND_HOSTILE_CREEPS, {
+    filter: c => c.getActiveBodyparts(HEAL) > 0
+  });
+  if (hostileHealers.length > 0) {
+    closestHostile = tower.pos.findClosestByRange(hostileHealers);
+  }
   if (closestHostile) {
     // If a hostile creep is found, attack it
     tower.attack(closestHostile);

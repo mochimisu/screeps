@@ -40,7 +40,7 @@ const siteDefs: RhSiteDef[] = [
       // second storage
       "67a143d162f5371cbb7bb49b"
     ],
-    active: true
+    active: false
   },
   {
     name: "w21s59-0",
@@ -53,6 +53,8 @@ const siteDefs: RhSiteDef[] = [
     numMules: 3,
     fullRoad: true,
     sinks: [
+      // w21s58 link
+      "67adf09b135bf0a3a2bf4253",
       // W21s58 cache
       "67a936f6d2beb34270391d74",
       // main room right side link
@@ -75,6 +77,8 @@ const siteDefs: RhSiteDef[] = [
     numMules: 3,
     fullRoad: true,
     sinks: [
+      // w21s58 link
+      "67adf09b135bf0a3a2bf4253",
       // W21s58 cache
       "67a936f6d2beb34270391d74",
       // main room right side link

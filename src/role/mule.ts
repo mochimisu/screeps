@@ -47,6 +47,15 @@ const mulePaths: Record<string, MulePath> = {
     condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
     idlePosition: new RoomPosition(20, 40, "W21S58"),
     parts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)]
+  },
+  "third-energy-main": {
+    numMules: 2,
+    source: "67ab4af7918897273c038658",
+    sink: "679a16c3135bf04cc4b9f12e",
+    condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
+      source.store.getUsedCapacity(RESOURCE_ENERGY) > 100000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 100000,
+    idlePosition: new RoomPosition(30, 22, "W21S58"),
+    parts: [...bodyPart(CARRY, 6), ...bodyPart(MOVE, 3)]
   }
 };
 
@@ -86,6 +95,9 @@ export function muleSpawnLoop(): boolean {
       mulesNeeded[pathName] = needed;
     }
   }
+  // for (const path in mulesNeeded) {
+  //   console.log(`Need ${mulesNeeded[path]} mules for path ${path}`);
+  // }
 
   for (const path in mulesNeeded) {
     const pathDef = mulePaths[path];
@@ -99,7 +111,8 @@ export function muleSpawnLoop(): boolean {
       spawnInRoom("mule", {
         roomName: room.name,
         additionalMemory: { path },
-        parts: pathDef.parts ?? [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE]
+        parts: pathDef.parts ?? [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+        spawnElsewhereIfNeeded: true
       })
     ) {
       return true;

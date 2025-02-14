@@ -122,7 +122,7 @@ function essDepositEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
   // 2. Extensions
   // 3. Towers
   // 4. Storage/Containers
-  const importanceOrder = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_STORAGE];
+  const importanceOrder = [STRUCTURE_TOWER, STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_STORAGE];
   const room = Game.rooms[siteDef.roomName];
   const structures = room.lookForAtArea(
     LOOK_STRUCTURES,

@@ -12,6 +12,7 @@ import {
   getUsedRooms
 } from "./site";
 import { spawnInRoom } from "manager/spawn";
+import { bodyPart } from "utils/body-part";
 
 export function energyStorageSpawnLoop(): void {
   const siteDefs = getAllSiteDefs();
@@ -50,7 +51,7 @@ export function energyStorageSpawnLoop(): void {
           additionalMemory: {
             essSiteName: siteName
           },
-          parts: siteDef.distributorParts ?? [CARRY, CARRY, MOVE]
+          parts: siteDef.distributorParts ?? [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
         })
       ) {
         return;

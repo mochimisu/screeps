@@ -12,19 +12,19 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
   W22S58: [
     {
       xy: [30, 14],
-      parts: [...bodyPart(WORK, 16), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 8)]
+      parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 6)]
     }
   ],
   W22S59: [
     {
       xy: [27, 45],
-      parts: [...bodyPart(WORK, 5), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 2)]
+      parts: [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)]
     }
   ],
   W21S58: [
     {
       xy: [28, 19],
-      parts: [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)]
+      parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 6)]
     }
   ]
 };
@@ -35,6 +35,9 @@ export function upgraderNoMoveSpawnLoop(): boolean {
   for (const upgrader of noMoveUpgraders) {
     const upgraderPos = upgrader.memory.upgradePos;
     if (!upgraderPos) {
+      continue;
+    }
+    if (availableSlots[upgraderPos.roomName] == null) {
       continue;
     }
     availableSlots[upgraderPos.roomName] = availableSlots[upgraderPos.roomName].filter(curSlot => {

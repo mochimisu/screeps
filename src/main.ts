@@ -114,7 +114,7 @@ const loop = () => {
     janitorLoop(janitor as JanitorCreep);
   }
 
-  for (const harvesterNoMove of creepsByRole("harvesterNoMove")) {
+  for (const harvesterNoMove of creepsByRole("harvester-nomove")) {
     harvesterNoMoveLoop(harvesterNoMove as HarvesterNoMoveCreep);
   }
 
@@ -130,7 +130,7 @@ const loop = () => {
     reserverLoop(reserver as ReserverCreep);
   }
 
-  for (const upgraderNoMove of creepsByRole("upgraderNoMove")) {
+  for (const upgraderNoMove of creepsByRole("upgrader-nomove")) {
     upgraderNoMoveLoop(upgraderNoMove as UpgraderNoMoveCreep);
   }
 

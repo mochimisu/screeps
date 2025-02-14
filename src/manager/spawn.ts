@@ -45,14 +45,15 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   },
   W22S59: {
     janitor: 1,
-    repairer: 1
+    repairer: 2
   },
   W21S58: {
     repairer: 1
   },
   W21S59: {
     reserver: 1,
-    repairer: 1
+    repairer: 1,
+    attacker: 1
   }
 };
 
@@ -71,7 +72,9 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   // reserver: [CLAIM, CLAIM, MOVE, MOVE]
   reserver: [CLAIM, MOVE],
   "upgrader-nomove": [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 2)],
-  dismantler: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
+  dismantler: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE],
+  attacker: [...bodyPart(TOUGH, 20), ...bodyPart(RANGED_ATTACK, 5), ...bodyPart(MOVE, 12)],
+  "ess-distributor": [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
 };
 
 function getPartsForRole(role: Role): BodyPartConstant[] {
