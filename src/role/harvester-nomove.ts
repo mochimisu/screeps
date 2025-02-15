@@ -63,11 +63,10 @@ function harvesterDumpTarget(
     // Find structures within 2 spaces
     const targets = creep.pos.findInRange(FIND_STRUCTURES, 2, {
       filter: s =>
-        (s.structureType === STRUCTURE_CONTAINER ||
-          s.structureType === STRUCTURE_LINK ||
-          s.structureType === STRUCTURE_STORAGE ||
-          s.structureType === STRUCTURE_SPAWN) &&
-        (s?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0) > 0
+        s.structureType === STRUCTURE_CONTAINER ||
+        s.structureType === STRUCTURE_LINK ||
+        s.structureType === STRUCTURE_STORAGE ||
+        s.structureType === STRUCTURE_SPAWN
     });
     // Sort in priority order:
     const spawns = targets.filter(t => t.structureType === STRUCTURE_SPAWN);
@@ -89,7 +88,7 @@ function harvesterDumpTarget(
     }
     if ((target.store.getFreeCapacity() ?? 0) > 0) {
       return target;
-    } else if (target instanceof StructureLink && target.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+    } else if (target.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
       return target;
     }
   }
@@ -132,7 +131,31 @@ export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
       setReplaceAtForCurrentTick(creep);
     }
     return;
-  } else if (creep.memory.status === "dumping") {
+  } else if (creep.memory.status === "dumping" && Game.time >= (creep.memory.born ?? 0) + 1) {
+    const target = creep.pos.findInRange(FIND_STRUCTURES, 1, {
+      filter: s =>
+        s.structureType === STRUCTURE_CONTAINER ||
+        s.structureType === STRUCTURE_LINK ||
+        s.structureType === STRUCTURE_STORAGE ||
+        s.structureType === STRUCTURE_SPAWN
+    });
+    const containers = target.filter(t => t.structureType === STRUCTURE_CONTAINER);
+    const links = target.filter(t => t.structureType === STRUCTURE_LINK);
+    const storages = target.filter(t => t.structureType === STRUCTURE_STORAGE);
+    const spawns = target.filter(t => t.structureType === STRUCTURE_SPAWN);
+    const priorityOrder = [...spawns, ...links, ...containers, ...storages];
+    for (const t of priorityOrder) {
+      if ((t.store.getFreeCapacity() ?? 0) > 0 || t.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        for (const resourceType in creep.store) {
+          if (creep.transfer(t, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(t, { visualizePathStyle: { stroke: "#ffaa00" } });
+          }
+          return;
+        }
+      }
+    }
+
+    // this is broken, jsut find the closest storage
     const hasNonEnergy = creep.store.getUsedCapacity() !== creep.store.getUsedCapacity(RESOURCE_ENERGY);
     const dumpTarget = harvesterDumpTarget(creep, hasNonEnergy);
     if (dumpTarget) {
@@ -141,6 +164,17 @@ export function harvesterNoMoveLoop(creep: HarvesterNoMoveCreep): void {
           creep.moveTo(dumpTarget, { visualizePathStyle: { stroke: "#ffaa00" } });
         }
         return;
+      }
+    } else {
+      // Find closest energy storage in need
+      const storage = getClosestEnergyStorageInNeed(creep);
+      if (storage) {
+        for (const resourceType in creep.store) {
+          if (creep.transfer(storage, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(storage, { visualizePathStyle: { stroke: "#ffaa00" } });
+          }
+          return;
+        }
       }
     }
   }

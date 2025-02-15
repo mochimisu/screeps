@@ -9,6 +9,10 @@ export function getAllRooms(): Room[] {
   return [Game.rooms[mainRoom], ...getWipRooms()].filter(room => room != null);
 }
 
+export function getAllRoomNames(): string[] {
+  return [mainRoom, ...wipRooms];
+}
+
 export function goToRoom(creep: Creep, roomName: string): boolean {
   if (creep.room.name !== roomName) {
     const exitDir = creep.room.findExitTo(roomName);

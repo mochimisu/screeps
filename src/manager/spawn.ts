@@ -40,19 +40,14 @@ const roamingSpawns: Partial<Record<Role, number>> = {};
 
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   W22S58: {
-    janitor: 1,
-    repairer: 1
+    janitor: 1
   },
   W22S59: {
-    janitor: 1,
-    repairer: 2
+    janitor: 1
   },
-  W21S58: {
-    repairer: 1
-  },
+  W21S58: {},
   W21S59: {
     reserver: 1,
-    repairer: 1,
     attacker: 1
   }
 };

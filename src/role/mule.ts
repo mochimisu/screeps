@@ -13,21 +13,21 @@ const mulePaths: Record<string, MulePath> = {
     // main south link
     sink: "6799f5bad11320315980dc99",
     backupSink: "67a143d162f5371cbb7bb49b",
-    condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000,
+    condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000,
     idlePosition: new RoomPosition(17, 16, "W22S59"),
     resourceType: RESOURCE_ENERGY
   },
   "main-to-second": {
-    numMules: 2,
-    // main storage
+    numMules: 4,
+    // main s4orage
     source: "679a16c3135bf04cc4b9f12e",
     // second storage
     sink: "67a143d162f5371cbb7bb49b",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
       source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000 && sink.store.getUsedCapacity(RESOURCE_ENERGY) < 8000,
     idlePosition: new RoomPosition(27, 27, "W22S58"),
-    resourceType: RESOURCE_ENERGY
+    resourceType: RESOURCE_ENERGY,
+    parts: [...bodyPart(CARRY, 6), ...bodyPart(MOVE, 3)]
   },
   "main-mineral-ess": {
     numMules: 1,
@@ -39,6 +39,16 @@ const mulePaths: Record<string, MulePath> = {
       source.store.getUsedCapacity() > 100 && sink.store.getFreeCapacity() > 10000,
     idlePosition: new RoomPosition(9, 15, "W22S58")
   },
+  "second-mineral-ess": {
+    numMules: 1,
+    // second mineral buffer
+    source: "67afea384096702585b11eb7",
+    // second storage
+    sink: "67a143d162f5371cbb7bb49b",
+    condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
+      source.store.getUsedCapacity() > 100 && sink.store.getFreeCapacity() > 10000,
+    idlePosition: new RoomPosition(31, 14, "W22S59")
+  },
   "third-energy-ess": {
     numMules: 2,
     source: "67a936f6d2beb34270391d74",
@@ -49,7 +59,7 @@ const mulePaths: Record<string, MulePath> = {
     parts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)]
   },
   "third-energy-main": {
-    numMules: 2,
+    numMules: 3,
     source: "67ab4af7918897273c038658",
     sink: "679a16c3135bf04cc4b9f12e",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>

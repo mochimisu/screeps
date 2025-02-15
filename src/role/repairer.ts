@@ -1,6 +1,6 @@
 import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
-import { goToRoomAssignment, mainRoom } from "manager/room";
+import { getAllRoomNames, goToRoomAssignment, mainRoom } from "manager/room";
 import { RepairerCreep, isRepairer } from "./repairer.type";
 import { creepsByRoomAssignmentAndRole } from "utils/query";
 import {
@@ -9,6 +9,7 @@ import {
   shouldCreepContinueRepairing,
   shouldCreepRepairStructure
 } from "manager/repair";
+import { spawnInRoom } from "manager/spawn";
 
 function getUnassignedRepair(creep: RepairerCreep): Structure | null {
   const roomName = creep.memory.roomName ?? creep.room.name;
@@ -22,6 +23,32 @@ function getUnassignedRepair(creep: RepairerCreep): Structure | null {
     }
   }
   return null;
+}
+
+export function repairerSpawnLoop(): boolean {
+  // Spawn 1 repairer per room.
+  // Spawn an additional repairer for every 100 needed repairs.
+  const numRepairersByRoom: { [roomName: string]: number } = {};
+  for (const roomName of getAllRoomNames()) {
+    numRepairersByRoom[roomName] = 1;
+    const additionalRepairs = Math.floor(getCreepRepairTargetIds(roomName).length / 100);
+    numRepairersByRoom[roomName] += additionalRepairs;
+  }
+  for (const roomName in numRepairersByRoom) {
+    const numExisting = creepsByRoomAssignmentAndRole(roomName, "repairer").length;
+    if (numExisting < numRepairersByRoom[roomName]) {
+      if (
+        spawnInRoom("repairer", {
+          roomName,
+          assignToRoom: true,
+          spawnElsewhereIfNeeded: true
+        })
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export function repairerLoop(creep: RepairerCreep): void {

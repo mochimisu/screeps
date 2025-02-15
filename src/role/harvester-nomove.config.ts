@@ -20,6 +20,11 @@ export const noMoveNodes: NoMoveDefinition[] = [
     sourceId: "5bbcabba9099fc012e6342c8",
     allowOtherRoomSpawn: true
   },
+  // 2nd keanium
+  {
+    sourceId: "5bbcb21d40062e4259e936b6",
+    predicate: () => (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b6")?.mineralAmount ?? 0) > 0
+  },
   // 3rd energy
   {
     sourceId: "5bbcabc79099fc012e634450",

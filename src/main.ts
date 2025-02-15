@@ -10,7 +10,7 @@ import { attackerLoop } from "role/attacker";
 import { claimerLoop } from "role/claimer";
 import { janitorLoop } from "role/janitor";
 import { harvesterNoMoveLoop, harvesterNoMoveSpawnLoop } from "role/harvester-nomove";
-import { repairerLoop } from "role/repairer";
+import { repairerLoop, repairerSpawnLoop } from "role/repairer";
 import { towerLoop } from "role/tower";
 import { HarvesterCreep, isHarvester } from "role/harvester.type";
 import { UpgraderCreep, isUpgrader } from "role/upgrader.type";
@@ -82,6 +82,7 @@ const loop = () => {
     muleSpawnLoop();
     upgraderNoMoveSpawnLoop();
     builderSpawnLoop();
+    repairerSpawnLoop();
   }
 
   // managers

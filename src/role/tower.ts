@@ -1,4 +1,15 @@
-import { getTowerRepairTargetIds } from "manager/repair";
+import { getTowerRepairTargetIds, shouldTowerRepairStructure } from "manager/repair";
+
+function getTowerRepairTarget(tower: StructureTower): Structure | null {
+  const repairTargets = getTowerRepairTargetIds(tower.room.name);
+  for (const id of repairTargets) {
+    const structure = Game.getObjectById(id);
+    if (structure && shouldTowerRepairStructure(structure)) {
+      return structure;
+    }
+  }
+  return null;
+}
 
 export function towerLoop(tower: StructureTower): void {
   // Find the closest hostile creep
@@ -17,7 +28,7 @@ export function towerLoop(tower: StructureTower): void {
     // If no hostile creeps are present, proceed to repair or heal
 
     // Find the closest damaged structure (excluding walls)
-    const towerRepairTarget = Game.getObjectById(getTowerRepairTargetIds(tower.room.name)[0]);
+    const towerRepairTarget = getTowerRepairTarget(tower);
 
     if (towerRepairTarget) {
       // If a damaged structure is found, repair it

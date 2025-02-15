@@ -17,7 +17,7 @@ export interface ManualOrder {
 
 const orders: ManualOrder[] = [
   {
-    id: "sell-oxygen-mid-12",
+    id: "sell-oxygen-mid-13",
     type: "sell",
     resourceType: RESOURCE_OXYGEN,
     price: 45,
@@ -32,6 +32,33 @@ const orders: ManualOrder[] = [
     price: 45,
     amount: 10000,
     energyAllowance: 5000,
+    createDeal: true
+  },
+  {
+    id: "buy-energy-low-0",
+    type: "buy",
+    resourceType: RESOURCE_ENERGY,
+    price: 25,
+    amount: 10000,
+    energyAllowance: 1000,
+    createDeal: true
+  },
+  {
+    id: "buy-energy-mid-0",
+    type: "buy",
+    resourceType: RESOURCE_ENERGY,
+    price: 30,
+    amount: 10000,
+    energyAllowance: 1000,
+    createDeal: true
+  },
+  {
+    id: "buy-energy-high-0",
+    type: "buy",
+    resourceType: RESOURCE_ENERGY,
+    price: 35,
+    amount: 10000,
+    energyAllowance: 1000,
     createDeal: true
   }
 ];
@@ -77,8 +104,10 @@ export function getActiveResources(): Map<ResourceConstant, number> {
       if (order.type === "sell") {
         resourcesNeeded.set(order.resourceType, (resourcesNeeded.get(order.resourceType) || 0) + order.amount);
       }
-      // energy
-      resourcesNeeded.set(RESOURCE_ENERGY, (resourcesNeeded.get(RESOURCE_ENERGY) || 0) + order.energyAllowance);
+      if (!memory || memory.status !== "active") {
+        // energy
+        resourcesNeeded.set(RESOURCE_ENERGY, (resourcesNeeded.get(RESOURCE_ENERGY) || 0) + order.energyAllowance);
+      }
     }
   }
   return resourcesNeeded;

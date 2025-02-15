@@ -6,6 +6,7 @@ import { creepsByRole } from "utils/query";
 export interface UpgraderSlotDef {
   xy: [number, number];
   parts?: BodyPartConstant[];
+  spawnElsewhereIfNeeded?: boolean;
 }
 
 export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
@@ -24,7 +25,7 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
   W21S58: [
     {
       xy: [28, 19],
-      parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 6)]
+      parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 6)]
     }
   ]
 };
@@ -55,7 +56,7 @@ export function upgraderNoMoveSpawnLoop(): boolean {
         spawnInRoom("upgrader-nomove", {
           roomName,
           assignToRoom: true,
-          spawnElsewhereIfNeeded: true,
+          spawnElsewhereIfNeeded: slot.spawnElsewhereIfNeeded,
           additionalMemory: {
             upgradePos: new RoomPosition(slot.xy[0], slot.xy[1], roomName)
           },
