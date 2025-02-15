@@ -59,13 +59,13 @@ const mulePaths: Record<string, MulePath> = {
     parts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)]
   },
   "third-energy-main": {
-    numMules: 3,
+    numMules: 4,
     source: "67ab4af7918897273c038658",
     sink: "679a16c3135bf04cc4b9f12e",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
       source.store.getUsedCapacity(RESOURCE_ENERGY) > 100000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 100000,
     idlePosition: new RoomPosition(30, 22, "W21S58"),
-    parts: [...bodyPart(CARRY, 6), ...bodyPart(MOVE, 3)]
+    parts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)]
   }
 };
 

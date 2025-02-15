@@ -1,12 +1,14 @@
 import { getEnergy } from "manager/energy";
 import { clearCreep } from "manager/harvester";
 import { moveToIdleSpot } from "manager/idle";
-import { goToMainRoom, goToRoomAssignment } from "manager/room";
+import { goToMainRoom, goToRoomAssignment, mainRoom } from "manager/room";
 import { BuilderCreep, isBuilder } from "./builder.type";
 import { spawnInRoom } from "manager/spawn";
+import { getCachedSiteResource, getSiteResource } from "site/energy-storage-site/site";
 
 const numBuilders = 3;
 const progressPerBuilder = 1000;
+const reqEnergyPerBuilder = 5000;
 
 interface DenyArea {
   start: { x: number; y: number };
@@ -24,7 +26,11 @@ export function builderSpawnLoop(): void {
   const builders = _.filter(Game.creeps, isBuilder);
   const constructionSites = _.filter(Game.constructionSites, cs => cs.my);
   const totalProgressNeeded = _.sum(constructionSites, cs => cs.progressTotal);
-  const desiredBuilders = Math.min(Math.ceil(totalProgressNeeded / progressPerBuilder), numBuilders);
+  const capFromEnergy = Math.ceil(getCachedSiteResource(mainRoom, RESOURCE_ENERGY) / reqEnergyPerBuilder);
+  const desiredBuilders = Math.max(
+    Math.min(Math.ceil(totalProgressNeeded / progressPerBuilder), numBuilders),
+    capFromEnergy
+  );
   // console.log("totalProgressNeeded", totalProgressNeeded);
   // console.log("desiredBuilders", desiredBuilders);
   if (builders.length < desiredBuilders) {

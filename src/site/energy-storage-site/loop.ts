@@ -3,6 +3,7 @@ import { distributorLoop } from "./role.ess-distributor";
 import { EssDistributorCreep, isEssDistributor } from "./role.ess-distributor.type";
 import {
   getAllSiteDefs,
+  getCachedSiteResource,
   getLinkSinks,
   getNonStorageLinks,
   getSiteByName,
@@ -60,7 +61,7 @@ export function energyStorageSpawnLoop(): void {
   }
 }
 
-const show = false;
+const show = true;
 
 export function energyStorageLoop(): void {
   energyStorageSpawnLoop();
@@ -71,7 +72,7 @@ export function energyStorageLoop(): void {
   for (const roomName of getUsedRooms()) {
     if (show) {
       const visual = new RoomVisual(roomName);
-      const energy = getSiteResource(roomName, RESOURCE_ENERGY);
+      const energy = getCachedSiteResource(roomName, RESOURCE_ENERGY);
       for (const roomDef of getSitesByRoom(roomName)) {
         visual.rect(
           roomDef.bounds[0][0],

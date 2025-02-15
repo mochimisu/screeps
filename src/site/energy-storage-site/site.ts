@@ -1,7 +1,7 @@
 // take energy from energySources and put it into storage
 
 import { bodyPart } from "utils/body-part";
-import { queryIds } from "utils/query";
+import { query, queryIds } from "utils/query";
 
 export interface EssSiteDefinition {
   name: string;
@@ -86,6 +86,16 @@ export function getSiteResource(roomName: string, resourceName?: ResourceConstan
     }
   }
   return count;
+}
+
+export function getCachedSiteResource(roomName: string, resourceName?: ResourceConstant): number {
+  return query(
+    `ess-${roomName}-resource-${resourceName ?? ""}`,
+    () => {
+      return getSiteResource(roomName, resourceName);
+    },
+    10
+  );
 }
 
 // Places to get or dump energy from the outside

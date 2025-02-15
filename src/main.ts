@@ -32,6 +32,7 @@ import { DismantlerCreep, isDismantler } from "role/dismantler.type";
 import { dismantlerLoop } from "role/dismantler";
 import { creepsByRole, queryLoop } from "utils/query";
 import { managerRepairLoop } from "manager/repair";
+import profiler from "screeps-profiler";
 
 declare global {
   /*
@@ -76,92 +77,95 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 const loop = () => {
-  queryLoop();
-  if (!harvesterNoMoveSpawnLoop()) {
-    spawnLoop();
-    muleSpawnLoop();
-    upgraderNoMoveSpawnLoop();
-    builderSpawnLoop();
-    repairerSpawnLoop();
-  }
-
-  // managers
-  energyManagerConstructLoop();
-  managerRepairLoop();
-
-  // sites
-  energyStorageLoop();
-  rhLoop();
-
-  // Iterate over all creeps in the game
-  for (const harvester of creepsByRole("harvester")) {
-    harvesterLoop(harvester as HarvesterCreep);
-  }
-  for (const upgrader of creepsByRole("upgrader")) {
-    upgraderLoop(upgrader as UpgraderCreep);
-  }
-
-  for (const builder of creepsByRole("builder")) {
-    builderLoop(builder as BuilderCreep);
-  }
-
-  for (const attacker of creepsByRole("attacker")) {
-    attackerLoop(attacker as AttackerCreep);
-  }
-
-  for (const claimer of creepsByRole("claimer")) {
-    claimerLoop(claimer as ClaimerCreep);
-  }
-
-  for (const janitor of creepsByRole("janitor")) {
-    janitorLoop(janitor as JanitorCreep);
-  }
-
-  for (const harvesterNoMove of creepsByRole("harvester-nomove")) {
-    harvesterNoMoveLoop(harvesterNoMove as HarvesterNoMoveCreep);
-  }
-
-  for (const repairer of creepsByRole("repairer")) {
-    repairerLoop(repairer as RepairerCreep);
-  }
-
-  for (const mule of creepsByRole("mule")) {
-    muleLoop(mule as MuleCreep);
-  }
-
-  for (const reserver of creepsByRole("reserver")) {
-    reserverLoop(reserver as ReserverCreep);
-  }
-
-  for (const upgraderNoMove of creepsByRole("upgrader-nomove")) {
-    upgraderNoMoveLoop(upgraderNoMove as UpgraderNoMoveCreep);
-  }
-
-  for (const dismantler of creepsByRole("dismantler")) {
-    dismantlerLoop(dismantler as DismantlerCreep);
-  }
-
-  for (const roomName in Game.rooms) {
-    const room = Game.rooms[roomName];
-    const towers = room.find(FIND_MY_STRUCTURES, {
-      filter: { structureType: STRUCTURE_TOWER }
-    });
-    for (const tower of towers) {
-      towerLoop(tower as StructureTower);
+  profiler.wrap(() => {
+    queryLoop();
+    if (!harvesterNoMoveSpawnLoop()) {
+      spawnLoop();
+      muleSpawnLoop();
+      upgraderNoMoveSpawnLoop();
+      builderSpawnLoop();
+      repairerSpawnLoop();
     }
-  }
 
-  // market
-  orderLoop();
+    // managers
+    energyManagerConstructLoop();
+    managerRepairLoop();
 
-  // if bucket is maxed out, generate a pixel
-  if (Game.cpu.bucket === 10000) {
-    console.log("Bucket is full, generating pixel");
-    Game.cpu.generatePixel();
-  }
+    // sites
+    energyStorageLoop();
+    rhLoop();
+
+    // Iterate over all creeps in the game
+    for (const harvester of creepsByRole("harvester")) {
+      harvesterLoop(harvester as HarvesterCreep);
+    }
+    for (const upgrader of creepsByRole("upgrader")) {
+      upgraderLoop(upgrader as UpgraderCreep);
+    }
+
+    for (const builder of creepsByRole("builder")) {
+      builderLoop(builder as BuilderCreep);
+    }
+
+    for (const attacker of creepsByRole("attacker")) {
+      attackerLoop(attacker as AttackerCreep);
+    }
+
+    for (const claimer of creepsByRole("claimer")) {
+      claimerLoop(claimer as ClaimerCreep);
+    }
+
+    for (const janitor of creepsByRole("janitor")) {
+      janitorLoop(janitor as JanitorCreep);
+    }
+
+    for (const harvesterNoMove of creepsByRole("harvester-nomove")) {
+      harvesterNoMoveLoop(harvesterNoMove as HarvesterNoMoveCreep);
+    }
+
+    for (const repairer of creepsByRole("repairer")) {
+      repairerLoop(repairer as RepairerCreep);
+    }
+
+    for (const mule of creepsByRole("mule")) {
+      muleLoop(mule as MuleCreep);
+    }
+
+    for (const reserver of creepsByRole("reserver")) {
+      reserverLoop(reserver as ReserverCreep);
+    }
+
+    for (const upgraderNoMove of creepsByRole("upgrader-nomove")) {
+      upgraderNoMoveLoop(upgraderNoMove as UpgraderNoMoveCreep);
+    }
+
+    for (const dismantler of creepsByRole("dismantler")) {
+      dismantlerLoop(dismantler as DismantlerCreep);
+    }
+
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      const towers = room.find(FIND_MY_STRUCTURES, {
+        filter: { structureType: STRUCTURE_TOWER }
+      });
+      for (const tower of towers) {
+        towerLoop(tower as StructureTower);
+      }
+    }
+
+    // market
+    orderLoop();
+
+    // if bucket is maxed out, generate a pixel
+    if (Game.cpu.bucket === 10000) {
+      console.log("Bucket is full, generating pixel");
+      Game.cpu.generatePixel();
+    }
+  });
 };
 
 global.scripts = scriptsImpl;
+profiler.enable();
 
 module.exports = {
   loop: ErrorMapper.wrapLoop(loop)
