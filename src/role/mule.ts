@@ -4,6 +4,18 @@ import { MuleCreep, MulePath, isMule } from "./mule.type";
 import { getSiteResource } from "site/energy-storage-site/site";
 import { bodyPart } from "utils/body-part";
 import { creepsByRole } from "utils/query";
+import {
+  ClockworkFlowField,
+  ClockworkMultiroomFlowField,
+  FlowField,
+  astarMultiroomDistanceMap,
+  dijkstraMultiroomDistanceMap,
+  ephemeral,
+  getTerrainCostMatrix
+} from "screeps-clockwork";
+import { ClockworkMultiroomDistanceMap } from "screeps-clockwork/dist/src/wrappers/multiroomDistanceMap";
+import { compact } from "lodash";
+import { getAdjustedTerrainCostMatrix, moveToWithClockwork } from "utils/clockwork";
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {
@@ -36,7 +48,7 @@ const mulePaths: Record<string, MulePath> = {
     // main storage
     sink: "679a16c3135bf04cc4b9f12e",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity() > 100 && sink.store.getFreeCapacity() > 10000,
+      source.store.getUsedCapacity() > 200 && sink.store.getFreeCapacity() > 10000,
     idlePosition: new RoomPosition(9, 15, "W22S58")
   },
   "second-mineral-ess": {
@@ -46,7 +58,7 @@ const mulePaths: Record<string, MulePath> = {
     // second storage
     sink: "67a143d162f5371cbb7bb49b",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity() > 100 && sink.store.getFreeCapacity() > 10000,
+      source.store.getUsedCapacity() > 200 && sink.store.getFreeCapacity() > 10000,
     idlePosition: new RoomPosition(31, 14, "W22S59")
   },
   "third-energy-ess": {
@@ -56,18 +68,26 @@ const mulePaths: Record<string, MulePath> = {
     // fix
     condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
     idlePosition: new RoomPosition(20, 40, "W21S58"),
-    parts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)]
+    parts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)]
   },
   "third-energy-main": {
-    numMules: 4,
+    numMules: 2,
     source: "67ab4af7918897273c038658",
-    sink: "679a16c3135bf04cc4b9f12e",
+    sink: "67ac472186eef035eca87012",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity(RESOURCE_ENERGY) > 100000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 100000,
+      source.store.getUsedCapacity(RESOURCE_ENERGY) > 50000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
     idlePosition: new RoomPosition(30, 22, "W21S58"),
-    parts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)]
+    parts: [...bodyPart(CARRY, 14), ...bodyPart(MOVE, 7)]
   }
 };
+
+interface MuleClockworkPath {
+  toSink: ClockworkMultiroomFlowField;
+  toSource: ClockworkMultiroomFlowField;
+  toIdle: ClockworkMultiroomFlowField;
+  validUntil: number;
+}
+const muleClockworkPaths: Record<string, MuleClockworkPath> = {};
 
 export function muleSpawnLoop(): boolean {
   const mules = creepsByRole("mule") as MuleCreep[];
@@ -131,6 +151,91 @@ export function muleSpawnLoop(): boolean {
   return false;
 }
 
+function getClockworkPath(pathName: string): MuleClockworkPath | null {
+  if (muleClockworkPaths[pathName] != null) {
+    if (muleClockworkPaths[pathName].validUntil < Game.time) {
+      muleClockworkPaths[pathName].toSink.free();
+      muleClockworkPaths[pathName].toSource.free();
+      muleClockworkPaths[pathName].toIdle.free();
+      delete muleClockworkPaths[pathName];
+    } else {
+      return muleClockworkPaths[pathName];
+    }
+  }
+  const path = mulePaths[pathName];
+  if (path == null) {
+    console.log(`Unknown path ${pathName}`);
+    return null;
+  }
+  const source = Game.getObjectById<StructureStorage>(path.source);
+  const sink = Game.getObjectById<StructureStorage>(path.sink);
+  if (source == null || sink == null) {
+    console.log(`Unknown source or sink for path`);
+    return null;
+  }
+  const sourcePickups = [
+    new RoomPosition(source.pos.x - 1, source.pos.y, source.room.name),
+    new RoomPosition(source.pos.x + 1, source.pos.y, source.room.name),
+    new RoomPosition(source.pos.x, source.pos.y - 1, source.room.name),
+    new RoomPosition(source.pos.x, source.pos.y + 1, source.room.name),
+    // corners
+    new RoomPosition(source.pos.x - 1, source.pos.y - 1, source.room.name),
+    new RoomPosition(source.pos.x + 1, source.pos.y + 1, source.room.name),
+    new RoomPosition(source.pos.x + 1, source.pos.y - 1, source.room.name),
+    new RoomPosition(source.pos.x - 1, source.pos.y + 1, source.room.name)
+  ];
+  const sinkDropoffs = [
+    new RoomPosition(sink.pos.x - 1, sink.pos.y, sink.room.name),
+    new RoomPosition(sink.pos.x + 1, sink.pos.y, sink.room.name),
+    new RoomPosition(sink.pos.x, sink.pos.y - 1, sink.room.name),
+    new RoomPosition(sink.pos.x, sink.pos.y + 1, sink.room.name),
+    // corners
+    new RoomPosition(sink.pos.x - 1, sink.pos.y - 1, sink.room.name),
+    new RoomPosition(sink.pos.x + 1, sink.pos.y + 1, sink.room.name),
+    new RoomPosition(sink.pos.x + 1, sink.pos.y - 1, sink.room.name),
+    new RoomPosition(sink.pos.x - 1, sink.pos.y + 1, sink.room.name)
+  ];
+  const idlePos = compact([path.idlePosition]) as RoomPosition[];
+  const sourceToSink = dijkstraMultiroomDistanceMap([...sourcePickups, ...idlePos], {
+    allOfDestinations: [{ pos: sink.pos, range: 2 }],
+    costMatrixCallback: getAdjustedTerrainCostMatrix,
+    maxRooms: 3
+  });
+  const sinkToSource = dijkstraMultiroomDistanceMap(sinkDropoffs, {
+    allOfDestinations: [{ pos: source.pos, range: 2 }],
+    costMatrixCallback: getAdjustedTerrainCostMatrix,
+    maxRooms: 3
+  });
+  const toIdle = path.idlePosition
+    ? dijkstraMultiroomDistanceMap([...sourcePickups, ...sinkDropoffs], {
+        allOfDestinations: [{ pos: path.idlePosition, range: 2 }],
+        costMatrixCallback: getAdjustedTerrainCostMatrix,
+        maxRooms: 3
+      })
+    : dijkstraMultiroomDistanceMap([...sourcePickups, ...sinkDropoffs], {
+        allOfDestinations: [{ pos: source.pos, range: 2 }],
+        costMatrixCallback: getAdjustedTerrainCostMatrix,
+        maxRooms: 3
+      });
+  muleClockworkPaths[pathName] = {
+    toSink: sinkToSource.distanceMap.toFlowField(),
+    toSource: sourceToSink.distanceMap.toFlowField(),
+    toIdle: toIdle.distanceMap.toFlowField(),
+    validUntil: Game.time + 100
+  };
+  console.log("Created clockwork path for", pathName);
+  console.log("    toSink", sourceToSink.foundTargets.length, sourceToSink.ops);
+  console.log("    toSource", sinkToSource.foundTargets.length, sinkToSource.ops);
+  console.log("    toIdle", toIdle.foundTargets.length, toIdle.ops);
+  ephemeral(sourceToSink.distanceMap);
+  ephemeral(sinkToSource.distanceMap);
+  ephemeral(toIdle.distanceMap);
+  // sourceToSink.distanceMap.free();
+  // sinkToSource.distanceMap.free();
+  // toIdle.distanceMap.free();
+  return muleClockworkPaths[pathName];
+}
+
 export function muleLoop(creep: MuleCreep): void {
   if (creep.store.getUsedCapacity() === 0) {
     creep.memory.status = "withdraw";
@@ -159,46 +264,31 @@ export function muleLoop(creep: MuleCreep): void {
     console.log(`Unknown sink ${pathDef.sink}`);
     return;
   }
+  const source = Game.getObjectById<StructureStorage>(pathDef.source);
+  if (source == null) {
+    console.log(`Unknown source ${pathDef.source}`);
+    return;
+  }
+  let targetType: "idle" | "source" | "sink" | null = null;
   if (creep.memory.status === "withdraw") {
-    const source = Game.getObjectById<StructureStorage>(pathDef.source);
-    if (source == null) {
-      console.log(`Unknown source ${pathDef.source}`);
-      return;
-    }
-    if (pathDef.condition != null && !pathDef.condition?.(source, sink)) {
-      if (pathDef.idlePosition) {
-        creep.moveTo(pathDef.idlePosition, {
-          visualizePathStyle: { stroke: "#ffaa00" },
-          reusePath: 10
-        });
-      } else if (!moveToIdleSpot(creep)) {
-        creep.moveTo(source, {
-          visualizePathStyle: { stroke: "#ffaa00" },
-          reusePath: 10
-        });
-      }
-      return;
-    }
-    if (pathDef.resourceType) {
-      if (creep.withdraw(source, pathDef.resourceType) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(source, {
-          visualizePathStyle: { stroke: "#ffaa00" },
-          reusePath: 10
-        });
-        return;
-      }
-    } else {
-      for (const resourceType in source.store) {
-        if (creep.withdraw(source, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source, {
-            visualizePathStyle: { stroke: "#ffaa00" },
-            reusePath: 10
-          });
-          return;
+    if (pathDef.condition == null || pathDef.condition?.(source, sink)) {
+      let withdrawStatus;
+      if (pathDef.resourceType) {
+        withdrawStatus = creep.withdraw(source, pathDef.resourceType);
+      } else {
+        for (const resourceType in source.store) {
+          withdrawStatus = creep.withdraw(source, resourceType as ResourceConstant);
+          if (withdrawStatus === OK) {
+            break;
+          }
         }
       }
+      if (withdrawStatus === ERR_NOT_IN_RANGE) {
+        targetType = "source";
+      }
+    } else {
+      targetType = "idle";
     }
-    return;
   }
 
   // Deposit to sink
@@ -206,30 +296,17 @@ export function muleLoop(creep: MuleCreep): void {
     for (const resourceType in creep.store) {
       const transferStatus = creep.transfer(sink, resourceType as ResourceConstant);
       if (transferStatus === ERR_NOT_IN_RANGE) {
-        creep.moveTo(sink, {
-          visualizePathStyle: { stroke: "#ffffff" },
-          reusePath: 10
-        });
-        return;
+        targetType = "sink";
       }
     }
-    // If sink failed, go to backup sink
-    if (pathDef.backupSink != null) {
-      for (const resourceType in creep.store) {
-        const backupSink = Game.getObjectById<StructureStorage>(pathDef.backupSink);
-        if (backupSink == null) {
-          console.log(`Unknown backup sink ${pathDef.backupSink}`);
-          return;
-        }
-        const transferStatus = creep.transfer(backupSink, resourceType as ResourceConstant);
-        if (transferStatus === ERR_NOT_IN_RANGE) {
-          creep.moveTo(backupSink, {
-            visualizePathStyle: { stroke: "#ffffff" },
-            reusePath: 10
-          });
-          return;
-        }
-      }
-    }
+    // TODO backup sink
+  }
+
+  if (targetType === "idle" && pathDef.idlePosition != null) {
+    moveToWithClockwork(creep, pathDef.idlePosition ?? source, getClockworkPath(path)?.toIdle, { sayDebug: true });
+  } else if (targetType === "source") {
+    moveToWithClockwork(creep, source, getClockworkPath(path)?.toSource, { sayDebug: true });
+  } else if (targetType === "sink") {
+    moveToWithClockwork(creep, sink, getClockworkPath(path)?.toSink, { sayDebug: true });
   }
 }

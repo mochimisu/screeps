@@ -5,6 +5,8 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "rollup-plugin-typescript2";
 import screeps from "rollup-plugin-screeps";
+import wasm from "@rollup/plugin-wasm";
+import copy from "rollup-plugin-copy";
 
 let cfg;
 const dest = process.env.DEST;
@@ -23,8 +25,13 @@ export default {
     exports: "auto"
   },
 
+  external: ["screeps_clockwork.wasm"],
   plugins: [
     clear({ targets: ["dist"] }),
+    wasm(),
+    copy({
+      targets: [{ src: "node_modules/screeps-clockwork/dist/screeps_clockwork.wasm", dest: "dist" }]
+    }),
     resolve({ rootDir: "src" }),
     commonjs(),
     typescript({ tsconfig: "./tsconfig.json" }),

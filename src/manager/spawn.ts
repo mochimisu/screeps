@@ -68,7 +68,7 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   reserver: [CLAIM, MOVE],
   "upgrader-nomove": [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 2)],
   dismantler: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE],
-  attacker: [...bodyPart(TOUGH, 20), ...bodyPart(RANGED_ATTACK, 5), ...bodyPart(MOVE, 12)],
+  attacker: [...bodyPart(TOUGH, 19), ...bodyPart(RANGED_ATTACK, 5), ...bodyPart(MOVE, 12)],
   "ess-distributor": [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
 };
 
@@ -159,7 +159,8 @@ export function spawnNeeded(): void {
     if (!roamingCreepCounts[role]) {
       roamingCreepCounts[role] = 0;
     }
-    roamingCreepCounts[role] = roamingCreeps[role]?.length ?? 0;
+    roamingCreepCounts[role] =
+      roamingCreeps[role]?.map(c => c.memory.replaceAt == null || c.memory.replaceAt > Game.time).length ?? 0;
     // Keep track of extra roaming creeps
     extraRoamingCreeps[role] = roamingCreeps[role]?.slice(roamingSpawns[role] ?? 0);
   }
@@ -188,7 +189,8 @@ export function spawnNeeded(): void {
       if (!creepCounts[role]) {
         creepCounts[role] = 0;
       }
-      creepCounts[role] = creeps[role]?.length ?? 0;
+      creepCounts[role] =
+        creeps[role]?.map(c => c.memory.replaceAt == null || c.memory.replaceAt > Game.time).length ?? 0;
     }
 
     // Spawn any missing creeps

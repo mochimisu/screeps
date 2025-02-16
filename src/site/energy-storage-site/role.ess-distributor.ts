@@ -1,4 +1,3 @@
-import { mainRoom } from "manager/room";
 import { EssDistributorCreep } from "./role.ess-distributor.type";
 import { EssSiteDefinition, getSiteByName, getStorageStructures } from "./site";
 import { getActiveResources, getNeededResources } from "market/orders";
@@ -276,12 +275,12 @@ export function distributorLoop(creep: EssDistributorCreep): void {
       return;
     }
     // run terminal loop if in main room
-    if (creep.room.name === mainRoom) {
+    if (essSiteDef.hasTerminal) {
       essTerminalTransfer(essSiteDef, creep);
       return;
     }
   }
-  if (creep.room.name === mainRoom && creep.memory.status === "deposit-energy") {
+  if (essSiteDef.hasTerminal && creep.memory.status === "deposit-energy") {
     if (essTerminalDeposit(essSiteDef, creep)) {
       return;
     }

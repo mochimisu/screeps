@@ -33,6 +33,7 @@ import { dismantlerLoop } from "role/dismantler";
 import { creepsByRole, queryLoop } from "utils/query";
 import { managerRepairLoop } from "manager/repair";
 import profiler from "screeps-profiler";
+import { initialize } from "screeps-clockwork";
 
 declare global {
   /*
@@ -78,6 +79,9 @@ declare global {
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 const loop = () => {
   profiler.wrap(() => {
+    // clockwork (pathing)
+    initialize(true);
+
     queryLoop();
     if (!harvesterNoMoveSpawnLoop()) {
       spawnLoop();

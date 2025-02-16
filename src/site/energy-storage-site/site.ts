@@ -12,6 +12,7 @@ export interface EssSiteDefinition {
   linkSinks?: number[][];
   distributors: number;
   distributorParts?: BodyPartConstant[];
+  hasTerminal?: boolean;
 }
 
 const siteDefs: EssSiteDefinition[] = [
@@ -25,7 +26,8 @@ const siteDefs: EssSiteDefinition[] = [
     storage: [[31, 14]],
     sources: [[29, 12]],
     distributors: 1,
-    distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+    distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
+    hasTerminal: true
   },
   {
     name: "second",
