@@ -160,7 +160,7 @@ export function spawnNeeded(): void {
       roamingCreepCounts[role] = 0;
     }
     roamingCreepCounts[role] =
-      roamingCreeps[role]?.map(c => c.memory.replaceAt == null || c.memory.replaceAt > Game.time).length ?? 0;
+      roamingCreeps[role]?.filter(c => c.memory.replaceAt == null || c.memory.replaceAt > Game.time).length ?? 0;
     // Keep track of extra roaming creeps
     extraRoamingCreeps[role] = roamingCreeps[role]?.slice(roamingSpawns[role] ?? 0);
   }
@@ -190,7 +190,7 @@ export function spawnNeeded(): void {
         creepCounts[role] = 0;
       }
       creepCounts[role] =
-        creeps[role]?.map(c => c.memory.replaceAt == null || c.memory.replaceAt > Game.time).length ?? 0;
+        creeps[role]?.filter(c => c.memory.replaceAt == null || c.memory.replaceAt > Game.time).length ?? 0;
     }
 
     // Spawn any missing creeps
