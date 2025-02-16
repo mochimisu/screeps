@@ -21,4 +21,6 @@ export interface MulePath {
   idlePosition?: RoomPosition;
   resourceType?: ResourceConstant;
   parts?: BodyPartConstant[];
+  sourceTransferPos?: RoomPosition;
+  sinkTransferPos?: RoomPosition;
 }

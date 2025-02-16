@@ -47,6 +47,7 @@ const mulePaths: Record<string, MulePath> = {
     source: "67a32bbb4096703d1badac79",
     // main storage
     sink: "679a16c3135bf04cc4b9f12e",
+    sinkTransferPos: new RoomPosition(30, 15, "W22S58"),
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
       source.store.getUsedCapacity() > 200 && sink.store.getFreeCapacity() > 10000,
     idlePosition: new RoomPosition(9, 15, "W22S58")
@@ -64,7 +65,9 @@ const mulePaths: Record<string, MulePath> = {
   "third-energy-ess": {
     numMules: 2,
     source: "67a936f6d2beb34270391d74",
+    sourceTransferPos: new RoomPosition(22, 41, "W21S58"),
     sink: "67ab4af7918897273c038658",
+    sinkTransferPos: new RoomPosition(29, 20, "W21S58"),
     // fix
     condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
     idlePosition: new RoomPosition(20, 40, "W21S58"),
@@ -73,7 +76,9 @@ const mulePaths: Record<string, MulePath> = {
   "third-energy-main": {
     numMules: 2,
     source: "67ab4af7918897273c038658",
+    sourceTransferPos: new RoomPosition(28, 20, "W21S58"),
     sink: "67ac472186eef035eca87012",
+    sinkTransferPos: new RoomPosition(48, 18, "W22S58"),
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
       source.store.getUsedCapacity(RESOURCE_ENERGY) > 50000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
     idlePosition: new RoomPosition(30, 22, "W21S58"),
@@ -82,12 +87,13 @@ const mulePaths: Record<string, MulePath> = {
 };
 
 interface MuleClockworkPath {
-  toSink: ClockworkMultiroomFlowField;
-  toSource: ClockworkMultiroomFlowField;
-  toIdle: ClockworkMultiroomFlowField;
+  toSink: ClockworkMultiroomFlowField[];
+  toSource: ClockworkMultiroomFlowField[];
+  toIdle: ClockworkMultiroomFlowField[];
   validUntil: number;
 }
 const muleClockworkPaths: Record<string, MuleClockworkPath> = {};
+console.log("muleClockworkPaths", Object.keys(muleClockworkPaths).length);
 
 export function muleSpawnLoop(): boolean {
   const mules = creepsByRole("mule") as MuleCreep[];
@@ -154,9 +160,9 @@ export function muleSpawnLoop(): boolean {
 function getClockworkPath(pathName: string): MuleClockworkPath | null {
   if (muleClockworkPaths[pathName] != null) {
     if (muleClockworkPaths[pathName].validUntil < Game.time) {
-      muleClockworkPaths[pathName].toSink.free();
-      muleClockworkPaths[pathName].toSource.free();
-      muleClockworkPaths[pathName].toIdle.free();
+      muleClockworkPaths[pathName].toSink.map(ff => ff.free());
+      muleClockworkPaths[pathName].toSource.map(ff => ff.free());
+      muleClockworkPaths[pathName].toIdle.map(ff => ff.free());
       delete muleClockworkPaths[pathName];
     } else {
       return muleClockworkPaths[pathName];
@@ -173,66 +179,73 @@ function getClockworkPath(pathName: string): MuleClockworkPath | null {
     console.log(`Unknown source or sink for path`);
     return null;
   }
-  const sourcePickups = [
-    new RoomPosition(source.pos.x - 1, source.pos.y, source.room.name),
-    new RoomPosition(source.pos.x + 1, source.pos.y, source.room.name),
-    new RoomPosition(source.pos.x, source.pos.y - 1, source.room.name),
-    new RoomPosition(source.pos.x, source.pos.y + 1, source.room.name),
-    // corners
-    new RoomPosition(source.pos.x - 1, source.pos.y - 1, source.room.name),
-    new RoomPosition(source.pos.x + 1, source.pos.y + 1, source.room.name),
-    new RoomPosition(source.pos.x + 1, source.pos.y - 1, source.room.name),
-    new RoomPosition(source.pos.x - 1, source.pos.y + 1, source.room.name)
-  ];
-  const sinkDropoffs = [
-    new RoomPosition(sink.pos.x - 1, sink.pos.y, sink.room.name),
-    new RoomPosition(sink.pos.x + 1, sink.pos.y, sink.room.name),
-    new RoomPosition(sink.pos.x, sink.pos.y - 1, sink.room.name),
-    new RoomPosition(sink.pos.x, sink.pos.y + 1, sink.room.name),
-    // corners
-    new RoomPosition(sink.pos.x - 1, sink.pos.y - 1, sink.room.name),
-    new RoomPosition(sink.pos.x + 1, sink.pos.y + 1, sink.room.name),
-    new RoomPosition(sink.pos.x + 1, sink.pos.y - 1, sink.room.name),
-    new RoomPosition(sink.pos.x - 1, sink.pos.y + 1, sink.room.name)
-  ];
-  const idlePos = compact([path.idlePosition]) as RoomPosition[];
-  const sourceToSink = dijkstraMultiroomDistanceMap([...sourcePickups, ...idlePos], {
-    allOfDestinations: [{ pos: sink.pos, range: 2 }],
+
+  // For some reason these are all freaking backwards
+  const sinkTransferPos = path.sinkTransferPos
+    ? [path.sinkTransferPos]
+    : [
+        new RoomPosition(sink.pos.x, sink.pos.y, sink.pos.roomName),
+        new RoomPosition(sink.pos.x + 1, sink.pos.y, sink.pos.roomName),
+        new RoomPosition(sink.pos.x, sink.pos.y + 1, sink.pos.roomName),
+        new RoomPosition(sink.pos.x + 1, sink.pos.y + 1, sink.pos.roomName),
+        new RoomPosition(sink.pos.x - 1, sink.pos.y, sink.pos.roomName),
+        new RoomPosition(sink.pos.x, sink.pos.y - 1, sink.pos.roomName),
+        new RoomPosition(sink.pos.x - 1, sink.pos.y - 1, sink.pos.roomName),
+        new RoomPosition(sink.pos.x - 1, sink.pos.y + 1, sink.pos.roomName),
+        new RoomPosition(sink.pos.x + 1, sink.pos.y - 1, sink.pos.roomName)
+      ];
+  const sourceTransferPos = path.sourceTransferPos
+    ? [path.sourceTransferPos]
+    : [
+        new RoomPosition(source.pos.x, source.pos.y, source.pos.roomName),
+        new RoomPosition(source.pos.x + 1, source.pos.y, source.pos.roomName),
+        new RoomPosition(source.pos.x, source.pos.y + 1, source.pos.roomName),
+        new RoomPosition(source.pos.x + 1, source.pos.y + 1, source.pos.roomName),
+        new RoomPosition(source.pos.x - 1, source.pos.y, source.pos.roomName),
+        new RoomPosition(source.pos.x, source.pos.y - 1, source.pos.roomName),
+        new RoomPosition(source.pos.x - 1, source.pos.y - 1, source.pos.roomName),
+        new RoomPosition(source.pos.x - 1, source.pos.y + 1, source.pos.roomName)
+      ];
+  const idlePosition = path.idlePosition ? [path.idlePosition] : sourceTransferPos;
+  const sourceToSink = dijkstraMultiroomDistanceMap(sinkTransferPos, {
+    allOfDestinations: sourceTransferPos.map(pos => ({ pos, range: 1 })),
     costMatrixCallback: getAdjustedTerrainCostMatrix,
     maxRooms: 3
   });
-  const sinkToSource = dijkstraMultiroomDistanceMap(sinkDropoffs, {
-    allOfDestinations: [{ pos: source.pos, range: 2 }],
+  const sinkToSource = dijkstraMultiroomDistanceMap(sourceTransferPos, {
+    allOfDestinations: sinkTransferPos.map(pos => ({ pos, range: 1 })),
     costMatrixCallback: getAdjustedTerrainCostMatrix,
     maxRooms: 3
   });
-  const toIdle = path.idlePosition
-    ? dijkstraMultiroomDistanceMap([...sourcePickups, ...sinkDropoffs], {
-        allOfDestinations: [{ pos: path.idlePosition, range: 2 }],
-        costMatrixCallback: getAdjustedTerrainCostMatrix,
-        maxRooms: 3
-      })
-    : dijkstraMultiroomDistanceMap([...sourcePickups, ...sinkDropoffs], {
-        allOfDestinations: [{ pos: source.pos, range: 2 }],
-        costMatrixCallback: getAdjustedTerrainCostMatrix,
-        maxRooms: 3
-      });
+  const idleToSource = dijkstraMultiroomDistanceMap(sourceTransferPos, {
+    allOfDestinations: idlePosition.map(pos => ({ pos, range: 1 })),
+    costMatrixCallback: getAdjustedTerrainCostMatrix,
+    maxRooms: 3
+  });
+  const sourceToIdle = dijkstraMultiroomDistanceMap(idlePosition, {
+    allOfDestinations: sourceTransferPos.map(pos => ({ pos, range: 1 })),
+    costMatrixCallback: getAdjustedTerrainCostMatrix,
+    maxRooms: 3
+  });
+  const sinkToIdle = dijkstraMultiroomDistanceMap(idlePosition, {
+    allOfDestinations: sinkTransferPos.map(pos => ({ pos, range: 1 })),
+    costMatrixCallback: getAdjustedTerrainCostMatrix,
+    maxRooms: 3
+  });
+
+  console.log("Created clockwork path for", pathName);
+  console.log("    sourceToSink", sourceToSink.foundTargets.length, sourceToSink.ops);
+  console.log("    sinkToSource", sinkToSource.foundTargets.length, sinkToSource.ops);
+  console.log("    idleToSource", idleToSource.foundTargets.length, idleToSource.ops);
+  console.log("    sourceToIdle", sourceToIdle.foundTargets.length, sourceToIdle.ops);
+  console.log("    sinkToIdle", sinkToIdle.foundTargets.length, sinkToIdle.ops);
+
   muleClockworkPaths[pathName] = {
-    toSink: sinkToSource.distanceMap.toFlowField(),
-    toSource: sourceToSink.distanceMap.toFlowField(),
-    toIdle: toIdle.distanceMap.toFlowField(),
+    toSink: [ephemeral(sourceToSink.distanceMap).toFlowField()],
+    toSource: [ephemeral(sinkToSource.distanceMap).toFlowField(), ephemeral(idleToSource.distanceMap).toFlowField()],
+    toIdle: [ephemeral(sourceToIdle.distanceMap).toFlowField(), ephemeral(sinkToIdle.distanceMap).toFlowField()],
     validUntil: Game.time + 100
   };
-  console.log("Created clockwork path for", pathName);
-  console.log("    toSink", sourceToSink.foundTargets.length, sourceToSink.ops);
-  console.log("    toSource", sinkToSource.foundTargets.length, sinkToSource.ops);
-  console.log("    toIdle", toIdle.foundTargets.length, toIdle.ops);
-  ephemeral(sourceToSink.distanceMap);
-  ephemeral(sinkToSource.distanceMap);
-  ephemeral(toIdle.distanceMap);
-  // sourceToSink.distanceMap.free();
-  // sinkToSource.distanceMap.free();
-  // toIdle.distanceMap.free();
   return muleClockworkPaths[pathName];
 }
 
@@ -303,7 +316,9 @@ export function muleLoop(creep: MuleCreep): void {
   }
 
   if (targetType === "idle" && pathDef.idlePosition != null) {
-    moveToWithClockwork(creep, pathDef.idlePosition ?? source, getClockworkPath(path)?.toIdle, { sayDebug: true });
+    if (creep.pos.getRangeTo(pathDef.idlePosition) > 0) {
+      moveToWithClockwork(creep, pathDef.idlePosition ?? source, getClockworkPath(path)?.toIdle, { sayDebug: true });
+    }
   } else if (targetType === "source") {
     moveToWithClockwork(creep, source, getClockworkPath(path)?.toSource, { sayDebug: true });
   } else if (targetType === "sink") {
