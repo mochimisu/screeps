@@ -1,7 +1,8 @@
 import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
 import { goToRoomAssignment } from "manager/room";
-import { UpgraderCreep, isUpgrader } from "./upgrader.type";
+
+import { UpgraderCreep } from "./upgrader.type";
 
 export function upgraderLoop(creep: UpgraderCreep): void {
   if (creep.store.getUsedCapacity() === 0) {

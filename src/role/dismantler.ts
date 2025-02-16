@@ -1,4 +1,5 @@
 import { goToRoomAssignment } from "manager/room";
+
 import { DismantlerCreep } from "./dismantler.type";
 
 export function dismantlerLoop(creep: DismantlerCreep): void {

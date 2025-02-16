@@ -1,6 +1,7 @@
 import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { harvestClosestNode } from "manager/harvester";
-import { HarvesterCreep, isHarvester } from "./harvester.type";
+
+import { HarvesterCreep } from "./harvester.type";
 
 export function harvesterLoop(creep: HarvesterCreep): void {
   const memory = creep.memory;

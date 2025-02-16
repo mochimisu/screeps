@@ -1,7 +1,8 @@
 import { bodyPart } from "utils/body-part";
+import { allCreepsByRoomAssignmentAndRole } from "utils/query";
+
 import { onCreepDeath as harvesterOnCreepDeath, reset as resetHarvesterManager } from "./harvester";
 import { mainRoom } from "./room";
-import { allCreepsByRoomAssignmentAndRole } from "utils/query";
 
 export function cleanupDeath(): void {
   for (const name in Memory.creeps) {

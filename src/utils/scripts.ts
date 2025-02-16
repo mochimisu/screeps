@@ -1,9 +1,8 @@
-import { mainRoom } from "manager/room";
 import {
-  FoundBuyOrder,
-  FoundSellOrder,
   findHighestBuyOrder as findHighestBuyOrderImpl,
-  findLowestSellOrder as findLowestSellOrderImpl
+  findLowestSellOrder as findLowestSellOrderImpl,
+  FoundBuyOrder,
+  FoundSellOrder
 } from "market/orders";
 
 export function numMovePartsNeeded(parts: BodyPartConstant[], terrain: "road" | "plains" | "swamp" = "plains"): number {

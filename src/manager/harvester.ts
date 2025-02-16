@@ -1,6 +1,4 @@
-import { HarvesterNoMoveCreep } from "role/harvester-nomove.type";
 import { HarvesterCreep, isHarvester } from "role/harvester.type";
-import { goToRoom } from "./room";
 import { isNoMoveNode } from "role/harvester-nomove.config";
 
 const maxHarvesting = 5;
@@ -26,7 +24,6 @@ export function getMaxCapacity(source: Source): number {
 
 export function findHarvestNode(creep: Creep): Source | null {
   let sources = creep.room.find(FIND_SOURCES);
-  const extractors = creep.room.find(FIND_STRUCTURES).filter(s => s.structureType === STRUCTURE_EXTRACTOR);
 
   sources = sources.filter(source => source.energy > 0);
 

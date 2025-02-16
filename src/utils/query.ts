@@ -123,7 +123,7 @@ export function structureTypesAtPos(
   cacheTime = 10
 ): Structure[] | null {
   return queryIds(
-    `structureAtPos-${pos.toString()}-${Array.from(structureTypes).join(",")}`,
+    `structureAtPos-${pos.roomName}:${pos.x},${pos.y}-${Array.from(structureTypes).join(",")}`,
     () => {
       return pos.lookFor(LOOK_STRUCTURES).filter(s => structureTypes.has(s.structureType));
     },

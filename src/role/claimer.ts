@@ -1,4 +1,5 @@
-import { goToMainRoom, goToRoomAssignment } from "manager/room";
+import { goToRoomAssignment } from "manager/room";
+
 import { ClaimerCreep } from "./claimer.type";
 
 export function claimerLoop(creep: ClaimerCreep): void {

@@ -1,15 +1,16 @@
 import { getEnergy } from "manager/energy";
 import { moveToIdleSpot } from "manager/idle";
-import { getAllRoomNames, goToRoomAssignment, mainRoom } from "manager/room";
-import { RepairerCreep, isRepairer } from "./repairer.type";
-import { creepsByRoomAssignmentAndRole } from "utils/query";
 import {
   creepRepairPercent,
   getCreepRepairTargetIds,
   shouldCreepContinueRepairing,
   shouldCreepRepairStructure
 } from "manager/repair";
+import { getAllRoomNames, goToRoomAssignment, mainRoom } from "manager/room";
 import { spawnInRoom } from "manager/spawn";
+import { creepsByRoomAssignmentAndRole } from "utils/query";
+
+import { RepairerCreep } from "./repairer.type";
 
 function getUnassignedRepair(creep: RepairerCreep): Structure | null {
   const roomName = creep.memory.roomName ?? creep.room.name;

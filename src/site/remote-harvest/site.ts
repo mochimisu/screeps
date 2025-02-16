@@ -1,8 +1,9 @@
 // harvest things from other rooms
 
 import { bodyPart } from "utils/body-part";
-import { RhHarvesterCreep, isRhHarvester } from "./role.rh-harvester.type";
 import { creepsByRole, query } from "utils/query";
+
+import { isRhHarvester, RhHarvesterCreep } from "./role.rh-harvester.type";
 
 export interface RhSiteDef {
   name: string;

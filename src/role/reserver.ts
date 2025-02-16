@@ -1,6 +1,7 @@
 import { goToRoomAssignment } from "manager/room";
-import { ReserverCreep } from "./reserver.type";
 import { setReplaceAtForCurrentTick } from "utils/replace-at";
+
+import { ReserverCreep } from "./reserver.type";
 
 export function reserverLoop(creep: ReserverCreep) {
   // has vis

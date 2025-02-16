@@ -1,9 +1,9 @@
 import { getClosestEnergyStorageInNeed } from "manager/energy";
 import { spawnInRoom } from "manager/spawn";
-import { HarvesterNoMoveCreep, isHarvesterNoMove } from "./harvester-nomove.type";
-import { getSiteResource } from "site/energy-storage-site/site";
-import { noMoveNodes, noMoveNodesById } from "./harvester-nomove.config";
 import { setReplaceAtForCurrentTick } from "utils/replace-at";
+
+import { noMoveNodes, noMoveNodesById } from "./harvester-nomove.config";
+import { HarvesterNoMoveCreep, isHarvesterNoMove } from "./harvester-nomove.type";
 
 export function harvesterNoMoveSpawnLoop(): boolean {
   // Count harvester-nomove by room

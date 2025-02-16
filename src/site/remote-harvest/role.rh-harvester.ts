@@ -1,7 +1,8 @@
 import { goToRoomAssignment } from "manager/room";
-import { getSiteByName } from "./site";
-import { RhHarvesterCreep } from "./role.rh-harvester.type";
 import { setReplaceAtForCurrentTick } from "utils/replace-at";
+
+import { RhHarvesterCreep } from "./role.rh-harvester.type";
+import { getSiteByName } from "./site";
 
 export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
   // Go to harvest location for the site

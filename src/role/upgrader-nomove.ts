@@ -1,7 +1,8 @@
 import { spawnInRoom } from "manager/spawn";
-import { UpgraderNoMoveCreep, isUpgraderNoMove } from "./upgrader-nomove.type";
 import { bodyPart } from "utils/body-part";
 import { creepsByRole } from "utils/query";
+
+import { UpgraderNoMoveCreep } from "./upgrader-nomove.type";
 
 export interface UpgraderSlotDef {
   xy: [number, number];

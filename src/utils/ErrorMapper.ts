@@ -2,10 +2,12 @@ import { SourceMapConsumer } from "source-map";
 
 export class ErrorMapper {
   // Cache consumer
+
   private static _consumer?: SourceMapConsumer;
 
   public static get consumer(): SourceMapConsumer {
     if (this._consumer == null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-require-imports
       this._consumer = new SourceMapConsumer(require("main.js.map"));
     }
 

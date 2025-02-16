@@ -1,5 +1,3 @@
-import { getSiteResource } from "site/energy-storage-site/site";
-
 interface NoMoveDefinition {
   sourceId: string;
   predicate?: () => boolean;

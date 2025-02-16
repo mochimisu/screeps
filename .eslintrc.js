@@ -1,4 +1,5 @@
 module.exports = {
+  files: ["src/**/*.ts"],
   env: {
     browser: true,
     es6: true,

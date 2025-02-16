@@ -1,11 +1,12 @@
 import { spawnInRoom } from "manager/spawn";
-import { rhHarvesterLoop } from "./role.rh-harvester";
-import { rhMuleLoop } from "./role.rh-mule";
-import { getAllSiteDefs } from "./site";
-import { RhHarvesterCreep, isRhHarvester } from "./role.rh-harvester.type";
-import { RhMuleCreep, isRhMule } from "./role.rh-mule.type";
 import { bodyPart } from "utils/body-part";
 import { creepsByRole } from "utils/query";
+
+import { rhHarvesterLoop } from "./role.rh-harvester";
+import { isRhHarvester, RhHarvesterCreep } from "./role.rh-harvester.type";
+import { rhMuleLoop } from "./role.rh-mule";
+import { isRhMule, RhMuleCreep } from "./role.rh-mule.type";
+import { getAllSiteDefs } from "./site";
 
 export function rhSpawnLoop(): void {
   for (const siteDef of getAllSiteDefs()) {

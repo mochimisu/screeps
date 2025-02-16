@@ -1,8 +1,9 @@
 import { goToRoomAssignment } from "manager/room";
-import { RhSiteDef, getRhHarvester, getSiteByName } from "./site";
-import { RhMuleCreep, isRhMule } from "./role.rh-mule.type";
 import { ClockworkMultiroomFlowField } from "screeps-clockwork";
 import { getCachedClockworkFlowMap, getSurroundingPositions, moveToWithClockwork } from "utils/clockwork";
+
+import { RhMuleCreep } from "./role.rh-mule.type";
+import { getSiteByName, RhSiteDef } from "./site";
 
 function getEnergyCacheTransferPos(siteDef: RhSiteDef): RoomPosition[] {
   const energyCachePos = siteDef.energyCachePos?.();
@@ -185,8 +186,8 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
         return;
       }
     } catch (e) {
-      // console.log("Error in muleTransferPos: " + e);
+      console.log("Error in muleTransferPos: ", e);
     }
-    creep.moveTo(muleIdlePos);
+    moveToWithClockwork(creep, muleIdlePos, getIdlePaths(rhSiteDef), { sayDebug: true });
   }
 }

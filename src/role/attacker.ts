@@ -1,6 +1,6 @@
-import { getClosestEnergyStorageInNeed } from "manager/energy";
-import { goToMainRoom, goToRoomAssignment } from "manager/room";
 import { moveToIdleSpot } from "manager/idle";
+import { goToRoomAssignment } from "manager/room";
+
 import { AttackerCreep } from "./attacker.type";
 
 const targetStructures: Set<[number, number]> = new Set([
@@ -20,8 +20,6 @@ export function attackerLoop(creep: AttackerCreep): void {
   // console.log("creepTarget", creepTarget);
   if (creepTarget) {
     active = true;
-    const attackStatus = creep.attack(creepTarget);
-    // console.log("attacking", creepTarget, attackStatus);
     if (creep.attack(creepTarget) === ERR_NOT_IN_RANGE) {
       creep.moveTo(creepTarget);
     }

@@ -1,26 +1,10 @@
-import { moveToIdleSpot } from "manager/idle";
 import { spawnInRoom } from "manager/spawn";
-import { MuleCreep, MulePath, isMule } from "./mule.type";
-import { getSiteResource } from "site/energy-storage-site/site";
+import { ClockworkMultiroomFlowField } from "screeps-clockwork";
 import { bodyPart } from "utils/body-part";
+import { getCachedClockworkFlowMap, getSurroundingPositions, moveToWithClockwork } from "utils/clockwork";
 import { creepsByRole } from "utils/query";
-import {
-  ClockworkFlowField,
-  ClockworkMultiroomFlowField,
-  FlowField,
-  astarMultiroomDistanceMap,
-  dijkstraMultiroomDistanceMap,
-  ephemeral,
-  getTerrainCostMatrix
-} from "screeps-clockwork";
-import { ClockworkMultiroomDistanceMap } from "screeps-clockwork/dist/src/wrappers/multiroomDistanceMap";
-import { compact } from "lodash";
-import {
-  getAdjustedTerrainCostMatrix,
-  getCachedClockworkFlowMap,
-  getSurroundingPositions,
-  moveToWithClockwork
-} from "utils/clockwork";
+
+import { isMule, MuleCreep, MulePath } from "./mule.type";
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {

@@ -1,4 +1,7 @@
+import { spawnInRoom } from "manager/spawn";
+import { bodyPart } from "utils/body-part";
 import { creepsByRole } from "utils/query";
+
 import { distributorLoop } from "./role.ess-distributor";
 import { EssDistributorCreep, isEssDistributor } from "./role.ess-distributor.type";
 import {
@@ -7,13 +10,10 @@ import {
   getLinkSinks,
   getNonStorageLinks,
   getSiteByName,
-  getSiteResource,
   getSitesByRoom,
   getStorageLinks,
   getUsedRooms
 } from "./site";
-import { spawnInRoom } from "manager/spawn";
-import { bodyPart } from "utils/body-part";
 
 export function energyStorageSpawnLoop(): void {
   const siteDefs = getAllSiteDefs();

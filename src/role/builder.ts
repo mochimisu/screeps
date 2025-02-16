@@ -2,25 +2,26 @@ import { getEnergy } from "manager/energy";
 import { clearCreep } from "manager/harvester";
 import { moveToIdleSpot } from "manager/idle";
 import { goToMainRoom, goToRoomAssignment, mainRoom } from "manager/room";
-import { BuilderCreep, isBuilder } from "./builder.type";
 import { spawnInRoom } from "manager/spawn";
-import { getCachedSiteResource, getSiteResource } from "site/energy-storage-site/site";
+import { getCachedSiteResource } from "site/energy-storage-site/site";
+
+import { BuilderCreep, isBuilder } from "./builder.type";
 
 const numBuilders = 3;
 const progressPerBuilder = 1000;
 const reqEnergyPerBuilder = 5000;
 
-interface DenyArea {
-  start: { x: number; y: number };
-  end: { x: number; y: number };
-}
+// interface DenyArea {
+//   start: { x: number; y: number };
+//   end: { x: number; y: number };
+// }
 
-const denyAreas: { [roomName: string]: DenyArea } = {
-  W22S58: {
-    start: { x: 30, y: 13 },
-    end: { x: 32, y: 15 }
-  }
-};
+// const denyAreas: { [roomName: string]: DenyArea } = {
+//   W22S58: {
+//     start: { x: 30, y: 13 },
+//     end: { x: 32, y: 15 }
+//   }
+// };
 
 export function builderSpawnLoop(): void {
   const builders = _.filter(Game.creeps, isBuilder);

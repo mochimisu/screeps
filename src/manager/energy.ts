@@ -1,7 +1,7 @@
 import { getStorageStructures } from "site/energy-storage-site/site";
-import { harvestClosestNode } from "./harvester";
-import { goToMainRoom, mainRoom } from "./room";
 import { structureAtPos } from "utils/query";
+
+import { goToMainRoom, mainRoom } from "./room";
 
 // temp deny area to build an energy base
 const denyArea: { [roomName: string]: number[][][] } = {
