@@ -21,6 +21,7 @@ export function moveToWithClockwork(
   flowFields?: ClockworkMultiroomFlowField[],
   options?: {
     sayDebug: boolean;
+    stuckOk?: boolean;
   }
 ): void {
   if (creep.memory.lastPos && creep.memory.lastPos.x === creep.pos.x && creep.memory.lastPos.y === creep.pos.y) {
@@ -67,7 +68,8 @@ export function moveToWithClockwork(
         creep.say("no flowfield");
       }
     }
-  } else {
+  } else if (!options?.stuckOk) {
+    console.log(`Creep ${creep.name} is stuck for ${creep.memory.ticksStuck} ticks`);
     creep.say("stuck");
   }
   creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" }, reusePath: 20 });
@@ -83,7 +85,7 @@ function roadQuery(roomName: string): [number, number][] {
         }) ?? [];
       return roads.map(r => [r.pos.x, r.pos.y]);
     },
-    300
+    1000
   );
 }
 
@@ -114,7 +116,7 @@ export function getAdjustedTerrainCostMatrix(roomName: string): ClockworkCostMat
   return mtx;
 }
 
-const verbose = true;
+const verbose = false;
 
 const cachedClockworkPaths: Record<
   string,
@@ -129,7 +131,7 @@ export function getCachedClockworkFlowMap(
     from: RoomPosition[];
     to: RoomPosition[];
   },
-  ttl = 100
+  ttl = 500
 ): ClockworkMultiroomFlowField | null {
   if (cachedClockworkPaths[keyName]) {
     if (Game.time > cachedClockworkPaths[keyName].validUntil) {

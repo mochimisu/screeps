@@ -28,7 +28,7 @@ export function builderSpawnLoop(): void {
   const constructionSites = _.filter(Game.constructionSites, cs => cs.my);
   const totalProgressNeeded = _.sum(constructionSites, cs => cs.progressTotal);
   const capFromEnergy = Math.ceil(getCachedSiteResource(mainRoom, RESOURCE_ENERGY) / reqEnergyPerBuilder);
-  const desiredBuilders = Math.max(
+  const desiredBuilders = Math.min(
     Math.min(Math.ceil(totalProgressNeeded / progressPerBuilder), numBuilders),
     capFromEnergy
   );

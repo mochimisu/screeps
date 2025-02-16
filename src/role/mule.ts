@@ -256,7 +256,10 @@ export function muleLoop(creep: MuleCreep): void {
       }
     } else {
       if (pathDef.idlePosition && creep.pos.getRangeTo(pathDef.idlePosition) > 0) {
-        moveToWithClockwork(creep, pathDef.idlePosition ?? source, getIdleClockworkPaths(path), { sayDebug: true });
+        moveToWithClockwork(creep, pathDef.idlePosition ?? source, getIdleClockworkPaths(path), {
+          sayDebug: true,
+          stuckOk: true
+        });
       }
     }
   }

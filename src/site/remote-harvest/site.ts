@@ -91,7 +91,7 @@ const siteDefs: RhSiteDef[] = [
       // second storage
       "67a143d162f5371cbb7bb49b"
     ],
-    muleParts: [...bodyPart(CARRY, 10), ...bodyPart(MOVE, 5)],
+    muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
     active: true
   }
 ];
