@@ -19,7 +19,7 @@ const mulePaths: Record<string, MulePath> = {
     resourceType: RESOURCE_ENERGY
   },
   "main-to-second": {
-    numMules: 4,
+    numMules: 2,
     // main s4orage
     source: "679a16c3135bf04cc4b9f12e",
     // second storage
@@ -28,7 +28,7 @@ const mulePaths: Record<string, MulePath> = {
       source.store.getUsedCapacity(RESOURCE_ENERGY) > 20000 && sink.store.getUsedCapacity(RESOURCE_ENERGY) < 8000,
     idlePosition: new RoomPosition(27, 27, "W22S58"),
     resourceType: RESOURCE_ENERGY,
-    parts: [...bodyPart(CARRY, 6), ...bodyPart(MOVE, 3)]
+    parts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)]
   },
   "main-mineral-ess": {
     numMules: 1,
@@ -63,7 +63,7 @@ const mulePaths: Record<string, MulePath> = {
     parts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)]
   },
   "third-energy-main": {
-    numMules: 2,
+    numMules: 1,
     source: "67ab4af7918897273c038658",
     sourceTransferPos: new RoomPosition(28, 20, "W21S58"),
     sink: "67ac472186eef035eca87012",
@@ -74,15 +74,6 @@ const mulePaths: Record<string, MulePath> = {
     parts: [...bodyPart(CARRY, 14), ...bodyPart(MOVE, 7)]
   }
 };
-
-interface MuleClockworkPath {
-  toSink: ClockworkMultiroomFlowField[];
-  toSource: ClockworkMultiroomFlowField[];
-  toIdle: ClockworkMultiroomFlowField[];
-  validUntil: number;
-}
-const muleClockworkPaths: Record<string, MuleClockworkPath> = {};
-console.log("muleClockworkPaths", Object.keys(muleClockworkPaths).length);
 
 export function muleSpawnLoop(): boolean {
   const mules = creepsByRole("mule") as MuleCreep[];

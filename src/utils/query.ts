@@ -54,10 +54,12 @@ export function perTickQuery<T>(key: string, getter: () => T): T {
   if (Game.time !== perTickMemoryUpdated) {
     perTickMemory = {};
   }
-  if (perTickMemory[key] == null) {
-    perTickMemory[key] = getter();
+  let val = perTickMemory[key];
+  if (val == null) {
+    val = getter();
+    perTickMemory[key] = val;
   }
-  return perTickMemory[key] as T;
+  return val as T;
 }
 
 export function creepsByRole(role: string): Creep[] {

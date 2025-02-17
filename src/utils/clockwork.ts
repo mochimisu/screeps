@@ -24,13 +24,16 @@ export function moveToWithClockwork(
     stuckOk?: boolean;
   }
 ): void {
+  let isStuck = false;
   if (creep.memory.lastPos && creep.memory.lastPos.x === creep.pos.x && creep.memory.lastPos.y === creep.pos.y) {
     creep.memory.ticksStuck = (creep.memory.ticksStuck ?? 0) + 1;
+    isStuck = creep.memory.ticksStuck >= 10;
   } else {
     creep.memory.lastPos = { x: creep.pos.x, y: creep.pos.y };
     creep.memory.ticksStuck = 0;
+    isStuck = false;
   }
-  if (creep.memory.ticksStuck < 10) {
+  if (!isStuck) {
     for (const flowField of flowFields ?? []) {
       // If creep is on flowfield, use it
       const directions = flowField.getDirections(creep.pos);

@@ -17,7 +17,7 @@ interface ThresholdDef {
   towerMin: number;
 }
 const repairThresholds: Partial<Record<StructureConstant, ThresholdDef>> = {
-  [STRUCTURE_WALL]: { min: 300_000, repairTo: 1_000_000, towerMin: 100 },
+  [STRUCTURE_WALL]: { min: 300_000, repairTo: 500_000, towerMin: 100 },
   [STRUCTURE_RAMPART]: { min: 80_000, repairTo: 100_000, towerMin: 1_000 }
 };
 const defaultRepairPercents: { min: number; repairTo: number; towerMin: number } = {

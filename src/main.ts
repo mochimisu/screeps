@@ -34,6 +34,7 @@ import { rhLoop } from "site/remote-harvest/loop";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { creepsByRole, queryLoop } from "utils/query";
 import * as scriptsImpl from "utils/scripts";
+import { terminalLoop } from "manager/terminal";
 
 declare global {
   /*
@@ -159,6 +160,9 @@ const loop = () => {
 
     // market
     orderLoop();
+
+    // terminal balance
+    terminalLoop();
 
     // if bucket is maxed out, generate a pixel
     if (Game.cpu.bucket === 10000) {

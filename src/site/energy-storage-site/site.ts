@@ -1,7 +1,10 @@
 // take energy from energySources and put it into storage
 
+import { mainRoom } from "manager/room";
+import { getNeededResources } from "market/orders";
 import { bodyPart } from "utils/body-part";
-import { query, queryIds } from "utils/query";
+import { keywiseSubtract, keywiseAdd, keywiseFilter } from "utils/etc";
+import { creepsByRoomAssignmentAndRole, query, queryIds, structureTypesAtPos } from "utils/query";
 
 export interface EssSiteDefinition {
   name: string;
@@ -13,6 +16,7 @@ export interface EssSiteDefinition {
   distributors: number;
   distributorParts?: BodyPartConstant[];
   hasTerminal?: boolean;
+  minResources?: Partial<Record<ResourceConstant, number>>;
 }
 
 const siteDefs: EssSiteDefinition[] = [
@@ -27,7 +31,10 @@ const siteDefs: EssSiteDefinition[] = [
     sources: [[29, 12]],
     distributors: 1,
     distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
-    hasTerminal: true
+    hasTerminal: true,
+    minResources: {
+      [RESOURCE_ENERGY]: 100_000
+    }
   },
   {
     name: "second",
@@ -40,7 +47,11 @@ const siteDefs: EssSiteDefinition[] = [
     sources: [[6, 27]],
     linkSinks: [[26, 44]],
     distributors: 1,
-    distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+    distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
+    hasTerminal: true,
+    minResources: {
+      [RESOURCE_ENERGY]: 20_000
+    }
   },
   {
     name: "third",
@@ -79,15 +90,24 @@ export function getSiteResource(roomName: string, resourceName?: ResourceConstan
   if (!roomSites) {
     return 0;
   }
-  let count = 0;
-  const storageStructures = getStorageStructures(roomName);
-  for (const storage of storageStructures) {
-    if (storage.structureType === STRUCTURE_STORAGE || storage.structureType === STRUCTURE_CONTAINER) {
-      const typedStorage = storage;
-      count += typedStorage.store[resourceName];
-    }
-  }
-  return count;
+  return query(
+    `ess-${roomName}-resource-${resourceName}`,
+    () => {
+      let count = 0;
+      const storageStructures: (StructureStorage | StructureContainer | StructureTerminal | Creep)[] =
+        getStorageStructures(roomName);
+      const terminal = Game.rooms[roomName].terminal;
+      if (terminal) {
+        storageStructures.push(terminal);
+      }
+      storageStructures.push(...creepsByRoomAssignmentAndRole(roomName, "ess-distributor"));
+      for (const storage of storageStructures) {
+        count += storage.store[resourceName];
+      }
+      return count;
+    },
+    1
+  );
 }
 
 export function getCachedSiteResource(roomName: string, resourceName?: ResourceConstant): number {
@@ -113,9 +133,7 @@ export function getStorageStructures(roomName: string): (StructureContainer | St
       for (const area of roomSites) {
         for (const posXY of area.storage) {
           const pos = new RoomPosition(posXY[0], posXY[1], roomName);
-          const storageStructures = pos
-            .lookFor(LOOK_STRUCTURES)
-            .filter(s => s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_CONTAINER) as (
+          const storageStructures = structureTypesAtPos(pos, new Set([STRUCTURE_STORAGE, STRUCTURE_CONTAINER])) as (
             | StructureContainer
             | StructureStorage
           )[];
@@ -245,9 +263,147 @@ export function getEnergyContainersOutsideAreas(roomName: string): StructureCont
 export function getSiteByName(name: string): EssSiteDefinition {
   return sitesByName[name];
 }
+
 export function getSitesByRoom(roomName: string): EssSiteDefinition[] {
   if (!sitesByRoom[roomName]) {
     return [];
   }
   return sitesByRoom[roomName];
+}
+
+// Delta:
+// positive: need this resource
+// negative: have extra of this resource
+export function getDesiredResourcesDelta(roomName: string): Partial<Record<ResourceConstant, number>> {
+  return query(
+    `ess-${roomName}-desiredResources`,
+    () => {
+      const roomSites = getSitesByRoom(roomName);
+      if (!roomSites) {
+        return {};
+      }
+      const desiredResources: Partial<Record<ResourceConstant, number>> = {};
+      for (const area of roomSites) {
+        for (const [resourceStr, amount] of Object.entries(area.minResources || {})) {
+          const resource = resourceStr as ResourceConstant;
+          const existingResources = getSiteResource(roomName, resource);
+          const delta = amount - existingResources;
+          if (delta == 0) {
+            continue;
+          }
+          if (desiredResources[resource] === undefined) {
+            desiredResources[resource] = 0;
+          }
+
+          desiredResources[resource] = (desiredResources[resource as ResourceConstant] ?? 0) + delta;
+        }
+      }
+      // console.log("desiredResourcesDelta", roomName, JSON.stringify(desiredResources));
+      return desiredResources;
+    },
+    1
+  );
+}
+
+// Resources wanted by other ESS sites
+export function getDesiredResourcesForOtherSites(roomName: string): Partial<Record<ResourceConstant, number>> {
+  return query(
+    `ess-${roomName}-desiredResourcesForOtherSites`,
+    () => {
+      const desiredResources: Partial<Record<ResourceConstant, number>> = {};
+      for (const otherRoomName of getUsedRooms()) {
+        if (otherRoomName === roomName) {
+          continue;
+        }
+        const delta = getDesiredResourcesDelta(otherRoomName);
+        for (const [resourceStr, amount] of Object.entries(delta)) {
+          if (amount <= 0) {
+            continue;
+          }
+          const resource = resourceStr as ResourceConstant;
+          if (desiredResources[resource] === undefined) {
+            desiredResources[resource] = 0;
+          }
+          desiredResources[resource] = (desiredResources[resource] ?? 0) + amount;
+        }
+      }
+      // console.log("desiredResourcesForOtherSites", roomName, JSON.stringify(desiredResources));
+      return desiredResources;
+    },
+    1
+  );
+}
+
+// Extra resources that a given ESS site can send to another room
+export function getExtraResources(roomName: string): Partial<Record<ResourceConstant, number>> {
+  return query(
+    `ess-${roomName}-extraResources`,
+    () => {
+      const resourcesDelta = getDesiredResourcesDelta(roomName);
+      const desiredResources = getDesiredResourcesForOtherSites(roomName);
+      const extraResources: Partial<Record<ResourceConstant, number>> = {};
+      for (const [resourceStr, deltaAmount] of Object.entries(resourcesDelta)) {
+        const extraAmount = -deltaAmount;
+        const resource = resourceStr as ResourceConstant;
+        if (extraAmount <= 0) {
+          continue;
+        }
+        const desiredAmount = desiredResources[resource] ?? 0;
+        const extra = extraAmount - desiredAmount;
+        if (extra <= 0) {
+          continue;
+        }
+        extraResources[resource] = extra;
+      }
+      // console.log("extraResources", roomName, JSON.stringify(extraResources));
+      return extraResources;
+    },
+    1
+  );
+}
+
+export function getDesiredResourcesInTerminal(roomName: string): Partial<Record<ResourceConstant, number>> {
+  return query(
+    `ess-${roomName}-desiredResourcesInTerminal`,
+    () => {
+      const extraResources = getExtraResources(roomName);
+      const marketResources = roomName === mainRoom ? getNeededResources() : {};
+      return keywiseAdd(extraResources, marketResources);
+    },
+    1
+  );
+}
+
+export function getNeededResourcesInTerminal(roomName: string): Partial<Record<ResourceConstant, number>> {
+  return query(
+    `ess-${roomName}-neededResourcesInTerminal`,
+    () => {
+      const terminal = Game.rooms[roomName].terminal;
+      if (!terminal) {
+        return {};
+      }
+      return keywiseFilter(
+        keywiseSubtract(getDesiredResourcesInTerminal(roomName), terminal.store),
+        amount => amount > 0
+      );
+    },
+    1
+  );
+}
+
+export function getExcessResourcesInTerminal(roomName: string): Partial<Record<ResourceConstant, number>> {
+  return query(
+    `ess-${roomName}-excessResourcesInTerminal`,
+    () => {
+      const terminal = Game.rooms[roomName].terminal;
+      if (!terminal) {
+        return {};
+      }
+      return keywiseFilter(
+        keywiseSubtract(terminal.store, getDesiredResourcesInTerminal(roomName)),
+        amount => amount > 0
+      );
+    },
+    1
+  );
 }

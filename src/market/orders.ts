@@ -17,12 +17,12 @@ export interface ManualOrder {
 
 const orders: ManualOrder[] = [
   {
-    id: "sell-oxygen-mid-13",
+    id: "sell-oxygen-mid-14",
     type: "sell",
     resourceType: RESOURCE_OXYGEN,
     price: 45,
     amount: 40000,
-    energyAllowance: 20000,
+    energyAllowance: 100,
     createDeal: true
   },
   {
@@ -80,8 +80,8 @@ declare global {
   }
 }
 
-export function getActiveResources(): Map<ResourceConstant, number> {
-  const resourcesNeeded: Map<ResourceConstant, number> = new Map();
+export function getActiveResources(): Partial<Record<ResourceConstant, number>> {
+  const resourcesNeeded: Partial<Record<ResourceConstant, number>> = {};
   const sellMemory = getOrderMemory();
   // For every active order, add up the resources needed
   for (const order of orders) {
@@ -96,37 +96,31 @@ export function getActiveResources(): Map<ResourceConstant, number> {
         console.log(`Market order ${memory.marketOrderId} not found`);
         continue;
       }
-      resourcesNeeded.set(
-        order.resourceType,
-        (resourcesNeeded.get(order.resourceType) || 0) + marketOrder.remainingAmount
-      );
+      resourcesNeeded[order.resourceType] = (resourcesNeeded[order.resourceType] ?? 0) + marketOrder.remainingAmount;
     } else {
       if (order.type === "sell") {
-        resourcesNeeded.set(order.resourceType, (resourcesNeeded.get(order.resourceType) || 0) + order.amount);
+        resourcesNeeded[order.resourceType] = (resourcesNeeded[order.resourceType] ?? 0) + order.amount;
       }
       if (!memory || memory.status !== "active") {
         // energy
-        resourcesNeeded.set(RESOURCE_ENERGY, (resourcesNeeded.get(RESOURCE_ENERGY) || 0) + order.energyAllowance);
+        resourcesNeeded[RESOURCE_ENERGY] = (resourcesNeeded[RESOURCE_ENERGY] ?? 0) + order.energyAllowance;
       }
     }
   }
   return resourcesNeeded;
 }
 
-export function getNeededResources(): Map<ResourceConstant, number> {
+export function getNeededResources(): Partial<Record<ResourceConstant, number>> {
   const activeResources = getActiveResources();
   const terminal = Game.rooms[mainRoom].terminal;
   if (terminal == null) {
-    return new Map();
+    return {};
   }
   for (const resourceType in terminal.store) {
-    activeResources.set(
-      resourceType as ResourceConstant,
-      Math.max(
-        (activeResources.get(resourceType as ResourceConstant) || 0) -
-          terminal.store.getUsedCapacity(resourceType as ResourceConstant),
-        0
-      )
+    const resource = resourceType as ResourceConstant;
+    activeResources[resource] = Math.max(
+      (activeResources[resource] ?? 0) - terminal.store.getUsedCapacity(resourceType as ResourceConstant),
+      0
     );
   }
   return activeResources;
