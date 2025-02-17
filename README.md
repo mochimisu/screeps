@@ -1,5 +1,5 @@
 # mochimisu screeps scripts
-Playing screeps as [mochimisu](https://screeps.com/a/#!/profile/mochimisu) on shard3.
+Playing [screeps](https://screeps.com/) as [mochimisu](https://screeps.com/a/#!/profile/mochimisu) on shard3.
 
 This repo was started using the [screeps-typescript-starter](https://github.com/screepers/screeps-typescript-starter) template.
 
