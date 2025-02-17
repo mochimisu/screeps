@@ -5,8 +5,8 @@ This repo was started using the [screeps-typescript-starter](https://github.com/
 
 ## Setup
 1.
-    a. `direnv` with `nix` will set up the environment. You must run `direnv allow` in the root directory to allow the `.envrc` file to be loaded.
-    b. Or, if you aren't using `nix`, install `node` and `yarn`
+    - `direnv` with `nix` will set up the environment. You must run `direnv allow` in the root directory to allow the `.envrc` file to be loaded.
+    - Or, if you aren't using `nix`, install `node` and `yarn`
 2. Run `npm install` and `yarn` to install dependencies
 
 ## Development
