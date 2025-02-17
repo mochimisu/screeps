@@ -52,13 +52,22 @@ const mulePaths: Record<string, MulePath> = {
     idlePosition: new RoomPosition(31, 14, "W22S59")
   },
   "third-energy-ess": {
-    numMules: 2,
+    numMules: 1,
     source: "67a936f6d2beb34270391d74",
     sourceTransferPos: new RoomPosition(22, 41, "W21S58"),
     sink: "67ab4af7918897273c038658",
     sinkTransferPos: new RoomPosition(29, 20, "W21S58"),
-    // fix
     condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
+    idlePosition: new RoomPosition(20, 40, "W21S58"),
+    parts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)]
+  },
+  "third-energy-ess-2": {
+    numMules: 1,
+    source: "67a936f6d2beb34270391d74",
+    sourceTransferPos: new RoomPosition(22, 41, "W21S58"),
+    sink: "67ab4af7918897273c038658",
+    sinkTransferPos: new RoomPosition(29, 20, "W21S58"),
+    condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity(RESOURCE_ENERGY) > 1500,
     idlePosition: new RoomPosition(20, 40, "W21S58"),
     parts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)]
   },
@@ -69,7 +78,7 @@ const mulePaths: Record<string, MulePath> = {
     sink: "67ac472186eef035eca87012",
     sinkTransferPos: new RoomPosition(48, 18, "W22S58"),
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity(RESOURCE_ENERGY) > 50000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
+      source.store.getUsedCapacity(RESOURCE_ENERGY) > 200000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
     idlePosition: new RoomPosition(30, 22, "W21S58"),
     parts: [...bodyPart(CARRY, 14), ...bodyPart(MOVE, 7)]
   }
