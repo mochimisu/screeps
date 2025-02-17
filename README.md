@@ -15,6 +15,6 @@ This repo was started using the [screeps-typescript-starter](https://github.com/
 (see [screeps-typescript-starter](https://github.com/screepers/screeps-typescript-starter)
 
 # Progress
-- 1/26/2025: Started playing on shard3 @ W22S58
-- 1/31/2025: Claimed W22S58
-- 2/9/2025: Claimed W21S58
+- 1/26/2025: Started playing on shard3 @ W22S58 (GCL 1)
+- 1/31/2025: Claimed W22S58 (GCL 2)
+- 2/9/2025: Claimed W21S58 (GCL 3)
