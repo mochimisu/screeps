@@ -349,7 +349,7 @@ export function getExtraResources(roomName: string): Partial<Record<ResourceCons
           continue;
         }
         const desiredAmount = desiredResources[resource] ?? 0;
-        const extra = extraAmount - desiredAmount;
+        const extra = Math.min(extraAmount, desiredAmount);
         if (extra <= 0) {
           continue;
         }

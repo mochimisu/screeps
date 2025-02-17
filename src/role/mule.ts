@@ -8,7 +8,7 @@ import { isMule, MuleCreep, MulePath } from "./mule.type";
 
 const mulePaths: Record<string, MulePath> = {
   "second-to-main": {
-    numMules: 1,
+    numMules: 0,
     // second storage
     source: "67a143d162f5371cbb7bb49b",
     // main south link
@@ -19,7 +19,7 @@ const mulePaths: Record<string, MulePath> = {
     resourceType: RESOURCE_ENERGY
   },
   "main-to-second": {
-    numMules: 2,
+    numMules: 0,
     // main s4orage
     source: "679a16c3135bf04cc4b9f12e",
     // second storage

@@ -218,7 +218,7 @@ function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean 
   }
 
   const neededInTerminal = getNeededResourcesInTerminal(siteDef.roomName);
-  // console.log("neededInTerminal", JSON.stringify(neededInTerminal, null, 2));
+  // console.log("neededInTerminal", siteDef.roomName, JSON.stringify(neededInTerminal, null, 2));
   // Grab from storage
   const storage = getStorageStructures(siteDef.roomName);
   for (const storageStructure of storage) {
@@ -238,7 +238,7 @@ function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean 
 
   const excessInTerminal = getExcessResourcesInTerminal(siteDef.roomName);
   // Grab from terminal
-  // console.log("excessInTerminal", JSON.stringify(excessInTerminal, null, 2));
+  // console.log("excessInTerminal", siteDef.roomName, JSON.stringify(excessInTerminal, null, 2));
   for (const [resourceTypeStr, amountInTerminal] of Object.entries(excessInTerminal)) {
     const resourceType = resourceTypeStr as ResourceConstant;
     const amount = Math.min(creep.store.getFreeCapacity(), amountInTerminal);
