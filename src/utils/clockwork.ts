@@ -92,6 +92,20 @@ function roadQuery(roomName: string): [number, number][] {
   );
 }
 
+function wallQuery(roomName: string): [number, number][] {
+  return query(
+    `clockwork-wall-${roomName}`,
+    () => {
+      const walls =
+        Game.rooms[roomName]?.find(FIND_STRUCTURES, {
+          filter: s => s.structureType === STRUCTURE_WALL
+        }) ?? [];
+      return walls.map(r => [r.pos.x, r.pos.y]);
+    },
+    1000
+  );
+}
+
 export function getSurroundingPositions(pos: RoomPosition, radius = 1): RoomPosition[] {
   const positions = [];
   for (let dx = -radius; dx <= radius; dx++) {
@@ -111,6 +125,12 @@ export function getAdjustedTerrainCostMatrix(roomName: string): ClockworkCostMat
     mtx.set(30, 13, 255);
     mtx.set(30, 14, 255);
   }
+  // Adjust for walls
+  const wallsXY = wallQuery(roomName);
+  for (const [x, y] of wallsXY) {
+    mtx.set(x, y, 255);
+  }
+
   // Make roads 1 cost
   const roadsXY = roadQuery(roomName);
   for (const [x, y] of roadsXY) {

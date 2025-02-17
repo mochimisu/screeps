@@ -2,6 +2,7 @@ import { moveToIdleSpot } from "manager/idle";
 import { goToRoomAssignment } from "manager/room";
 
 import { AttackerCreep } from "./attacker.type";
+import { setReplaceAtForCurrentTick } from "utils/replace-at";
 
 const targetStructures: Set<[number, number]> = new Set([
   // [13, 45],
@@ -14,7 +15,10 @@ export function attackerLoop(creep: AttackerCreep): void {
   let active = false;
   if (goToRoomAssignment(creep)) {
     return;
+  } else if (creep.room.name && creep.room.name === creep.memory.roomName) {
+    setReplaceAtForCurrentTick(creep, 10);
   }
+
   const creepTarget = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
   // console.log("creepName", creep.name);
   // console.log("creepTarget", creepTarget);
