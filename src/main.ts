@@ -35,6 +35,7 @@ import { ErrorMapper } from "utils/ErrorMapper";
 import { creepsByRole, queryLoop } from "utils/query";
 import * as scriptsImpl from "utils/scripts";
 import { terminalLoop } from "manager/terminal";
+import "defense/scripts";
 
 declare global {
   /*
