@@ -68,10 +68,26 @@ export function terminalLoop() {
         if (!otherTerminal) {
           continue;
         }
-        let sendAmount = Math.min(extraAmount, amountNeeded ?? 0);
-        const sendRes = otherTerminal.send(resourceType, Math.min(extraAmount, amountNeeded ?? 0), roomName);
+        let sendAmount = Math.min(extraAmount, amountNeeded ?? 0, otherTerminal.store[resourceType]);
+        // console.log("sendAmount", sendAmount);
+        // console.log("  extraAmount", extraAmount);
+        // console.log("  amountNeeded", amountNeeded);
+        const roomDistance = Game.map.getRoomLinearDistance(roomName, sourceRoomName);
+        const energyCost = Math.ceil(sendAmount * (1 - Math.exp(-roomDistance / 30)));
+        // TODO do the ajdjustment for other resources
+        if (resourceType === RESOURCE_ENERGY) {
+          sendAmount -= energyCost;
+        }
+        if (sendAmount <= 0) {
+          continue;
+        }
+        const sendRes = otherTerminal.send(resourceType, sendAmount, roomName);
         if (sendRes === OK) {
           console.log(`Sent ${resourceType} (${sendAmount}) from ${sourceRoomName} to ${roomName}: ${sendRes}`);
+        } else if (sendRes !== ERR_TIRED) {
+          console.log(
+            `Failed to send ${resourceType} (${sendAmount}) from ${sourceRoomName} to ${roomName}: ${sendRes}`
+          );
         }
       }
     }

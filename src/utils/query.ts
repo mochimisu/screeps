@@ -40,14 +40,14 @@ export function query<T>(key: string, getter: () => T, cacheTime = 1): T {
   return queryVal.value as T;
 }
 
-export function queryId<T extends _HasId>(key: string, getter: () => T, cacheTime = 1): T | null {
-  const id: Id<T> = query<string>(key, () => getter().id, cacheTime) as Id<T>;
-  return Game.getObjectById(id);
+export function queryId<T extends _HasId>(key: string, getter: () => T | null, cacheTime = 1): T | null {
+  const id: Id<T> | null = query<string | null>(key, () => getter()?.id ?? null, cacheTime) as Id<T> | null;
+  return id != null ? Game.getObjectById(id) : null;
 }
 
 export function queryIds<T extends _HasId>(key: string, getter: () => T[], cacheTime = 1): T[] {
   const ids: Id<T>[] = query<string[]>(key, () => getter().map(o => o.id), cacheTime) as Id<T>[];
-  return ids.map(id => Game.getObjectById(id) as T);
+  return ids.map(id => Game.getObjectById(id) as T).filter(o => o != null);
 }
 
 export function perTickQuery<T>(key: string, getter: () => T): T {

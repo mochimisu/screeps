@@ -12,6 +12,7 @@ declare global {
   interface CreepMemory {
     lastPos?: { x: number; y: number };
     ticksStuck?: number;
+    stuckGrace?: number;
   }
 }
 
@@ -25,9 +26,20 @@ export function moveToWithClockwork(
   }
 ): void {
   let isStuck = false;
-  if (creep.memory.lastPos && creep.memory.lastPos.x === creep.pos.x && creep.memory.lastPos.y === creep.pos.y) {
+  if (creep.memory.stuckGrace != null && creep.memory.stuckGrace > 0) {
+    creep.memory.stuckGrace -= 1;
+    if (creep.memory.stuckGrace == 0) {
+      delete creep.memory.stuckGrace;
+    }
+    isStuck = true;
+  } else if (creep.memory.lastPos && creep.memory.lastPos.x === creep.pos.x && creep.memory.lastPos.y === creep.pos.y) {
     creep.memory.ticksStuck = (creep.memory.ticksStuck ?? 0) + 1;
     isStuck = creep.memory.ticksStuck >= 10;
+    if (isStuck) {
+      console.log(`Creep ${creep.name} is stuck for ${creep.memory.ticksStuck} ticks`);
+      // 15 ticks of moveTo movement grace if stuck
+      creep.memory.stuckGrace = (creep.memory.stuckGrace ?? 0) + 15;
+    }
   } else {
     creep.memory.lastPos = { x: creep.pos.x, y: creep.pos.y };
     creep.memory.ticksStuck = 0;
@@ -72,7 +84,6 @@ export function moveToWithClockwork(
       }
     }
   } else if (!options?.stuckOk) {
-    console.log(`Creep ${creep.name} is stuck for ${creep.memory.ticksStuck} ticks`);
     creep.say("stuck");
   }
   creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" }, reusePath: 20 });
@@ -92,13 +103,15 @@ function roadQuery(roomName: string): [number, number][] {
   );
 }
 
+const passableStructures: Set<StructureConstant> = new Set([STRUCTURE_ROAD, STRUCTURE_CONTAINER, STRUCTURE_RAMPART]);
 function wallQuery(roomName: string): [number, number][] {
   return query(
     `clockwork-wall-${roomName}`,
     () => {
+      // include any non passable structures
       const walls =
         Game.rooms[roomName]?.find(FIND_STRUCTURES, {
-          filter: s => s.structureType === STRUCTURE_WALL
+          filter: s => !passableStructures.has(s.structureType)
         }) ?? [];
       return walls.map(r => [r.pos.x, r.pos.y]);
     },

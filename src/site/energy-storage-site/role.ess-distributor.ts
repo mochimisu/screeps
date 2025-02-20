@@ -36,16 +36,18 @@ function essGetEnergy(siteDef: EssSiteDefinition, creep: EssDistributorCreep): b
   const sortedSources = _.sortBy(energySources, source => creep.pos.getRangeTo(source));
   if (sortedSources.length === 0) {
     return essGetStoredEnergy(siteDef, creep);
-    // return false;
   }
   const target = sortedSources[0];
-  const transferStatus = creep.withdraw(target, RESOURCE_ENERGY);
-  if (transferStatus === ERR_NOT_IN_RANGE) {
-    creep.moveTo(target, {
-      visualizePathStyle: { stroke: "#ffaa00" }
-    });
+  if (target.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+    const transferStatus = creep.withdraw(target, RESOURCE_ENERGY);
+    if (transferStatus === ERR_NOT_IN_RANGE) {
+      creep.moveTo(target, {
+        visualizePathStyle: { stroke: "#ffaa00" }
+      });
+    }
+    return true;
   }
-  return true;
+  return false;
 }
 
 function essGetMinerals(siteDef: EssSiteDefinition, creep: EssDistributorCreep): boolean {
@@ -98,8 +100,11 @@ function essGetStoredEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
         s.structure &&
         (s.structure.structureType === STRUCTURE_STORAGE || s.structure.structureType === STRUCTURE_CONTAINER)
     )
-    .map(s => s.structure)[0];
+    .map(s => s.structure)[0] as StructureStorage | StructureContainer;
   if (!storageStructure) {
+    return false;
+  }
+  if (storageStructure.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
     return false;
   }
   for (const obj of structures) {
@@ -118,6 +123,7 @@ function essGetStoredEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
             visualizePathStyle: { stroke: "#ffaa00" }
           });
         }
+        // console.log("essGetStoredEnergy2", siteDef.roomName);
         return true;
       }
     }
@@ -212,6 +218,7 @@ function essTerminalDeposit(siteDef: EssSiteDefinition, creep: Creep): boolean {
 }
 
 function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean {
+  // console.log("essTerminalTransfer", siteDef.roomName);
   const terminal = Game.rooms[siteDef.roomName].terminal;
   if (!terminal) {
     return false;
@@ -231,6 +238,7 @@ function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean 
             visualizePathStyle: { stroke: "#ffaa00" }
           });
         }
+        // console.log("essTerminalTransfer", siteDef.roomName, resourceType, amount);
         return true;
       }
     }
@@ -268,8 +276,10 @@ export function distributorLoop(creep: EssDistributorCreep): void {
 
   if (creep.memory.status === "get-energy") {
     if (essGetEnergy(essSiteDef, creep)) {
+      // console.log("essGetEnergy", essSiteDef.roomName);
       return;
     } else if (essGetMinerals(essSiteDef, creep)) {
+      // console.log("essGetMinerals", essSiteDef.roomName);
       return;
     }
     // run terminal loop if in main room

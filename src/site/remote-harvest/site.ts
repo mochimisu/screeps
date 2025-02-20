@@ -1,7 +1,7 @@
 // harvest things from other rooms
 
 import { bodyPart } from "utils/body-part";
-import { creepsByRole, query } from "utils/query";
+import { creepsByRole, query, queryId, queryIds } from "utils/query";
 
 import { isRhHarvester, RhHarvesterCreep } from "./role.rh-harvester.type";
 
@@ -128,5 +128,38 @@ export function getRhHarvester(siteName: string): RhHarvesterCreep | null {
       }
     }
     return null;
+  });
+}
+
+export function getEnergyCache(siteName: string): StructureContainer | null {
+  return queryId(
+    `rh-${siteName}-energy-cache`,
+    () => {
+      const site = getSiteByName(siteName);
+      if (site && site.energyCachePos) {
+        const container = site.energyCachePos();
+        return container.lookFor(LOOK_STRUCTURES)[0] as StructureContainer;
+      }
+      return null;
+    },
+    100
+  );
+}
+
+export function getEnergyCachesByRoom(roomName: string): StructureContainer[] {
+  return queryIds(`rh-${roomName}-energy-caches`, () => {
+    const siteDefs = sitesByRoom[roomName] ?? [];
+    const containers: StructureContainer[] = [];
+    for (const siteDef of siteDefs) {
+      if (siteDef.energyCachePos) {
+        const container = siteDef.energyCachePos();
+        for (const structure of container.lookFor(LOOK_STRUCTURES)) {
+          if (structure.structureType === STRUCTURE_CONTAINER) {
+            containers.push(structure as StructureContainer);
+          }
+        }
+      }
+    }
+    return containers;
   });
 }

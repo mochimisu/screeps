@@ -62,7 +62,11 @@ const siteDefs: EssSiteDefinition[] = [
     ],
     storage: [[29, 19]],
     sources: [[29, 17]],
-    distributors: 1
+    distributors: 1,
+    hasTerminal: true,
+    minResources: {
+      [RESOURCE_ENERGY]: 30_000
+    }
   }
 ];
 
@@ -399,6 +403,9 @@ export function getExcessResourcesInTerminal(roomName: string): Partial<Record<R
       if (!terminal) {
         return {};
       }
+      // console.log("roomName", roomName);
+      // console.log("  terminal.store", JSON.stringify(terminal.store, null, 2));
+      // console.log("  getDesiredResourcesInTerminal", JSON.stringify(getDesiredResourcesInTerminal(roomName), null, 2));
       return keywiseFilter(
         keywiseSubtract(terminal.store, getDesiredResourcesInTerminal(roomName)),
         amount => amount > 0

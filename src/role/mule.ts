@@ -72,15 +72,24 @@ const mulePaths: Record<string, MulePath> = {
     parts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)]
   },
   "third-energy-main": {
-    numMules: 1,
+    numMules: 0,
     source: "67ab4af7918897273c038658",
     sourceTransferPos: new RoomPosition(28, 20, "W21S58"),
     sink: "67ac472186eef035eca87012",
     sinkTransferPos: new RoomPosition(48, 18, "W22S58"),
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity(RESOURCE_ENERGY) > 200000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
+      source.store.getUsedCapacity(RESOURCE_ENERGY) > 100000 && sink.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
     idlePosition: new RoomPosition(30, 22, "W21S58"),
     parts: [...bodyPart(CARRY, 14), ...bodyPart(MOVE, 7)]
+  },
+  "third-mineral-ess": {
+    numMules: 1,
+    source: "67b481c137c34bf954c84aa4",
+    sourceTransferPos: new RoomPosition(43, 10, "W21S58"),
+    sink: "67ab4af7918897273c038658",
+    sinkTransferPos: new RoomPosition(30, 19, "W21S58"),
+    condition: (source: StructureStorage | StructureContainer) => source.store.getUsedCapacity() > 200,
+    idlePosition: new RoomPosition(43, 9, "W21S58")
   }
 };
 

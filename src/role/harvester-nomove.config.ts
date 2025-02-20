@@ -27,6 +27,11 @@ export const noMoveNodes: NoMoveDefinition[] = [
   {
     sourceId: "5bbcabc79099fc012e634450",
     allowOtherRoomSpawn: true
+  },
+  // 3rd oxygen
+  {
+    sourceId: "5bbcb22840062e4259e93721",
+    predicate: () => (Game.getObjectById<Mineral>("5bbcb22840062e4259e93721")?.mineralAmount ?? 0) > 0
   }
 ];
 

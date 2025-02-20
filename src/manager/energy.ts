@@ -1,7 +1,9 @@
-import { getStorageStructures } from "site/energy-storage-site/site";
-import { structureAtPos } from "utils/query";
+import { getStorageStructures, getUsedRooms } from "site/energy-storage-site/site";
+import { queryIds, structureAtPos } from "utils/query";
 
 import { goToMainRoom, mainRoom } from "./room";
+import { getEnergyCachesByRoom } from "site/remote-harvest/site";
+import { getRange } from "screeps-clockwork";
 
 // temp deny area to build an energy base
 const denyArea: { [roomName: string]: number[][][] } = {
@@ -26,24 +28,45 @@ const energyBuffers: { [roomName: string]: number[][] } = {
 
 export function getEnergyBuffers(roomName: string): (StructureContainer | StructureStorage)[] {
   const buffers: (StructureContainer | StructureStorage)[] = [];
-  if (!energyBuffers[roomName]) {
-    return buffers;
-  }
-  for (const posXY of energyBuffers[roomName]) {
-    const pos = new RoomPosition(posXY[0], posXY[1], roomName);
-    const containers = structureAtPos(pos, STRUCTURE_CONTAINER) as StructureContainer[];
-    buffers.push(...containers);
-  }
-  buffers.push(...getStorageStructures(roomName));
-  return buffers;
+  return queryIds(
+    `energy-energyBuffers-${roomName}`,
+    () => {
+      for (const posXY of energyBuffers[roomName] ?? []) {
+        const pos = new RoomPosition(posXY[0], posXY[1], roomName);
+        const containers = structureAtPos(pos, STRUCTURE_CONTAINER) as StructureContainer[];
+        buffers.push(...containers);
+      }
+      buffers.push(...getStorageStructures(roomName));
+      buffers.push(...getEnergyCachesByRoom(roomName));
+      return buffers;
+    },
+    100
+  );
+}
+
+export function getAllEnergyBuffers(): (StructureContainer | StructureStorage)[] {
+  return queryIds(
+    `energy-energyBuffers-all`,
+    () => {
+      let buffers: (StructureContainer | StructureStorage)[] = [];
+      for (const roomName in energyBuffers) {
+        buffers = [...buffers, ...getEnergyBuffers(roomName)];
+      }
+      for (const roomName in getUsedRooms()) {
+        buffers.push(...getStorageStructures(roomName));
+      }
+      return buffers;
+    },
+    100
+  );
 }
 
 export function getClosestBufferWithEnergy(creep: Creep, minEnergy = 150): Structure | null {
-  const buffers = getEnergyBuffers(creep.room.name);
+  const buffers = getAllEnergyBuffers();
   const buffersWithEnergy = buffers.filter(s => s.store.getUsedCapacity(RESOURCE_ENERGY) > minEnergy);
 
   // Sort sources by distance from the creep
-  const sortedSources = _.sortBy(buffersWithEnergy, source => creep.pos.getRangeTo(source));
+  const sortedSources = _.sortBy(buffersWithEnergy, source => getRange(creep.pos, source.pos));
 
   // Iterate through the sorted sources
   for (const source of sortedSources) {
