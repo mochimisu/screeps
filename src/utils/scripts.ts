@@ -4,6 +4,7 @@ import {
   FoundBuyOrder,
   FoundSellOrder
 } from "market/orders";
+import { Grid4Bit, readCellFromSerializedGrid4 } from "./compact-grid";
 
 export function numMovePartsNeeded(parts: BodyPartConstant[], terrain: "road" | "plains" | "swamp" = "plains"): number {
   const terrainFactor = terrain === "road" ? 0.5 : terrain === "plains" ? 1 : 1.5;
@@ -100,6 +101,35 @@ export function cancelBuyOrders(): void {
     if (order.type === ORDER_BUY) {
       const res = Game.market.cancelOrder(orderId);
       console.log(`Cancel order ${orderId}: ${res}`);
+    }
+  }
+}
+
+export function test4BitCompact(): void {
+  const grid = new Grid4Bit();
+  let val = 0;
+  for (const x of _.range(25, 30)) {
+    for (const y of _.range(25, 30)) {
+      grid.set(x, y, val);
+      val = (val + 1) % 16;
+    }
+  }
+  const serialized = grid.serialize();
+  console.log("compacted: " + serialized);
+  const newGrid = Grid4Bit.fromSerialized(serialized);
+  for (const x of _.range(25, 30)) {
+    for (const y of _.range(25, 30)) {
+      console.log(newGrid.get(x, y));
+    }
+  }
+  for (const x of _.range(0, 50)) {
+    for (const y of _.range(0, 50)) {
+      if (newGrid.get(x, y) !== 0) {
+        console.log(`Non-zero at ${x}, ${y}`);
+      }
+      if (readCellFromSerializedGrid4(serialized, x, y) !== newGrid.get(x, y)) {
+        console.log(`Mismatch at ${x}, ${y}`);
+      }
     }
   }
 }

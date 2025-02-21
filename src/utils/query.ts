@@ -1,6 +1,8 @@
 // store things with a cache time in ticks, by default this is just in 1 tick
 //
 
+import { Grid8Bit } from "./compact-grid";
+
 declare global {
   interface Memory {
     query: {
@@ -60,6 +62,19 @@ export function perTickQuery<T>(key: string, getter: () => T): T {
     perTickMemory[key] = val;
   }
   return val as T;
+}
+export function queryCostMatrix(key: string, getter: () => CostMatrix, cacheTime = 100): CostMatrix {
+  if (cacheTime <= 1) {
+    return perTickQuery(key, getter);
+  }
+  const tickCacheKey = `tickCache-queryCostMatrix-${key}`;
+  if (perTickMemory[tickCacheKey] != null) {
+    return perTickMemory[`queryCostMatrix-${key}`];
+  }
+  const grid8 = Grid8Bit.fromSerialized(query(key, () => Grid8Bit.fromCostMatrix(getter()).serialize(), cacheTime));
+  const costMatrix = grid8.toCostMatrix();
+  perTickMemory[tickCacheKey] = costMatrix;
+  return costMatrix;
 }
 
 export function creepsByRole(role: string): Creep[] {
