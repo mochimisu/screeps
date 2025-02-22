@@ -1,6 +1,6 @@
 import { getActiveResources, getNeededResources } from "market/orders";
 
-import { EssDistributorCreep } from "./role.ess-distributor.type";
+import { EssDistributorCreep, isEssDistributor } from "./role.ess-distributor.type";
 import {
   EssSiteDefinition,
   getDesiredResourcesForOtherSites,
@@ -154,6 +154,11 @@ function essDepositEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
       .filter(
         s => s.structureType === structureType && (s as AnyStoreStructure).store.getFreeCapacity(RESOURCE_ENERGY) > 0
       );
+    if (isEssDistributor(creep) && creep.memory.wartime) {
+      targets = targets.filter(
+        s => s.structureType !== STRUCTURE_TOWER || (s as StructureTower).store.getUsedCapacity(RESOURCE_ENERGY) < 500
+      );
+    }
     if (targets.length > 0) {
       break;
     }

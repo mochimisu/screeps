@@ -18,6 +18,8 @@ import { spawnInRoom } from "manager/spawn";
 import { defenderMeleeLoop } from "./role.defender-melee";
 import { defenderRepairerLoop } from "./role.defender-repairer";
 import { defenderRangedLoop } from "./role.defender-ranged";
+import { isEssDistributor } from "site/energy-storage-site/role.ess-distributor.type";
+import { getSitesByRoom } from "site/energy-storage-site/site";
 
 function rampartLoop(roomName: string) {
   const memory = getMemoryDefense();
@@ -44,8 +46,6 @@ function rampartLoop(roomName: string) {
   if (Object.keys(enemyByDefenseArea).length === 0) {
     // No enemies, no need to do anything
     return;
-  } else {
-    console.log("Enemies in room " + roomName + ": " + JSON.stringify(enemyByDefenseArea));
   }
 
   for (let i = 0; i < strategy.defenseAreas.length; i++) {
@@ -73,13 +73,41 @@ function rampartLoop(roomName: string) {
     if (status.numEnemies === 0) {
       continue;
     }
+    let shouldSpawn = true;
     if (status.enemyHPSTotal === 0 && status.numEnemies <= 2) {
       //towers can handle this
-      console.log(`  zone:${i}: handling with towers...`);
+      shouldSpawn = false;
+    }
+    if (Game.time % 10 === 0) {
+      console.log("Enemies in room " + roomName + ": " + JSON.stringify(enemyByDefenseArea) + "@" + Game.time);
+      if (!shouldSpawn) {
+        console.log(`  zone:${i}: handling with towers...`);
+      }
+      console.log(
+        `  zone:${i}: ${status.numEnemies} enemies, ${status.enemyDPSTotal} DPS, ${status.enemyHPSTotal} HPS`
+      );
+      console.log(`             ${defenders.length} defenders, ${status.creepDPS} DPS`);
+    }
+    if (!shouldSpawn) {
       continue;
     }
-    console.log(`  zone:${i}: ${status.numEnemies} enemies, ${status.enemyDPSTotal} DPS, ${status.enemyHPSTotal} HPS`);
-    console.log(`             ${defenders.length} defenders, ${status.creepDPS} DPS`);
+    // TODO probably share this fn/spawn
+    // Spawn an addition wartime ESS distributor
+    const wartimeEssDistributors = creepsByRole("ess-distributor").filter(
+      c => isEssDistributor(c) && c.memory.roomName === roomName && c.memory.wartime
+    );
+    if (wartimeEssDistributors.length < 2) {
+      // Find ess site name
+      for (const site of getSitesByRoom(roomName)) {
+        spawnInRoom("ess-distributor", {
+          roomName,
+          assignToRoom: true,
+          parts: site.distributorParts ?? [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+          additionalMemory: { essSiteName: site.name, wartime: true },
+          spawnElsewhereIfNeeded: true
+        });
+      }
+    }
     if (status.creepDPS < status.enemyHPSTotal) {
       // We need more creeps to be able to defend
       // If we do not have a melee defender, spawn one
@@ -90,7 +118,8 @@ function rampartLoop(roomName: string) {
           roomName,
           assignToRoom: true,
           parts: rampartDefenderMeleeParts,
-          additionalMemory: { defenseAreaIndex: i, slotIndex: 0 }
+          additionalMemory: { defenseAreaIndex: i, slotIndex: 0 },
+          spawnElsewhereIfNeeded: true
         });
         continue;
       }
@@ -108,6 +137,7 @@ function rampartLoop(roomName: string) {
           roomName,
           assignToRoom: true,
           parts: rampartDefenderRangedParts,
+          spawnElsewhereIfNeeded: true,
           additionalMemory: { defenseAreaIndex: i, slotIndex }
         });
         continue;
@@ -123,6 +153,7 @@ function rampartLoop(roomName: string) {
           roomName,
           assignToRoom: true,
           parts: rampartDefenderMeleeParts,
+          spawnElsewhereIfNeeded: true,
           additionalMemory: { defenseAreaIndex: i, slotIndex }
         });
         continue;
@@ -136,6 +167,7 @@ function rampartLoop(roomName: string) {
         roomName,
         assignToRoom: true,
         parts: rampartDefenderRepairerParts,
+        spawnElsewhereIfNeeded: true,
         additionalMemory: { defenseAreaIndex: i }
       });
     }
