@@ -159,10 +159,10 @@ function rampartLoop(roomName: string) {
         continue;
       }
     }
-    // Spawn 1 repairer for every 4 enemies
+    // Spawn 1 repairer for every 2 enemies
     const repairers = defenders.filter(c => c.memory.role === "defender-repairer");
     const numRepairers = repairers.length;
-    if (numRepairers < Math.floor(enemies.length / 4)) {
+    if (numRepairers < Math.floor(enemies.length / 2)) {
       spawnInRoom("defender-repairer", {
         roomName,
         assignToRoom: true,
