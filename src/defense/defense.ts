@@ -5,13 +5,13 @@ import { Grid4Bit } from "utils/compact-grid";
 
 export const rampartDefenderMeleeParts: BodyPartConstant[] = [
   ...bodyPart(TOUGH, 10),
-  ...bodyPart(ATTACK, 8),
-  ...bodyPart(MOVE, 9)
+  ...bodyPart(ATTACK, 10),
+  ...bodyPart(MOVE, 10)
 ];
 export const rampartDefenderRangedParts: BodyPartConstant[] = [
   ...bodyPart(TOUGH, 10),
-  ...bodyPart(RANGED_ATTACK, 5),
-  ...bodyPart(MOVE, 8)
+  ...bodyPart(RANGED_ATTACK, 8),
+  ...bodyPart(MOVE, 9)
 ];
 export const rampartDefenderRepairerParts: BodyPartConstant[] = [
   ...bodyPart(TOUGH, 10),
