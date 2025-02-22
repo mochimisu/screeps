@@ -1,27 +1,28 @@
-interface DefenderMemory extends CreepMemory {
+export interface DefenderMemory extends CreepMemory {
   defenseAreaIndex: number;
   slotIndex?: number;
+  arrived?: boolean;
 }
 
-interface DefenderMeleeMemory extends DefenderMemory {
+export interface DefenderMeleeMemory extends DefenderMemory {
   role: "defender-melee";
 }
 
-interface DefenderRangedMemory extends DefenderMemory {
+export interface DefenderRangedMemory extends DefenderMemory {
   role: "defender-ranged";
 }
 
-interface DefenderRepairerMemory extends DefenderMemory {
+export interface DefenderRepairerMemory extends DefenderMemory {
   role: "defender-repairer";
 }
 
-interface DefenderMeleeCreep extends Creep {
+export interface DefenderMeleeCreep extends Creep {
   memory: DefenderMeleeMemory;
 }
-interface DefenderRangedCreep extends Creep {
+export interface DefenderRangedCreep extends Creep {
   memory: DefenderRangedMemory;
 }
-interface DefenderRepairerCreep extends Creep {
+export interface DefenderRepairerCreep extends Creep {
   memory: DefenderRepairerMemory;
 }
 

@@ -1,12 +1,19 @@
 import { compact } from "lodash";
-import { DefenseStrategy, getMemoryDefense, RampartDefenseArea } from "./defense";
+import {
+  bfsUntilRampart,
+  DefenseStrategy,
+  getMemoryDefense,
+  rampartCostMatrix,
+  RampartDefenseArea,
+  rampartWallMatrix
+} from "./defense";
 import { findUniqueUnfriendlyExitPositions } from "utils/room";
 import { Grid4Bit, Grid8Bit } from "utils/compact-grid";
 import { queryCostMatrix } from "utils/query";
 
 function setStrat(roomName: string, strat: DefenseStrategy): void {
   const memory = getMemoryDefense();
-  memory[roomName] = strat;
+  memory.strategy[roomName] = strat;
 }
 
 export function calcRampartDefense(roomName: string): void {
@@ -53,61 +60,6 @@ export function calcRampartDefense(roomName: string): void {
   defenseMatrix.print();
 }
 
-function bfsUntilRampart(
-  roomName: string,
-  start: RoomPosition
-): {
-  result: RoomPosition[];
-  ramparts: RoomPosition[];
-} {
-  const rwMtx = rampartWallMatrix(roomName);
-  const visited = new Set<string>();
-  const queue = [start];
-  const result = [];
-  const ramparts = [];
-  const seenRamparts = new Set<string>();
-  while (queue.length) {
-    const current = queue.shift();
-    if (!current) {
-      continue;
-    }
-    if (visited.has(current.toString())) {
-      continue;
-    }
-    visited.add(current.toString());
-    const mtxVal = rwMtx.get(current.x, current.y);
-    if (mtxVal === 1) {
-      if (seenRamparts.has(current.toString())) {
-        continue;
-      }
-      ramparts.push(current);
-      seenRamparts.add(current.toString());
-      continue;
-    } else if (mtxVal === 2) {
-      continue;
-    }
-    result.push(current);
-    const newPositions = [
-      [current.x - 1, current.y],
-      [current.x + 1, current.y],
-      [current.x, current.y - 1],
-      [current.x, current.y + 1],
-      [current.x - 1, current.y - 1],
-      [current.x + 1, current.y + 1],
-      [current.x - 1, current.y + 1],
-      [current.x + 1, current.y - 1]
-    ]
-      .filter(p => p[0] >= 0 && p[0] < 50 && p[1] >= 0 && p[1] < 50)
-      .map(p => new RoomPosition(p[0], p[1], roomName));
-    queue.push(...newPositions);
-  }
-
-  return {
-    result,
-    ramparts
-  };
-}
-
 function findRangedRamparts(roomName: string, meleeRamparts: RoomPosition[]): RoomPosition[] {
   const rwMtx = rampartWallMatrix(roomName);
   const visited = new Set<string>();
@@ -146,81 +98,13 @@ function findRangedRamparts(roomName: string, meleeRamparts: RoomPosition[]): Ro
   return result;
 }
 
-function rampartCostMatrix(roomName: string): CostMatrix {
-  return queryCostMatrix(
-    `defense-rampartQueryCostMatrix-${roomName}`,
-    () => {
-      const costMatrix = new PathFinder.CostMatrix();
-      // Fill with walls and ramparts
-      const room = Game.rooms[roomName];
-      if (!room) {
-        return costMatrix;
-      }
-      const terrain = room.getTerrain();
-      for (let x = 0; x < 50; x++) {
-        for (let y = 0; y < 50; y++) {
-          if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
-            costMatrix.set(x, y, 255);
-          }
-        }
-      }
-      const ramparts = room.find(FIND_STRUCTURES, {
-        filter: s => s.structureType === STRUCTURE_RAMPART || s.structureType === STRUCTURE_WALL
-      });
-      for (const rampart of ramparts) {
-        costMatrix.set(rampart.pos.x, rampart.pos.y, 255);
-      }
-
-      return costMatrix;
-    },
-    1
-  );
-}
-
-function rampartWallMatrix(roomName: string): CostMatrix {
-  return queryCostMatrix(
-    `defense-rampartQueryCostMatrix-${roomName}`,
-    () => {
-      const costMatrix = new PathFinder.CostMatrix();
-      // Fill with walls and ramparts
-      const room = Game.rooms[roomName];
-      if (!room) {
-        return costMatrix;
-      }
-      const terrain = room.getTerrain();
-      for (let x = 0; x < 50; x++) {
-        for (let y = 0; y < 50; y++) {
-          if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
-            costMatrix.set(x, y, 2);
-          }
-        }
-      }
-      const ramparts = room.find(FIND_STRUCTURES, {
-        filter: s => s.structureType === STRUCTURE_RAMPART
-      });
-      for (const rampart of ramparts) {
-        costMatrix.set(rampart.pos.x, rampart.pos.y, 1);
-      }
-      const walls = room.find(FIND_STRUCTURES, {
-        filter: s => s.structureType === STRUCTURE_WALL
-      });
-      for (const wall of walls) {
-        costMatrix.set(wall.pos.x, wall.pos.y, 2);
-      }
-
-      return costMatrix;
-    },
-    1
-  );
-}
-
 export function calcStrat(roomName: string): void {
   // Determine if roaming or base.
   // Look at every exit, and if there's no path to the spawn or controller, then it's a base.
   const room = Game.rooms[roomName];
   if (!room) {
     console.log("Unknown room: " + roomName);
-    return setStrat(roomName, { type: "roaming-remote" });
+    return setStrat(roomName, { type: "roaming-remote-simple" });
   }
 
   const controller = room.controller;
@@ -247,16 +131,25 @@ export function calcStrat(roomName: string): void {
   }
 
   if (hasPath) {
-    console.log("Strat for " + roomName + " is roaming-remote");
-    return setStrat(roomName, { type: "roaming-remote" });
+    console.log("Strat for " + roomName + " is roaming-remote-simple");
+    return setStrat(roomName, { type: "roaming-remote-simple" });
   } else {
     console.log("Strat for " + roomName + " is base");
     return calcRampartDefense(roomName);
   }
 }
 
+export function setIdleSpot(roomName: string, posXY: [number, number]): void {
+  const memory = getMemoryDefense();
+  if (memory.strategy[roomName].type !== "roaming-remote-simple") {
+    return;
+  }
+  memory.strategy[roomName].idleSpot = new RoomPosition(posXY[0], posXY[1], roomName);
+}
+
 const defScripts = {
-  calcStrat
+  calcStrat,
+  setIdleSpot
 };
 
 declare global {

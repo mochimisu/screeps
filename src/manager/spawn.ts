@@ -36,7 +36,10 @@ export type Role =
   | "rh-harvester"
   | "reserver"
   | "upgrader-nomove"
-  | "dismantler";
+  | "dismantler"
+  | "defender-melee"
+  | "defender-ranged"
+  | "defender-repairer";
 const roamingSpawns: Partial<Record<Role, number>> = {};
 
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
@@ -46,10 +49,11 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   W22S59: {
     janitor: 1
   },
-  W21S58: {},
+  W21S58: {
+    janitor: 1
+  },
   W21S59: {
-    reserver: 1,
-    attacker: 1
+    reserver: 1
   }
 };
 

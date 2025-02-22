@@ -12,8 +12,8 @@ const zones: { [roomName: string]: IdleZone[] } = {
   W21S59: [{ xStart: 22, yStart: 3, xEnd: 32, yEnd: 4 }]
 };
 
-export function moveToIdleSpot(creep: Creep): boolean {
-  const idleZones = zones[creep.room.name];
+export function moveToIdleSpot(creep: Creep, roomName?: string): boolean {
+  const idleZones = zones[roomName ?? creep.room.name];
   if (!idleZones) {
     return false;
   }

@@ -19,7 +19,7 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
   ],
   W22S59: [
     {
-      xy: [27, 45],
+      xy: [26, 43],
       parts: [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)]
     }
   ],

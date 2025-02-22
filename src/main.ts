@@ -36,6 +36,8 @@ import { creepsByRole, queryLoop } from "utils/query";
 import * as scriptsImpl from "utils/scripts";
 import { terminalLoop } from "manager/terminal";
 import "defense/scripts";
+import { defenderMeleeLoop } from "defense/role.defender-melee";
+import { defenseLoop } from "defense/loop";
 
 declare global {
   /*
@@ -100,6 +102,9 @@ const loop = () => {
     // sites
     energyStorageLoop();
     rhLoop();
+
+    // combat
+    defenseLoop();
 
     // Iterate over all creeps in the game
     for (const harvester of creepsByRole("harvester")) {
