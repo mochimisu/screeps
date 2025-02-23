@@ -3,6 +3,7 @@ import { moveToIdleSpot } from "manager/idle";
 import {
   creepRepairPercent,
   getCreepRepairTargetIds,
+  getCreepRepairTotal,
   shouldCreepContinueRepairing,
   shouldCreepRepairStructure
 } from "manager/repair";
@@ -26,14 +27,24 @@ function getUnassignedRepair(creep: RepairerCreep): Structure | null {
   return null;
 }
 
+const max_repairers = 6;
+
 export function repairerSpawnLoop(): boolean {
   // Spawn 1 repairer per room.
   // Spawn an additional repairer for every 100 needed repairs.
+  // Spawn an additional repairer for every 1m in repairs needed
   const numRepairersByRoom: { [roomName: string]: number } = {};
   for (const roomName of getAllRoomNames()) {
+    const room = Game.rooms[roomName];
+    if (!room || room.controller?.owner?.username !== Game.spawns["Spawn1"].owner.username) {
+      continue;
+    }
     numRepairersByRoom[roomName] = 1;
     const additionalRepairs = Math.floor(getCreepRepairTargetIds(roomName).length / 100);
     numRepairersByRoom[roomName] += additionalRepairs;
+    const additionalRepairersByAmount = Math.floor(getCreepRepairTotal(roomName) / 1_000_000);
+    numRepairersByRoom[roomName] += additionalRepairersByAmount;
+    numRepairersByRoom[roomName] = Math.min(numRepairersByRoom[roomName], max_repairers);
   }
   for (const roomName in numRepairersByRoom) {
     const numExisting = creepsByRoomAssignmentAndRole(roomName, "repairer").length;

@@ -6,6 +6,7 @@ declare global {
       [roomName: string]: {
         creepRepairTargets: Id<Structure>[];
         towerRepairTargets: Id<Structure>[];
+        creepRepairTotal: number;
       };
     };
   }
@@ -17,8 +18,8 @@ interface ThresholdDef {
   towerMin: number;
 }
 const repairThresholds: Partial<Record<StructureConstant, ThresholdDef>> = {
-  [STRUCTURE_WALL]: { min: 300_000, repairTo: 500_000, towerMin: 100 },
-  [STRUCTURE_RAMPART]: { min: 80_000, repairTo: 100_000, towerMin: 1_000 }
+  [STRUCTURE_WALL]: { min: 500_000, repairTo: 1_000_000, towerMin: 1_000 },
+  [STRUCTURE_RAMPART]: { min: 100_000, repairTo: 200_000, towerMin: 10_000 }
 };
 const defaultRepairPercents: { min: number; repairTo: number; towerMin: number } = {
   min: 0.8,
@@ -87,7 +88,11 @@ function updateRoom(room: Room): void {
   const repairMemory = getRepairMemory();
   repairMemory[room.name] = {
     creepRepairTargets: creepRepairTargets.map(s => s.id),
-    towerRepairTargets: towerRepairTargets.map(s => s.id)
+    towerRepairTargets: towerRepairTargets.map(s => s.id),
+    creepRepairTotal: creepRepairTargets.reduce(
+      (acc, s) => acc + (repairThresholds[s.structureType]?.min ?? s.hitsMax * defaultRepairPercents.min) - s.hits,
+      0
+    )
   };
 }
 
@@ -97,6 +102,10 @@ export function getCreepRepairTargetIds(roomName: string): Id<Structure>[] {
 
 export function getTowerRepairTargetIds(roomName: string): Id<Structure>[] {
   return getRepairMemory()[roomName]?.towerRepairTargets ?? [];
+}
+
+export function getCreepRepairTotal(roomName: string): number {
+  return getRepairMemory()[roomName]?.creepRepairTotal ?? 0;
 }
 
 export function managerRepairLoop(): void {

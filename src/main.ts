@@ -41,6 +41,8 @@ import { defenseLoop } from "defense/loop";
 import { scoutSingleLoop } from "role/scout-single";
 import { ScoutSingleCreep } from "role/scout-single.type";
 import { attackLoop } from "attack/loop";
+import { ControllerAttackerCreep } from "role/controller-attacker.type";
+import { controllerAttackerLoop, controllerAttackerSpawnLoop } from "role/controller-attacker";
 
 declare global {
   /*
@@ -96,6 +98,7 @@ const loop = () => {
       upgraderNoMoveSpawnLoop();
       builderSpawnLoop();
       repairerSpawnLoop();
+      controllerAttackerSpawnLoop();
     }
 
     // managers
@@ -160,6 +163,10 @@ const loop = () => {
 
     for (const scout of creepsByRole("scout-single")) {
       scoutSingleLoop(scout as ScoutSingleCreep);
+    }
+
+    for (const controllerAttacker of creepsByRole("controller-attacker")) {
+      controllerAttackerLoop(controllerAttacker as ControllerAttackerCreep);
     }
 
     for (const roomName in Game.rooms) {

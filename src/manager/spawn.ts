@@ -43,7 +43,8 @@ export type Role =
   | "scout-single"
   | "atd-healer"
   | "atd-attacker"
-  | "atd-dismantler";
+  | "atd-dismantler"
+  | "controller-attacker";
 const roamingSpawns: Partial<Record<Role, number>> = {};
 
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {

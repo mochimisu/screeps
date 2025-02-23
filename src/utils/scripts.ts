@@ -5,6 +5,8 @@ import {
   FoundSellOrder
 } from "market/orders";
 import { Grid4Bit, readCellFromSerializedGrid4 } from "./compact-grid";
+import { getClockworkFlowMap } from "./clockwork";
+import { ephemeral } from "screeps-clockwork";
 
 export function numMovePartsNeeded(parts: BodyPartConstant[], terrain: "road" | "plains" | "swamp" = "plains"): number {
   const terrainFactor = terrain === "road" ? 0.5 : terrain === "plains" ? 1 : 1.5;
@@ -132,4 +134,28 @@ export function test4BitCompact(): void {
       }
     }
   }
+}
+
+export function testCwDist() {
+  const spawn = Game.spawns["Spawn1"];
+  if (!spawn) {
+    console.log("No spawn");
+    return;
+  }
+  const source = new RoomPosition(30, 43, "W22S58");
+  const target = new RoomPosition(28, 32, "W21S57");
+  const flow = getClockworkFlowMap(() => ({
+    from: [source],
+    to: [target]
+  }));
+  if (!flow) {
+    console.log("No flow");
+    return;
+  }
+  ephemeral(flow);
+  const path1 = flow.pathToOrigin(source);
+  console.log(`Path to origin: ${JSON.stringify(path1)}`);
+
+  const path2 = flow.pathToOrigin(target);
+  console.log(`Path to origin: ${JSON.stringify(path2)}`);
 }
