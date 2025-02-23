@@ -38,7 +38,7 @@ export function controllerAttackerSpawnLoop() {
       (vulnAt === 0 || Game.time + travelDist > vulnAt) &&
       (existingCreep == null || (existingCreep?.ticksToLive ?? 0) + Game.time < vulnAt)
     ) {
-      console.log(`Spawning controller-attacker for ${roomName}`);
+      // console.log(`Spawning controller-attacker for ${roomName}`);
       spawnInRoom("controller-attacker", {
         roomName,
         assignToRoom: true,

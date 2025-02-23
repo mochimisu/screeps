@@ -11,6 +11,7 @@ import {
   getStorageStructures
 } from "./site";
 import { keywiseAdd } from "utils/etc";
+import { compact } from "lodash";
 
 function essGetSources(siteDef: EssSiteDefinition): (StructureContainer | StructureStorage | StructureLink)[] {
   const energySources: (StructureContainer | StructureStorage | StructureLink)[] = [];
@@ -131,13 +132,18 @@ function essGetStoredEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
   return false;
 }
 
-function essDepositEnergy(siteDef: EssSiteDefinition, creep: Creep): boolean {
+function essDepositEnergy(siteDef: EssSiteDefinition, creep: Creep, disallowStorage?: boolean): boolean {
   // Deposit energy into, in order of importance:
   // 1. Spawn
   // 2. Extensions
   // 3. Towers
   // 4. Storage/Containers
-  const importanceOrder = [STRUCTURE_TOWER, STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_STORAGE];
+  const importanceOrder = compact([
+    STRUCTURE_TOWER,
+    STRUCTURE_SPAWN,
+    STRUCTURE_EXTENSION,
+    disallowStorage ? null : STRUCTURE_STORAGE
+  ]);
   const room = Game.rooms[siteDef.roomName];
   const structures = room.lookForAtArea(
     LOOK_STRUCTURES,
@@ -205,6 +211,9 @@ function essTerminalDeposit(siteDef: EssSiteDefinition, creep: Creep): boolean {
   if (!terminal) {
     return essDepositEnergy(siteDef, creep);
   }
+  if (essDepositEnergy(siteDef, creep, true)) {
+    return true;
+  }
 
   const neededInTerminal = getNeededResourcesInTerminal(siteDef.roomName);
   for (const [resourceTypeStr, amountNeeded] of Object.entries(neededInTerminal)) {
@@ -238,12 +247,17 @@ function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean 
       const resourceType = resourceTypeStr as ResourceConstant;
       const amount = Math.min(creep.store.getFreeCapacity(), amountNeeded);
       if (storageStructure.store.getUsedCapacity(resourceType) > 0 && amount > 0) {
-        if (creep.withdraw(storageStructure, resourceType, amount) === ERR_NOT_IN_RANGE) {
+        if (
+          creep.withdraw(
+            storageStructure,
+            resourceType,
+            Math.min(amount, storageStructure.store.getUsedCapacity(resourceType))
+          ) === ERR_NOT_IN_RANGE
+        ) {
           creep.moveTo(storageStructure, {
             visualizePathStyle: { stroke: "#ffaa00" }
           });
         }
-        // console.log("essTerminalTransfer", siteDef.roomName, resourceType, amount);
         return true;
       }
     }

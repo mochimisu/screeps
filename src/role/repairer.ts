@@ -27,7 +27,7 @@ function getUnassignedRepair(creep: RepairerCreep): Structure | null {
   return null;
 }
 
-const max_repairers = 6;
+const max_repairers = 5;
 
 export function repairerSpawnLoop(): boolean {
   // Spawn 1 repairer per room.
