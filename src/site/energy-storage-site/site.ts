@@ -33,7 +33,7 @@ const siteDefs: EssSiteDefinition[] = [
     distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
     hasTerminal: true,
     minResources: {
-      [RESOURCE_ENERGY]: 100_000
+      [RESOURCE_ENERGY]: 200_000
     }
   },
   {
@@ -50,7 +50,7 @@ const siteDefs: EssSiteDefinition[] = [
     distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
     hasTerminal: true,
     minResources: {
-      [RESOURCE_ENERGY]: 20_000
+      [RESOURCE_ENERGY]: 50_000
     }
   },
   {
@@ -65,7 +65,7 @@ const siteDefs: EssSiteDefinition[] = [
     distributors: 1,
     hasTerminal: true,
     minResources: {
-      [RESOURCE_ENERGY]: 30_000
+      [RESOURCE_ENERGY]: 100_000
     }
   }
 ];

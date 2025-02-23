@@ -166,6 +166,7 @@ export function getCachedClockworkFlowMap(
   targetPosFn: () => {
     from: RoomPosition[];
     to: RoomPosition[];
+    costMatrixCallback?: (roomName: string) => ClockworkCostMatrix;
   },
   ttl = 500
 ): ClockworkMultiroomFlowField | null {
@@ -177,7 +178,35 @@ export function getCachedClockworkFlowMap(
       return cachedClockworkPaths[keyName].flowField;
     }
   }
-  const { from, to } = targetPosFn();
+  const flowMap = getClockworkFlowMap(targetPosFn);
+
+  if (flowMap == null) {
+    console.log(`cachedClockworkFlowMap: no path found for ${keyName}`);
+    cachedClockworkPaths[keyName] = {
+      flowField: null,
+      validUntil: Game.time + ttl
+    };
+  } else {
+    if (verbose) {
+      console.log(`cachedClockworkFlowMap: path found for ${keyName} @ ${Game.time}`);
+    }
+    cachedClockworkPaths[keyName] = {
+      flowField: flowMap,
+      validUntil: Game.time + ttl
+    };
+  }
+  return cachedClockworkPaths[keyName].flowField;
+}
+
+export function getClockworkFlowMap(
+  targetPosFn: () => {
+    from: RoomPosition[];
+    to: RoomPosition[];
+    costMatrixCallback?: (roomName: string) => ClockworkCostMatrix;
+  }
+) {
+  let { from, to, costMatrixCallback } = targetPosFn();
+  costMatrixCallback = costMatrixCallback ?? getAdjustedTerrainCostMatrix;
   // NOTE: for whatever reason this is backwards in clockwork 0.7.1
   const distanceMapRes = dijkstraMultiroomDistanceMap(to, {
     allOfDestinations: from.map(pos => ({ pos, range: 1 })),
@@ -185,23 +214,9 @@ export function getCachedClockworkFlowMap(
     maxRooms: 3
   });
   if (distanceMapRes == null || distanceMapRes.foundTargets.length === 0) {
-    console.log(`cachedClockworkFlowMap: no path found for ${keyName}`);
+    console.log(`cachedClockworkFlowMap: no path found`);
     ephemeral(distanceMapRes?.distanceMap);
-    cachedClockworkPaths[keyName] = {
-      flowField: null,
-      validUntil: Game.time + ttl
-    };
-  } else {
-    if (verbose) {
-      console.log(
-        `cachedClockworkFlowMap: path found for ${keyName}: ${distanceMapRes.foundTargets.length} @ ${Game.time}`
-      );
-    }
-    const flowField = ephemeral(distanceMapRes?.distanceMap).toFlowField();
-    cachedClockworkPaths[keyName] = {
-      flowField,
-      validUntil: Game.time + ttl
-    };
+    return null;
   }
-  return cachedClockworkPaths[keyName].flowField;
+  return ephemeral(distanceMapRes?.distanceMap).toFlowField();
 }

@@ -214,15 +214,6 @@ export class Grid8Bit {
   }
 }
 
-/**
- * Reads a cell value from a serialized grid (JSON string) for a given (x, y) coordinate.
- * Supports both Grid4Bit and Grid8Bit.
- *
- * @param serializedGrid - The JSON string representation of the grid.
- * @param x - The x-coordinate (0-indexed).
- * @param y - The y-coordinate (0-indexed).
- * @returns The numeric value stored at (x, y).
- */
 export function readCellFromSerializedGrid4(serializedGrid: string, x: number, y: number): number {
   const data = base64ToUint8Array(serializedGrid);
   const index = y * GRID_WIDTH + x;

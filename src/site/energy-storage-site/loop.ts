@@ -26,7 +26,7 @@ export function energyStorageSpawnLoop(): void {
 
   const existingDistributors: { [siteName: string]: number } = {};
   for (const creep of creepsByRole("ess-distributor")) {
-    if (isEssDistributor(creep)) {
+    if (isEssDistributor(creep) && !creep.memory.wartime) {
       const distributorSiteName = creep.memory.essSiteName;
       if (!distributorSiteName) {
         console.log(`Distributor ${creep.name} has no site name`);

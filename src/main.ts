@@ -36,8 +36,11 @@ import { creepsByRole, queryLoop } from "utils/query";
 import * as scriptsImpl from "utils/scripts";
 import { terminalLoop } from "manager/terminal";
 import "defense/scripts";
-import { defenderMeleeLoop } from "defense/role.defender-melee";
+import "attack/scripts";
 import { defenseLoop } from "defense/loop";
+import { scoutSingleLoop } from "role/scout-single";
+import { ScoutSingleCreep } from "role/scout-single.type";
+import { attackLoop } from "attack/loop";
 
 declare global {
   /*
@@ -105,6 +108,7 @@ const loop = () => {
 
     // combat
     defenseLoop();
+    attackLoop();
 
     // Iterate over all creeps in the game
     for (const harvester of creepsByRole("harvester")) {
@@ -152,6 +156,10 @@ const loop = () => {
 
     for (const dismantler of creepsByRole("dismantler")) {
       dismantlerLoop(dismantler as DismantlerCreep);
+    }
+
+    for (const scout of creepsByRole("scout-single")) {
+      scoutSingleLoop(scout as ScoutSingleCreep);
     }
 
     for (const roomName in Game.rooms) {

@@ -39,7 +39,11 @@ export type Role =
   | "dismantler"
   | "defender-melee"
   | "defender-ranged"
-  | "defender-repairer";
+  | "defender-repairer"
+  | "scout-single"
+  | "atd-healer"
+  | "atd-attacker"
+  | "atd-dismantler";
 const roamingSpawns: Partial<Record<Role, number>> = {};
 
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
@@ -53,6 +57,9 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
     janitor: 1
   },
   W21S59: {
+    reserver: 1
+  },
+  W21S57: {
     reserver: 1
   }
 };
@@ -74,7 +81,8 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   "upgrader-nomove": [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 2)],
   dismantler: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE],
   attacker: [...bodyPart(TOUGH, 19), ...bodyPart(RANGED_ATTACK, 5), ...bodyPart(MOVE, 12)],
-  "ess-distributor": [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)]
+  "ess-distributor": [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
+  "scout-single": [...bodyPart(MOVE, 1)]
 };
 
 function getPartsForRole(role: Role): BodyPartConstant[] {
