@@ -48,6 +48,9 @@ export type DefenseStrategy =
       roomName: string;
       defenseAreas: RampartDefenseArea[];
       defenseAreaMatrix: string;
+    }
+  | {
+      type: "none";
     };
 
 export type DefenseQuadrantStatus = {

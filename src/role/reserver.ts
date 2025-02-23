@@ -17,9 +17,12 @@ export function reserverLoop(creep: ReserverCreep) {
   }
   const reserveStatus = creep.reserveController(controller);
   if (reserveStatus === ERR_NOT_IN_RANGE) {
-    creep.moveTo(controller);
+    creep.moveTo(controller, {
+      reusePath: 20
+    });
   } else if (reserveStatus === ERR_NOT_OWNER || reserveStatus === ERR_INVALID_TARGET) {
     creep.attackController(controller);
+    //setReplaceAtForCurrentTick(creep, 0);
   } else if (reserveStatus === OK && creep.memory.replaceAt == null && creep.memory.born) {
     setReplaceAtForCurrentTick(creep, 30);
   }

@@ -3,11 +3,13 @@ import { bodyPart } from "utils/body-part";
 import { creepsByRole } from "utils/query";
 
 import { UpgraderNoMoveCreep } from "./upgrader-nomove.type";
+import { getCachedSiteResource } from "site/energy-storage-site/site";
 
 export interface UpgraderSlotDef {
   xy: [number, number];
   parts?: BodyPartConstant[];
   spawnElsewhereIfNeeded?: boolean;
+  condition?: () => boolean;
 }
 
 export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
@@ -27,6 +29,11 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
     {
       xy: [28, 19],
       parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 6)]
+    },
+    {
+      xy: [28, 20],
+      parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 6)],
+      condition: () => getCachedSiteResource("W21S58", RESOURCE_ENERGY) > 600_000
     }
   ]
 };
@@ -34,6 +41,12 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
 export function upgraderNoMoveSpawnLoop(): boolean {
   const noMoveUpgraders = creepsByRole("upgrader-nomove") as UpgraderNoMoveCreep[];
   const availableSlots: { [roomName: string]: UpgraderSlotDef[] } = { ...upgraderSlots };
+  // filter by condition
+  for (const roomName in availableSlots) {
+    availableSlots[roomName] = availableSlots[roomName].filter(slot => {
+      return slot.condition == null || slot.condition();
+    });
+  }
   for (const upgrader of noMoveUpgraders) {
     const upgraderPos = upgrader.memory.upgradePos;
     if (!upgraderPos) {

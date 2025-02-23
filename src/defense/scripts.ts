@@ -16,6 +16,11 @@ function setStrat(roomName: string, strat: DefenseStrategy): void {
   memory.strategy[roomName] = strat;
 }
 
+function setNoStrat(roomName: string): void {
+  const memory = getMemoryDefense();
+  memory.strategy[roomName] = { type: "none" };
+}
+
 export function calcRampartDefense(roomName: string): void {
   // From the exits, find all connected points that cannot pass a rampart. this defines a danger area.
   // The touching ramparts are the rampartMelee.
@@ -149,7 +154,8 @@ export function setIdleSpot(roomName: string, posXY: [number, number]): void {
 
 const defScripts = {
   calcStrat,
-  setIdleSpot
+  setIdleSpot,
+  setNoStrat
 };
 
 declare global {
