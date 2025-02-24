@@ -211,7 +211,7 @@ function essTerminalDeposit(siteDef: EssSiteDefinition, creep: Creep): boolean {
   if (!terminal) {
     return essDepositEnergy(siteDef, creep);
   }
-  if (essDepositEnergy(siteDef, creep, true)) {
+  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && essDepositEnergy(siteDef, creep, true)) {
     return true;
   }
 
@@ -220,6 +220,7 @@ function essTerminalDeposit(siteDef: EssSiteDefinition, creep: Creep): boolean {
     const resourceType = resourceTypeStr as ResourceConstant;
     if (creep.store.getUsedCapacity(resourceType) > 0 && amountNeeded > 0) {
       const amount = Math.min(creep.store.getUsedCapacity(resourceType), amountNeeded);
+      // console.log("essTerminalDeposit", siteDef.roomName, resourceType, amount);
       if (creep.transfer(terminal, resourceType, amount) === ERR_NOT_IN_RANGE) {
         creep.moveTo(terminal, {
           visualizePathStyle: { stroke: "#ffaa00" }

@@ -84,7 +84,7 @@ export function terminalLoop() {
         const sendRes = otherTerminal.send(resourceType, sendAmount, roomName);
         if (sendRes === OK) {
           console.log(`Sent ${resourceType} (${sendAmount}) from ${sourceRoomName} to ${roomName}: ${sendRes}`);
-        } else if (sendRes !== ERR_TIRED) {
+        } else if (sendRes !== ERR_TIRED && sendRes !== ERR_NOT_ENOUGH_RESOURCES) {
           console.log(
             `Failed to send ${resourceType} (${sendAmount}) from ${sourceRoomName} to ${roomName}: ${sendRes}`
           );

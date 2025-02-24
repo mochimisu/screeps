@@ -1,7 +1,7 @@
 // take energy from energySources and put it into storage
 
 import { mainRoom } from "manager/room";
-import { getNeededResources } from "market/orders";
+import { getActiveResources, getNeededResources } from "market/orders";
 import { bodyPart } from "utils/body-part";
 import { keywiseSubtract, keywiseAdd, keywiseFilter } from "utils/etc";
 import { creepsByRoomAssignmentAndRole, query, queryIds, structureTypesAtPos } from "utils/query";
@@ -50,7 +50,8 @@ const siteDefs: EssSiteDefinition[] = [
     distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
     hasTerminal: true,
     minResources: {
-      [RESOURCE_ENERGY]: 50_000
+      [RESOURCE_ENERGY]: 50_000,
+      [RESOURCE_KEANIUM]: 0
     }
   },
   {
@@ -288,7 +289,9 @@ export function getDesiredResourcesDelta(roomName: string): Partial<Record<Resou
       }
       const desiredResources: Partial<Record<ResourceConstant, number>> = {};
       for (const area of roomSites) {
-        for (const [resourceStr, amount] of Object.entries(area.minResources || {})) {
+        const combinedTotalAmountWanted =
+          roomName === mainRoom ? keywiseAdd(area.minResources || {}, getActiveResources()) : area.minResources || {};
+        for (const [resourceStr, amount] of Object.entries(combinedTotalAmountWanted)) {
           const resource = resourceStr as ResourceConstant;
           const existingResources = getSiteResource(roomName, resource);
           const delta = amount - existingResources;
@@ -346,6 +349,7 @@ export function getExtraResources(roomName: string): Partial<Record<ResourceCons
       const resourcesDelta = getDesiredResourcesDelta(roomName);
       const desiredResources = getDesiredResourcesForOtherSites(roomName);
       const extraResources: Partial<Record<ResourceConstant, number>> = {};
+
       for (const [resourceStr, deltaAmount] of Object.entries(resourcesDelta)) {
         const extraAmount = -deltaAmount;
         const resource = resourceStr as ResourceConstant;
@@ -371,8 +375,21 @@ export function getDesiredResourcesInTerminal(roomName: string): Partial<Record<
     `ess-${roomName}-desiredResourcesInTerminal`,
     () => {
       const extraResources = getExtraResources(roomName);
-      const marketResources = roomName === mainRoom ? getNeededResources() : {};
-      return keywiseAdd(extraResources, marketResources);
+      const marketResources = roomName === mainRoom ? getActiveResources() : {};
+      const res = keywiseAdd(extraResources, marketResources);
+      // add energy costs
+      // TODO: this assumes distance of 1, track better the distance requested etc
+      const roomDistance = 1;
+      let energyCost = 0;
+      for (const [_, sendAmount] of Object.entries(extraResources)) {
+        energyCost += Math.ceil(sendAmount * (1 - Math.exp(-roomDistance / 30)));
+      }
+      res[RESOURCE_ENERGY] = (res[RESOURCE_ENERGY] ?? 0) + energyCost;
+      //
+      // console.log("desiredResourcesInTerminal", roomName, JSON.stringify(res));
+      // console.log("  extraResources", roomName, JSON.stringify(extraResources));
+      // console.log("  marketResources", roomName, JSON.stringify(marketResources));
+      return res;
     },
     1
   );

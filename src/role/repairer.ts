@@ -34,9 +34,13 @@ export function repairerSpawnLoop(): boolean {
   // Spawn an additional repairer for every 100 needed repairs.
   // Spawn an additional repairer for every 1m in repairs needed
   const numRepairersByRoom: { [roomName: string]: number } = {};
+  const username = Game.spawns["Spawn1"].owner.username;
   for (const roomName of getAllRoomNames()) {
     const room = Game.rooms[roomName];
-    if (!room || room.controller?.owner?.username !== Game.spawns["Spawn1"].owner.username) {
+    if (
+      !room ||
+      (room.controller?.owner?.username !== username && room.controller?.reservation?.username !== username)
+    ) {
       continue;
     }
     numRepairersByRoom[roomName] = 1;

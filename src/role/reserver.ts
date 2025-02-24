@@ -24,6 +24,6 @@ export function reserverLoop(creep: ReserverCreep) {
     creep.attackController(controller);
     //setReplaceAtForCurrentTick(creep, 0);
   } else if (reserveStatus === OK && creep.memory.replaceAt == null && creep.memory.born) {
-    setReplaceAtForCurrentTick(creep, 30);
+    setReplaceAtForCurrentTick(creep, 0);
   }
 }

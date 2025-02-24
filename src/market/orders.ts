@@ -20,16 +20,16 @@ const orders: ManualOrder[] = [
     id: "sell-oxygen-mid-15",
     type: "sell",
     resourceType: RESOURCE_OXYGEN,
-    price: 50,
+    price: 48,
     amount: 50_000,
     energyAllowance: 5_000,
     createDeal: true
   },
   {
-    id: "sell-keanium-mid-0",
+    id: "sell-keanium-mid-1",
     type: "sell",
     resourceType: RESOURCE_KEANIUM,
-    price: 90,
+    price: 140,
     amount: 10_000,
     energyAllowance: 1_000,
     createDeal: true
