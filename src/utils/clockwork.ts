@@ -21,7 +21,7 @@ export function moveToWithClockwork(
   target: RoomPosition | { pos: RoomPosition },
   flowFields?: ClockworkMultiroomFlowField[],
   options?: {
-    sayDebug: boolean;
+    sayDebug?: boolean;
     stuckOk?: boolean;
   }
 ): void {

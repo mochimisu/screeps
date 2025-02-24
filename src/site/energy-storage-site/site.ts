@@ -66,7 +66,8 @@ const siteDefs: EssSiteDefinition[] = [
     distributors: 1,
     hasTerminal: true,
     minResources: {
-      [RESOURCE_ENERGY]: 100_000
+      [RESOURCE_ENERGY]: 100_000,
+      [RESOURCE_OXYGEN]: 0
     }
   }
 ];

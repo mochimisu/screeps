@@ -261,12 +261,14 @@ export function muleLoop(creep: MuleCreep): void {
         }
       }
       if (withdrawStatus === ERR_NOT_IN_RANGE) {
-        moveToWithClockwork(creep, source, getSourceClockworkPaths(path), { sayDebug: true });
+        moveToWithClockwork(creep, source, getSourceClockworkPaths(path), {
+          // sayDebug: true
+        });
       }
     } else {
       if (pathDef.idlePosition && creep.pos.getRangeTo(pathDef.idlePosition) > 0) {
         moveToWithClockwork(creep, pathDef.idlePosition ?? source, getIdleClockworkPaths(path), {
-          sayDebug: true,
+          // sayDebug: true,
           stuckOk: true
         });
       }
@@ -278,7 +280,9 @@ export function muleLoop(creep: MuleCreep): void {
     for (const resourceType in creep.store) {
       const transferStatus = creep.transfer(sink, resourceType as ResourceConstant);
       if (transferStatus === ERR_NOT_IN_RANGE) {
-        moveToWithClockwork(creep, sink, getSinkClockworkPaths(path), { sayDebug: true });
+        moveToWithClockwork(creep, sink, getSinkClockworkPaths(path), {
+          // sayDebug: true
+        });
       }
     }
     // TODO backup sink
