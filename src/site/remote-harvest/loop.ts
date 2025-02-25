@@ -87,12 +87,24 @@ export function rhBuildLoop(): void {
 
 export function rhLoop(): void {
   rhSpawnLoop();
-  rhBuildLoop();
+  try {
+    rhBuildLoop();
+  } catch (e) {
+    console.log(`Error in rhBuildLoop: ${e}`);
+  }
 
   for (const rhMule of creepsByRole("rh-mule")) {
-    rhMuleLoop(rhMule as RhMuleCreep);
+    try {
+      rhMuleLoop(rhMule as RhMuleCreep);
+    } catch (e) {
+      console.log(`Error in rhMuleLoop: ${e}`);
+    }
   }
   for (const rhHarvester of creepsByRole("rh-harvester")) {
-    rhHarvesterLoop(rhHarvester as RhHarvesterCreep);
+    try {
+      rhHarvesterLoop(rhHarvester as RhHarvesterCreep);
+    } catch (e) {
+      console.log(`Error in rhHarvesterLoop: ${e}`);
+    }
   }
 }

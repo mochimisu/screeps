@@ -144,17 +144,17 @@ export function calcStrat(roomName: string): void {
   }
 }
 
-export function setIdleSpot(roomName: string, posXY: [number, number]): void {
+export function setRoaming(roomName: string, posXY: [number, number]): void {
   const memory = getMemoryDefense();
-  if (memory.strategy[roomName].type !== "roaming-remote-simple") {
-    return;
-  }
-  memory.strategy[roomName].idleSpot = new RoomPosition(posXY[0], posXY[1], roomName);
+  memory.strategy[roomName] = {
+    type: "roaming-remote-simple",
+    idleSpot: new RoomPosition(posXY[0], posXY[1], roomName)
+  };
 }
 
 const defScripts = {
   calcStrat,
-  setIdleSpot,
+  setRoaming,
   setNoStrat
 };
 

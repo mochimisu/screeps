@@ -1,5 +1,12 @@
 export const mainRoom = "W22S58";
-export const wipRooms = ["W22S59", "W21S58", "W21S59", "W21S57"];
+export const wipRooms = [
+  "W22S59",
+  "W21S58",
+  "W21S59",
+  "W21S57"
+
+  // "W22S57"
+];
 
 export function getWipRooms(): Room[] {
   return wipRooms.map(roomName => Game.rooms[roomName]).filter(room => room != null);
@@ -15,6 +22,10 @@ export function getAllRoomNames(): string[] {
 
 export function goToRoom(creep: Creep, roomName: string): boolean {
   if (creep.room.name !== roomName) {
+    // if (Game.rooms[roomName] == null) {
+    //   console.log(`Unknown room: ${roomName}`);
+    //   return false;
+    // }
     creep.moveTo(new RoomPosition(25, 25, roomName), {
       visualizePathStyle: { stroke: "#ffffff" },
       reusePath: 20

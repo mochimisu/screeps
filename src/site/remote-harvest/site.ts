@@ -93,6 +93,44 @@ const siteDefs: RhSiteDef[] = [
     ],
     muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
     active: true
+  },
+  {
+    name: "w21s57-0",
+    source: "5bbcabc79099fc012e63444d",
+    harvestPos: () => new RoomPosition(39, 39, "W21S57"),
+    muleTransferPos: () => new RoomPosition(38, 40, "W21S57"),
+    muleIdlePos: () => new RoomPosition(36, 45, "W21S57"),
+    energyCachePos: () => new RoomPosition(39, 40, "W21S57"),
+    roomName: "W21S57",
+    numMules: 2,
+    fullRoad: true,
+    sinks: [
+      // w21s58 north link
+      "67b47b4553b00a2c32711d6c",
+      // w21s58 storage
+      "67ab4af7918897273c038658"
+    ],
+    muleParts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)],
+    active: true
+  },
+  {
+    name: "w22s57-0",
+    source: "5bbcabb99099fc012e6342c1",
+    harvestPos: () => new RoomPosition(18, 37, "W22S57"),
+    muleTransferPos: () => new RoomPosition(19, 38, "W22S57"),
+    muleIdlePos: () => new RoomPosition(19, 40, "W22S57"),
+    energyCachePos: () => new RoomPosition(18, 38, "W22S57"),
+    roomName: "W22S57",
+    numMules: 3,
+    fullRoad: true,
+    sinks: [
+      // w21s58 north link
+      "67b47b4553b00a2c32711d6c",
+      // w21s58 storage
+      "67ab4af7918897273c038658"
+    ],
+    muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
+    active: false
   }
 ];
 

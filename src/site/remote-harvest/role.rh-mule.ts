@@ -121,7 +121,7 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
     const transferStatus = creep.transfer(sink, RESOURCE_ENERGY);
     if (transferStatus === ERR_NOT_IN_RANGE) {
       if (sink.id === rhSiteDef.sinks[0]) {
-        moveToWithClockwork(creep, sink, getSinkPaths(rhSiteDef), { sayDebug: true });
+        moveToWithClockwork(creep, sink, getSinkPaths(rhSiteDef));
       } else {
         creep.moveTo(sink, { reusePath: 10 });
       }
@@ -171,7 +171,7 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
         )[0];
       if (energyCache) {
         if (creep.withdraw(energyCache, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          moveToWithClockwork(creep, energyCache, getEnergyCachePaths(rhSiteDef), { sayDebug: true });
+          moveToWithClockwork(creep, energyCache, getEnergyCachePaths(rhSiteDef));
         }
         return;
       }
@@ -180,7 +180,7 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
     try {
       const creepsAtMuleTransferPos = muleTransferPos.lookFor(LOOK_CREEPS);
       if (creepsAtMuleTransferPos.length === 0) {
-        moveToWithClockwork(creep, muleTransferPos, getTransferPaths(rhSiteDef), { sayDebug: true });
+        moveToWithClockwork(creep, muleTransferPos, getTransferPaths(rhSiteDef));
         return;
       } else if (creepsAtMuleTransferPos[0].name === creep.name) {
         return;
@@ -188,6 +188,9 @@ export function rhMuleLoop(creep: RhMuleCreep): void {
     } catch (e) {
       console.log("Error in muleTransferPos: ", e);
     }
-    moveToWithClockwork(creep, muleIdlePos, getIdlePaths(rhSiteDef), { sayDebug: true });
+    if (creep.pos.getRangeTo(muleIdlePos) < 1) {
+      return;
+    }
+    moveToWithClockwork(creep, muleIdlePos, getIdlePaths(rhSiteDef));
   }
 }

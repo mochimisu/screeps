@@ -16,7 +16,8 @@ declare global {
   }
 }
 
-const roomsToAttack = ["W21S57"];
+// const roomsToAttack = ["W21S57"];
+const roomsToAttack: string[] = [];
 
 export function controllerAttackerSpawnLoop() {
   // Use main spawn only
