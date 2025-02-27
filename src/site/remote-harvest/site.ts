@@ -102,7 +102,7 @@ const siteDefs: RhSiteDef[] = [
     muleIdlePos: () => new RoomPosition(36, 45, "W21S57"),
     energyCachePos: () => new RoomPosition(39, 40, "W21S57"),
     roomName: "W21S57",
-    numMules: 2,
+    numMules: 1,
     fullRoad: true,
     sinks: [
       // w21s58 north link
@@ -110,7 +110,7 @@ const siteDefs: RhSiteDef[] = [
       // w21s58 storage
       "67ab4af7918897273c038658"
     ],
-    muleParts: [...bodyPart(CARRY, 8), ...bodyPart(MOVE, 4)],
+    muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
     active: true
   },
   {
@@ -130,7 +130,7 @@ const siteDefs: RhSiteDef[] = [
       "67ab4af7918897273c038658"
     ],
     muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
-    active: false
+    active: true
   }
 ];
 

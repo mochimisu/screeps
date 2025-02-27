@@ -1,12 +1,5 @@
 export const mainRoom = "W22S58";
-export const wipRooms = [
-  "W22S59",
-  "W21S58",
-  "W21S59",
-  "W21S57"
-
-  // "W22S57"
-];
+export const wipRooms = ["W22S59", "W21S58", "W21S59", "W21S57", "W22S57"];
 
 export function getWipRooms(): Room[] {
   return wipRooms.map(roomName => Game.rooms[roomName]).filter(room => room != null);

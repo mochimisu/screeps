@@ -211,7 +211,7 @@ export function getClockworkFlowMap(
   const distanceMapRes = dijkstraMultiroomDistanceMap(to, {
     allOfDestinations: from.map(pos => ({ pos, range: 1 })),
     costMatrixCallback: getAdjustedTerrainCostMatrix,
-    maxRooms: 5
+    maxRooms: 20
   });
   if (distanceMapRes == null || distanceMapRes.foundTargets.length === 0) {
     console.log(`cachedClockworkFlowMap: no path found`);

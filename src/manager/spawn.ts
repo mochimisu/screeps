@@ -64,6 +64,7 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
     reserver: 1
   },
   W22S57: {
+    reserver: 1
     // "scout-single": 1
   }
 };
