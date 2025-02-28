@@ -24,7 +24,8 @@ export function janitorLoop(creep: JanitorCreep): void {
     if (droppedEnergy && droppedEnergy.amount > 10) {
       if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
         creep.moveTo(droppedEnergy, {
-          visualizePathStyle: { stroke: "#ffaa00" }
+          visualizePathStyle: { stroke: "#ffaa00" },
+          reusePath: 5
         });
       }
       return;
@@ -39,7 +40,8 @@ export function janitorLoop(creep: JanitorCreep): void {
         if (resourceType !== RESOURCE_ENERGY) {
           if (creep.withdraw(tombstone, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
             creep.moveTo(tombstone, {
-              visualizePathStyle: { stroke: "#ffffff" }
+              visualizePathStyle: { stroke: "#ffffff" },
+              reusePath: 5
             });
           }
           return;
@@ -47,7 +49,8 @@ export function janitorLoop(creep: JanitorCreep): void {
       }
       if (creep.withdraw(tombstone, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(tombstone, {
-          visualizePathStyle: { stroke: "#ffffff" }
+          visualizePathStyle: { stroke: "#ffffff" },
+          reusePath: 5
         });
       }
       return;
@@ -59,7 +62,8 @@ export function janitorLoop(creep: JanitorCreep): void {
     if (ruin) {
       if (creep.withdraw(ruin, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(ruin, {
-          visualizePathStyle: { stroke: "#ffffff" }
+          visualizePathStyle: { stroke: "#ffffff" },
+          reusePath: 5
         });
       }
       return;
@@ -72,7 +76,8 @@ export function janitorLoop(creep: JanitorCreep): void {
     if (containers.length > 0) {
       if (creep.withdraw(containers[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(containers[0], {
-          visualizePathStyle: { stroke: "#ffaa00" }
+          visualizePathStyle: { stroke: "#ffaa00" },
+          reusePath: 5
         });
       }
       return;
@@ -109,7 +114,8 @@ export function janitorLoop(creep: JanitorCreep): void {
         const transferStatus = creep.transfer(towers[0], RESOURCE_ENERGY);
         if (transferStatus === ERR_NOT_IN_RANGE) {
           creep.moveTo(towers[0], {
-            visualizePathStyle: { stroke: "#ffffff" }
+            visualizePathStyle: { stroke: "#ffffff" },
+            reusePath: 5
           });
         }
         return;
@@ -122,7 +128,8 @@ export function janitorLoop(creep: JanitorCreep): void {
         for (const resourceType in creep.store) {
           if (creep.transfer(target, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
             creep.moveTo(target, {
-              visualizePathStyle: { stroke: "#ffaa00" }
+              visualizePathStyle: { stroke: "#ffaa00" },
+              reusePath: 5
             });
           }
           return;

@@ -63,7 +63,9 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
       ) {
         if (creep.room.controller) {
           if (denyArea.moveTo) {
-            creep.moveTo(denyArea.moveTo.x, denyArea.moveTo.y);
+            creep.moveTo(denyArea.moveTo.x, denyArea.moveTo.y, {
+              reusePath: 10
+            });
           } else {
             // go in a random direction
             const direction = Math.floor(Math.random() * 8);
@@ -81,7 +83,7 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
     if (lastTarget != null && lastTarget.progress < lastTarget.progressTotal) {
       const buildStatus = creep.build(lastTarget);
       if (buildStatus === ERR_NOT_IN_RANGE) {
-        creep.moveTo(lastTarget, { visualizePathStyle: { stroke: "#ffffff" } });
+        creep.moveTo(lastTarget, { visualizePathStyle: { stroke: "#ffffff" }, reusePath: 10 });
         return true;
       } else if (buildStatus === OK) {
         return true;
@@ -106,7 +108,7 @@ export function buildClosestNode(creep: BuilderCreep): boolean {
   }
   creep.memory.builderTargetValid = creep.pos.getRangeTo(target) < 10000;
   if (creep.build(target) === ERR_NOT_IN_RANGE) {
-    creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+    creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" }, reusePath: 10 });
   }
   creep.memory.builderLastTarget = target.id;
   return true;
@@ -143,7 +145,7 @@ export function builderLoop(creep: BuilderCreep): void {
     // Find construction sites
     const isBuilding = buildClosestNode(creep);
     if (isBuilding) {
-      creep.say("building");
+      // creep.say("building");
     } else {
       if (creep.room.name === "W22S58") {
         // move to this spot to not crowd storage

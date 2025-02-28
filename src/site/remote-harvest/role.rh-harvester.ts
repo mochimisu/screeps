@@ -32,7 +32,9 @@ export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
     if (range < 1) {
       creep.memory.status = "harvesting";
     } else {
-      creep.moveTo(targetPos);
+      creep.moveTo(targetPos, {
+        reusePath: 20
+      });
     }
   }
   if (creep.memory.status === "harvesting") {
@@ -81,7 +83,9 @@ export function rhHarvesterLoop(creep: RhHarvesterCreep): void {
     }
     const harvestResult = creep.harvest(source);
     if (harvestResult === ERR_NOT_IN_RANGE) {
-      creep.moveTo(source);
+      creep.moveTo(source, {
+        reusePath: 20
+      });
     }
   }
 }

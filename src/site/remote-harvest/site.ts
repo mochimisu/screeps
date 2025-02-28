@@ -121,7 +121,7 @@ const siteDefs: RhSiteDef[] = [
     muleIdlePos: () => new RoomPosition(19, 40, "W22S57"),
     energyCachePos: () => new RoomPosition(18, 38, "W22S57"),
     roomName: "W22S57",
-    numMules: 3,
+    numMules: 4,
     fullRoad: true,
     sinks: [
       // w21s58 north link
