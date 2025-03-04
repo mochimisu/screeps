@@ -13,6 +13,7 @@ export interface EssSiteDefinition {
   storage: number[][];
   sources: number[][];
   linkSinks?: number[][];
+  transactor?: number[][];
   distributors: number;
   distributorParts?: BodyPartConstant[];
   hasTerminal?: boolean;
@@ -63,6 +64,7 @@ const siteDefs: EssSiteDefinition[] = [
     ],
     storage: [[29, 19]],
     sources: [[29, 17]],
+    transactor: [[29, 18]],
     distributors: 1,
     hasTerminal: true,
     minResources: {
@@ -431,4 +433,14 @@ export function getExcessResourcesInTerminal(roomName: string): Partial<Record<R
     },
     1
   );
+}
+
+export function hasTransactor(roomName: string): boolean {
+  const sites = getSitesByRoom(roomName);
+  for (const site of sites) {
+    if (site.transactor) {
+      return true;
+    }
+  }
+  return false;
 }

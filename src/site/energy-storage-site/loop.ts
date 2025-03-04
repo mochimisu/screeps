@@ -1,6 +1,6 @@
 import { spawnInRoom } from "manager/spawn";
 import { bodyPart } from "utils/body-part";
-import { creepsByRole } from "utils/query";
+import { creepsByRole, creepsByRoomAssignmentAndRole } from "utils/query";
 
 import { distributorLoop } from "./role.ess-distributor";
 import { EssDistributorCreep, isEssDistributor } from "./role.ess-distributor.type";
@@ -14,13 +14,21 @@ import {
   getStorageLinks,
   getUsedRooms
 } from "./site";
+import { essTransactorLoop } from "./role.ess-transactor";
+import { EssTransactorCreep } from "./role.ess-transactor.type";
+
+// TODO Move into room key
 
 export function energyStorageSpawnLoop(): void {
   const siteDefs = getAllSiteDefs();
   const desiredDistributors: { [siteName: string]: number } = {};
+  const desiredTransactors: { [siteName: string]: number } = {};
   for (const siteDef of siteDefs) {
     if (siteDef.distributors > 0) {
       desiredDistributors[siteDef.name] = siteDef.distributors;
+    }
+    if (siteDef.transactor != null) {
+      desiredTransactors[siteDef.name] = siteDef.transactor.length;
     }
   }
 
@@ -59,6 +67,26 @@ export function energyStorageSpawnLoop(): void {
       }
     }
   }
+
+  for (const siteName in desiredTransactors) {
+    const siteDef = getSiteByName(siteName);
+    const existingTransactors = creepsByRoomAssignmentAndRole(siteDef.roomName, "ess-transactor").length;
+    if (existingTransactors < desiredTransactors[siteName]) {
+      if (
+        spawnInRoom("ess-transactor", {
+          roomName: siteDef.roomName,
+          assignToRoom: true,
+          spawnElsewhereIfNeeded: true,
+          additionalMemory: {
+            essSiteName: siteName
+          },
+          parts: [...bodyPart(CARRY, 5), ...bodyPart(MOVE, 1)]
+        })
+      ) {
+        return;
+      }
+    }
+  }
 }
 
 const show = true;
@@ -67,6 +95,9 @@ export function energyStorageLoop(): void {
   energyStorageSpawnLoop();
   for (const distributor of creepsByRole("ess-distributor")) {
     distributorLoop(distributor as EssDistributorCreep);
+  }
+  for (const transactor of creepsByRole("ess-transactor")) {
+    essTransactorLoop(transactor as EssTransactorCreep);
   }
 
   for (const roomName of getUsedRooms()) {

@@ -31,6 +31,7 @@ export type Role =
   | "repairer"
   | "harvester-nomove"
   | "ess-distributor"
+  | "ess-transactor"
   | "mule"
   | "rh-mule"
   | "rh-harvester"
@@ -87,6 +88,7 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   dismantler: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE],
   attacker: [...bodyPart(TOUGH, 19), ...bodyPart(RANGED_ATTACK, 5), ...bodyPart(MOVE, 12)],
   "ess-distributor": [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
+  "ess-transactor": [...bodyPart(CARRY, 5), ...bodyPart(MOVE, 1)],
   "scout-single": [...bodyPart(MOVE, 1)]
 };
 

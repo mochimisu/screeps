@@ -232,7 +232,7 @@ function essTerminalDeposit(siteDef: EssSiteDefinition, creep: Creep): boolean {
   return essDepositEnergy(siteDef, creep);
 }
 
-function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean {
+export function essTerminalTransfer(siteDef: EssSiteDefinition, creep: Creep): boolean {
   // console.log("essTerminalTransfer", siteDef.roomName);
   const terminal = Game.rooms[siteDef.roomName].terminal;
   if (!terminal) {

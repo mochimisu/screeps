@@ -23,28 +23,6 @@ export interface RhSiteDef {
 
 const siteDefs: RhSiteDef[] = [
   {
-    name: "w21s58",
-    source: "5bbcabc79099fc012e634450",
-    harvestPos: () => new RoomPosition(23, 43, "W21S58"),
-    muleTransferPos: () => new RoomPosition(22, 43, "W21S58"),
-    muleIdlePos: () => new RoomPosition(23, 36, "W21S58"),
-    energyCachePos: () => new RoomPosition(22, 42, "W21S58"),
-    roomName: "W21S58",
-    // normally 5 normal, but overloaded to 4 super ones (4x capacity)
-    numMules: 2,
-    muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
-    fullRoad: true,
-    sinks: [
-      // main room right side link
-      "67ac472186eef035eca87012",
-      // main storage
-      "679a16c3135bf04cc4b9f12e",
-      // second storage
-      "67a143d162f5371cbb7bb49b"
-    ],
-    active: false
-  },
-  {
     name: "w21s59-0",
     source: "5bbcabc79099fc012e634452",
     harvestPos: () => new RoomPosition(38, 3, "W21S59"),
@@ -121,7 +99,7 @@ const siteDefs: RhSiteDef[] = [
     muleIdlePos: () => new RoomPosition(19, 40, "W22S57"),
     energyCachePos: () => new RoomPosition(18, 38, "W22S57"),
     roomName: "W22S57",
-    numMules: 4,
+    numMules: 2,
     fullRoad: true,
     sinks: [
       // w21s58 north link
@@ -129,7 +107,7 @@ const siteDefs: RhSiteDef[] = [
       // w21s58 storage
       "67ab4af7918897273c038658"
     ],
-    muleParts: [...bodyPart(CARRY, 12), ...bodyPart(MOVE, 6)],
+    muleParts: [...bodyPart(CARRY, 24), ...bodyPart(MOVE, 12)],
     active: true
   }
 ];
