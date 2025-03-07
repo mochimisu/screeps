@@ -17,16 +17,16 @@ export interface ManualOrder {
 
 const orders: ManualOrder[] = [
   {
-    id: "sell-oxygen-mid-17",
+    id: "sell-oxygen-mid-18",
     type: "sell",
     resourceType: RESOURCE_OXYGEN,
-    price: 48,
-    amount: 100_000,
-    energyAllowance: 10_000,
+    price: 47,
+    amount: 300_000,
+    energyAllowance: 100_000,
     createDeal: true
   },
   {
-    id: "sell-keanium-mid-3",
+    id: "sell-keanium-mid-4",
     type: "sell",
     resourceType: RESOURCE_KEANIUM,
     price: 145,
@@ -35,11 +35,11 @@ const orders: ManualOrder[] = [
     createDeal: true
   },
   {
-    id: "sell-energy-mid-0",
+    id: "sell-energy-mid-1",
     type: "sell",
     resourceType: RESOURCE_ENERGY,
     price: 45,
-    amount: 100_000,
+    amount: 200_000,
     energyAllowance: 10_000,
     createDeal: true
   },
