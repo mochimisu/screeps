@@ -170,6 +170,25 @@ function essDepositEnergy(siteDef: EssSiteDefinition, creep: Creep, disallowStor
     }
   }
 
+  // todo: fix: if we have any non energy, deposit into storage
+  if (
+    !disallowStorage &&
+    creep.store.getUsedCapacity(RESOURCE_ENERGY) !== creep.store.getUsedCapacity() &&
+    creep.store.getUsedCapacity() > 0
+  ) {
+    const storage = getStorageStructures(siteDef.roomName)[0];
+    if (storage) {
+      for (const resourceType in creep.store) {
+        if (creep.transfer(storage, resourceType as ResourceConstant) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(storage, {
+            visualizePathStyle: { stroke: "#ffaa00" }
+          });
+        }
+        return true;
+      }
+    }
+  }
+
   // Find closest
   const sortedTargets = _.sortBy(targets, t => creep.pos.getRangeTo(t));
   if (sortedTargets.length === 0) {

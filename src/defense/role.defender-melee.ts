@@ -26,7 +26,8 @@ function rampartDefenderMeleeLoop(creep: DefenderMeleeCreep) {
     }
   } else {
     // Navigate using the inverse of the defense area matrix to prevent leaving safe spots
-    const target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
+    const target =
+      creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS) ?? creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES);
     if (!target) {
       return;
     }

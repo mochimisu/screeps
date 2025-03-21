@@ -4,7 +4,8 @@ import { moveToIdleSpot } from "manager/idle";
 import { getMemoryDefense } from "./defense";
 
 export function defenderRoamingLoop(creep: DefenderMeleeCreep | DefenderRangedCreep) {
-  const target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
+  const target =
+    creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS) ?? creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES);
   if (target) {
     if (creep.attack(target) === ERR_NOT_IN_RANGE) {
       creep.moveTo(target);

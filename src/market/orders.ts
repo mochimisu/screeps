@@ -17,19 +17,19 @@ export interface ManualOrder {
 
 const orders: ManualOrder[] = [
   {
-    id: "sell-oxygen-mid-18",
+    id: "sell-oxygen-mid-19",
     type: "sell",
     resourceType: RESOURCE_OXYGEN,
-    price: 47,
-    amount: 300_000,
-    energyAllowance: 100_000,
+    price: 40,
+    amount: 100_000,
+    energyAllowance: 10_000,
     createDeal: true
   },
   {
     id: "sell-keanium-mid-4",
     type: "sell",
     resourceType: RESOURCE_KEANIUM,
-    price: 145,
+    price: 130,
     amount: 100_000,
     energyAllowance: 10_000,
     createDeal: true
