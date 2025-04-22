@@ -43,6 +43,8 @@ import { ScoutSingleCreep } from "role/scout-single.type";
 import { attackLoop } from "attack/loop";
 import { ControllerAttackerCreep } from "role/controller-attacker.type";
 import { controllerAttackerLoop, controllerAttackerSpawnLoop } from "role/controller-attacker";
+import { dumperLoop } from "role/dumper";
+import { DumperCreep } from "role/dumper.type";
 
 declare global {
   /*
@@ -168,6 +170,9 @@ const loop = () => {
     for (const controllerAttacker of creepsByRole("controller-attacker")) {
       controllerAttackerLoop(controllerAttacker as ControllerAttackerCreep);
     }
+    for (const dumper of creepsByRole("dumper")) {
+      dumperLoop(dumper as DumperCreep);
+    }
 
     for (const roomName in Game.rooms) {
       const room = Game.rooms[roomName];
@@ -186,10 +191,10 @@ const loop = () => {
     terminalLoop();
 
     // if bucket is maxed out, generate a pixel
-    if (Game.cpu.bucket === 10000) {
-      console.log("Bucket is full, generating pixel");
-      Game.cpu.generatePixel();
-    }
+    // if (Game.cpu.bucket === 10000) {
+    //   console.log("Bucket is full, generating pixel");
+    //   Game.cpu.generatePixel();
+    // }
   });
 };
 

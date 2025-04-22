@@ -42,7 +42,7 @@ const siteDefs: EssSiteDefinition[] = [
     roomName: "W22S59",
     bounds: [
       [1, 7],
-      [15, 29]
+      [18, 29]
     ],
     storage: [[12, 19]],
     sources: [[6, 27]],
@@ -68,7 +68,7 @@ const siteDefs: EssSiteDefinition[] = [
     distributors: 1,
     hasTerminal: true,
     minResources: {
-      [RESOURCE_ENERGY]: 500_000,
+      [RESOURCE_ENERGY]: 400_000,
       [RESOURCE_OXYGEN]: 0
     }
   }

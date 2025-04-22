@@ -45,7 +45,8 @@ export type Role =
   | "atd-healer"
   | "atd-attacker"
   | "atd-dismantler"
-  | "controller-attacker";
+  | "controller-attacker"
+  | "dumper";
 const roamingSpawns: Partial<Record<Role, number>> = {};
 
 const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
@@ -54,9 +55,11 @@ const roomSpawns: Record<string, Partial<Record<Role, number>>> = {
   },
   W22S59: {
     janitor: 1
+    // dumper: 1
   },
   W21S58: {
     janitor: 1
+    // dumper: 1
   },
   W21S59: {
     reserver: 1
@@ -89,7 +92,8 @@ const parts: Partial<Record<Role, BodyPartConstant[]>> = {
   attacker: [...bodyPart(TOUGH, 19), ...bodyPart(RANGED_ATTACK, 5), ...bodyPart(MOVE, 12)],
   "ess-distributor": [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
   "ess-transactor": [...bodyPart(CARRY, 5), ...bodyPart(MOVE, 1)],
-  "scout-single": [...bodyPart(MOVE, 1)]
+  "scout-single": [...bodyPart(MOVE, 1)],
+  dumper: [...bodyPart(MOVE, 1), ...bodyPart(CARRY, 5)]
 };
 
 function getPartsForRole(role: Role): BodyPartConstant[] {
