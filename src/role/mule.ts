@@ -48,7 +48,7 @@ const mulePaths: Record<string, MulePath> = {
     // second storage
     sink: "67a143d162f5371cbb7bb49b",
     condition: (source: StructureStorage | StructureContainer, sink: StructureStorage | StructureContainer) =>
-      source.store.getUsedCapacity() > 200 && sink.store.getFreeCapacity() > 10000,
+      source.store.getUsedCapacity() > 200 && sink.store.getFreeCapacity() > 100000,
     idlePosition: new RoomPosition(31, 14, "W22S59")
   },
   "third-energy-ess": {

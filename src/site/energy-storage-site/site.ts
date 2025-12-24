@@ -30,7 +30,7 @@ const siteDefs: EssSiteDefinition[] = [
     ],
     storage: [[31, 14]],
     sources: [[29, 12]],
-    distributors: 1,
+    distributors: 2,
     distributorParts: [...bodyPart(CARRY, 4), ...bodyPart(MOVE, 2)],
     hasTerminal: true,
     minResources: {

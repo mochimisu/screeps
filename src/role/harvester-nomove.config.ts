@@ -11,7 +11,11 @@ export const noMoveNodes: NoMoveDefinition[] = [
   // main oxygen
   {
     sourceId: "5bbcb21d40062e4259e936b5",
-    predicate: () => (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b5")?.mineralAmount ?? 0) > 0
+    predicate: () =>
+      (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b5")?.mineralAmount ?? 0) > 0 &&
+      (Game.getObjectById<StructureStorage>("679a16c3135bf04cc4b9f12e")?.store.getFreeCapacity() ?? 0) > 100000 &&
+      (Game.getObjectById<StructureStorage>("679a16c3135bf04cc4b9f12e")?.store.getUsedCapacity(RESOURCE_OXYGEN) ?? 0) <
+        200_000
   },
   // 2nd energy
   {
@@ -21,7 +25,11 @@ export const noMoveNodes: NoMoveDefinition[] = [
   // 2nd keanium
   {
     sourceId: "5bbcb21d40062e4259e936b6",
-    predicate: () => (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b6")?.mineralAmount ?? 0) > 0
+    predicate: () =>
+      (Game.getObjectById<Mineral>("5bbcb21d40062e4259e936b6")?.mineralAmount ?? 0) > 0 &&
+      (Game.getObjectById<StructureStorage>("67a143d162f5371cbb7bb49b")?.store.getFreeCapacity() ?? 0) > 100000 &&
+      (Game.getObjectById<StructureStorage>("67a143d162f5371cbb7bb49b")?.store.getUsedCapacity(RESOURCE_KEANIUM) ?? 0) <
+        200_000
   },
   // 3rd energy
   {
@@ -31,7 +39,11 @@ export const noMoveNodes: NoMoveDefinition[] = [
   // 3rd oxygen
   {
     sourceId: "5bbcb22840062e4259e93721",
-    predicate: () => (Game.getObjectById<Mineral>("5bbcb22840062e4259e93721")?.mineralAmount ?? 0) > 0
+    predicate: () =>
+      (Game.getObjectById<Mineral>("5bbcb22840062e4259e93721")?.mineralAmount ?? 0) > 0 &&
+      (Game.getObjectById<StructureStorage>("67ab4af7918897273c038658")?.store.getFreeCapacity() ?? 0) > 100000 &&
+      (Game.getObjectById<StructureStorage>("67ab4af7918897273c038658")?.store.getUsedCapacity(RESOURCE_OXYGEN) ?? 0) <
+        200_000
   }
 ];
 

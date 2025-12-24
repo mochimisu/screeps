@@ -17,12 +17,22 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
     {
       xy: [30, 14],
       parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 6)]
+    },
+    {
+      xy: [30, 15],
+      parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 6)],
+      condition: () => getCachedSiteResource("W22S58", RESOURCE_ENERGY) > 600_000
     }
   ],
   W22S59: [
     {
       xy: [26, 43],
       parts: [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)]
+    },
+    {
+      xy: [25, 44],
+      parts: [...bodyPart(WORK, 8), ...bodyPart(CARRY, 3), ...bodyPart(MOVE, 4)],
+      condition: () => getCachedSiteResource("W22S59", RESOURCE_ENERGY) > 600_000
     }
   ],
   W21S58: [
@@ -32,7 +42,7 @@ export const upgraderSlots: { [roomName: string]: UpgraderSlotDef[] } = {
     },
     {
       xy: [28, 20],
-      parts: [...bodyPart(WORK, 12), ...bodyPart(CARRY, 4), ...bodyPart(MOVE, 6)],
+      parts: [...bodyPart(WORK, 16), ...bodyPart(CARRY, 8), ...bodyPart(MOVE, 6)],
       condition: () => getCachedSiteResource("W21S58", RESOURCE_ENERGY) > 600_000
     }
   ]
