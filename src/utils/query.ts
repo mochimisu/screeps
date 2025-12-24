@@ -15,11 +15,12 @@ declare global {
 }
 
 let perTickMemory: { [key: string]: any } = {};
-const perTickMemoryUpdated = 0;
+let perTickMemoryUpdated = 0;
 
 export function queryLoop(): void {
   if (Game.time !== perTickMemoryUpdated) {
     perTickMemory = {};
+    perTickMemoryUpdated = Game.time;
   }
 }
 
@@ -55,6 +56,7 @@ export function queryIds<T extends _HasId>(key: string, getter: () => T[], cache
 export function perTickQuery<T>(key: string, getter: () => T): T {
   if (Game.time !== perTickMemoryUpdated) {
     perTickMemory = {};
+    perTickMemoryUpdated = Game.time;
   }
   let val = perTickMemory[key];
   if (val == null) {
@@ -69,7 +71,7 @@ export function queryCostMatrix(key: string, getter: () => CostMatrix, cacheTime
   }
   const tickCacheKey = `tickCache-queryCostMatrix-${key}`;
   if (perTickMemory[tickCacheKey] != null) {
-    return perTickMemory[`queryCostMatrix-${key}`];
+    return perTickMemory[tickCacheKey];
   }
   const grid8 = Grid8Bit.fromSerialized(query(key, () => Grid8Bit.fromCostMatrix(getter()).serialize(), cacheTime));
   const costMatrix = grid8.toCostMatrix();

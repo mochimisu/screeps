@@ -32,7 +32,7 @@ import profiler from "screeps-profiler";
 import { energyStorageLoop } from "site/energy-storage-site/loop";
 import { rhLoop } from "site/remote-harvest/loop";
 import { ErrorMapper } from "utils/ErrorMapper";
-import { creepsByRole, queryLoop } from "utils/query";
+import { creepsByRole, queryIds, queryLoop } from "utils/query";
 import * as scriptsImpl from "utils/scripts";
 import { terminalLoop } from "manager/terminal";
 import "defense/scripts";
@@ -176,9 +176,17 @@ const loop = () => {
 
     for (const roomName in Game.rooms) {
       const room = Game.rooms[roomName];
-      const towers = room.find(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_TOWER }
-      });
+      if (!room.controller?.my) {
+        continue;
+      }
+      const towers = queryIds(
+        `room-${roomName}-towers`,
+        () =>
+          room.find(FIND_MY_STRUCTURES, {
+            filter: { structureType: STRUCTURE_TOWER }
+          }) as StructureTower[],
+        50
+      );
       for (const tower of towers) {
         towerLoop(tower as StructureTower);
       }
