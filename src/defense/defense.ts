@@ -158,11 +158,13 @@ export function bfsUntilRampart(
   const rwMtx = rampartWallMatrix(roomName);
   const visited = new Set<string>();
   const queue = [start];
+  let queueIndex = 0;
   const result = [];
   const ramparts = [];
   const seenRamparts = new Set<string>();
-  while (queue.length) {
-    const current = queue.shift();
+  while (queueIndex < queue.length) {
+    const current = queue[queueIndex];
+    queueIndex += 1;
     if (!current) {
       continue;
     }
